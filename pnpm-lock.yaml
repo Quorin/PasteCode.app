@@ -22,6 +22,7 @@ specifiers:
   react-query: 3.39.2
   superjson: ^1.9.1
   tailwindcss: ^3.1.7
+  trpc-playground: ^0.1.6
   typescript: 4.7.4
   zod: ^3.17.3
 
@@ -38,6 +39,7 @@ dependencies:
   react-dom: 18.2.0_react@18.2.0
   react-query: 3.39.2_biqbaboplfbrettd7655fr4n2y
   superjson: 1.9.1
+  trpc-playground: 0.1.6_gg2whkx56so7saaze7dx2a6coe
   zod: 3.17.10
 
 devDependencies:
@@ -292,6 +294,23 @@ packages:
     resolution: {integrity: sha512-6JrF+fdUK2zbGpJIlN7G3v966PQjyx/dPt1T9km2wj+EUBqgrxCk3uX4Kct16MIm9gGxfKRcfax2hVf5jvlTzA==}
     dependencies:
       tslib: 2.4.0
+    dev: false
+
+  /@trpc-playground/html/0.1.5:
+    resolution: {integrity: sha512-l4mBW7YUgcjXMebzb0MArwavcwFI86wRMcsV6Rq3tUVaTjAVvk0Ms8t94lMpG9D3piucNJFJ3OV/e6pCV9DstA==}
+    dependencies:
+      xss: 1.0.13
+    dev: false
+
+  /@trpc-playground/types/0.1.1_m7ri457itiyezciq2gck7bpyyu:
+    resolution: {integrity: sha512-pkzxKu836Iiw5/QOORRwvRz8XLv3zsT9n/ywWJHobrj3Xx5FnSLptlo5EEZtTCmPT7iZUMLzG77Y8xrmnhQ82A==}
+    peerDependencies:
+      '@trpc/server': ^9
+    dependencies:
+      '@trpc/server': 9.26.2
+      ts-essentials: 9.2.0_typescript@4.7.4
+    transitivePeerDependencies:
+      - typescript
     dev: false
 
   /@trpc/client/9.26.2_@trpc+server@9.26.2:
@@ -685,6 +704,10 @@ packages:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
     dev: true
 
+  /commander/2.20.3:
+    resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
+    dev: false
+
   /concat-map/0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
@@ -719,6 +742,10 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
     dev: true
+
+  /cssfilter/0.0.10:
+    resolution: {integrity: sha512-FAaLDaplstoRsDR8XGYH51znUN0UY7nMc6Z9/fvE8EXGwvJE9hu7W2vHwx1+bd6gCYnln9nLbzxFTrcO9YQDZw==}
+    dev: false
 
   /csstype/3.1.0:
     resolution: {integrity: sha512-uX1KG+x9h5hIJsaKR9xHUeUraxf8IODOwq9JLNPq6BwB04a/xgpq3rcx47l5BZu5zBPlgD342tdke3Hom/nJRA==}
@@ -1578,6 +1605,10 @@ packages:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
 
+  /lodash/4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+    dev: false
+
   /loose-envify/1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
@@ -2317,6 +2348,38 @@ packages:
       is-number: 7.0.0
     dev: true
 
+  /trpc-playground/0.1.6_gg2whkx56so7saaze7dx2a6coe:
+    resolution: {integrity: sha512-GVSRBfuscB0UWUKpKOYnXkFObWG+7CKM/fNgJoLNiXP5fi+KphHmp0D2KLdTsf9ig5CMx71sfLbM7VP888IgYQ==}
+    peerDependencies:
+      '@trpc/server': ^9
+      express: ^4
+      next: ^10 || ^11 || ^12
+      zod: ^3
+    peerDependenciesMeta:
+      express:
+        optional: true
+      next:
+        optional: true
+    dependencies:
+      '@trpc-playground/html': 0.1.5
+      '@trpc-playground/types': 0.1.1_m7ri457itiyezciq2gck7bpyyu
+      '@trpc/server': 9.26.2
+      lodash: 4.17.21
+      next: 12.2.3_biqbaboplfbrettd7655fr4n2y
+      zod: 3.17.10
+      zod-to-ts: 0.2.2_eht7vn236doggpyuekenhycqeu
+    transitivePeerDependencies:
+      - typescript
+    dev: false
+
+  /ts-essentials/9.2.0_typescript@4.7.4:
+    resolution: {integrity: sha512-HLl+am6q+ulOWcjUFghpIQXXyaH0hVTnFTVWNqwz1iDxyN+t+lwDfqPB5FmPUTFw3J+y26UR3hNGmK/1jehokA==}
+    peerDependencies:
+      typescript: '>=4.1.0'
+    dependencies:
+      typescript: 4.7.4
+    dev: false
+
   /tsconfig-paths/3.14.1:
     resolution: {integrity: sha512-fxDhWnFSLt3VuTwtvJt5fpwxBHg5AdKWMsgcPOOIilyjymcYVZoCQF8fvFRezCNfblEXmi+PcM1eYHeOAgXCOQ==}
     dependencies:
@@ -2360,7 +2423,6 @@ packages:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
@@ -2442,6 +2504,15 @@ packages:
   /wrappy/1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
+  /xss/1.0.13:
+    resolution: {integrity: sha512-clu7dxTm1e8Mo5fz3n/oW3UCXBfV89xZ72jM8yzo1vR/pIS0w3sgB3XV2H8Vm6zfGnHL0FzvLJPJEBhd86/z4Q==}
+    engines: {node: '>= 0.10.0'}
+    hasBin: true
+    dependencies:
+      commander: 2.20.3
+      cssfilter: 0.0.10
+    dev: false
+
   /xtend/4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
@@ -2454,6 +2525,16 @@ packages:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
     dev: true
+
+  /zod-to-ts/0.2.2_eht7vn236doggpyuekenhycqeu:
+    resolution: {integrity: sha512-ardXRu0EIDcS8pP0+1jL5a4ZtPIfxhmWHjwYH7Mol38/D3OUqgo+QjK648+R6T7N0RkfSNOSI1AkddKILetLKQ==}
+    peerDependencies:
+      typescript: ^4
+      zod: ^3
+    dependencies:
+      typescript: 4.7.4
+      zod: 3.17.10
+    dev: false
 
   /zod/3.17.10:
     resolution: {integrity: sha512-IHXnQYQuOOOL/XgHhgl8YjNxBHi3xX0mVcHmqsvJgcxKkEczPshoWdxqyFwsARpf41E0v9U95WUROqsHHxt0UQ==}
