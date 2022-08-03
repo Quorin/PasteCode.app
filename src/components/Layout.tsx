@@ -12,7 +12,10 @@ const Layout = ({ children }: Props) => {
       <Head>
         <title>PasteCode.app</title>
         <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="flex flex-col justify-between min-h-screen bg-zinc-900">
