@@ -16,7 +16,7 @@ const Home: NextPage = () => {
           </label>
           <input
             id="title"
-            className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-400 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+            className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
             placeholder="In file included from a.cpp:1:0,
             from a.cpp:1,
             from a.cpp:1,
@@ -35,7 +35,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
           </label>
           <input
             id="description"
-            className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-400 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+            className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
             placeholder="ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'by pwd' at line 1"
           ></input>
         </div>
@@ -49,7 +49,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
           </label>
           <textarea
             id="body"
-            className="block min-h-[30vh] max-h-[50vh] p-2.5 w-full text-sm rounded-lg border bg-zinc-700 border-zinc-600 placeholder-zinc-400 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+            className="block min-h-[30vh] max-h-[50vh] p-2.5 w-full text-sm rounded-lg border bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
             placeholder="c++ foo.cpp -o foo -ferror-limit=-1
             In file included from foo.cpp:2:
             In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/c++/v1/map:422:
@@ -76,7 +76,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
                 <select
                   defaultValue={"never"}
                   id="expiration"
-                  className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-400 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                 >
                   <option value="never">Never</option>
                   <option value="year">1 Year</option>
@@ -97,7 +97,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
                 <select
                   defaultValue={"cpp"}
                   id="style"
-                  className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-400 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                 >
                   <option value="cpp">C++</option>
                   <option value="java">Java</option>
