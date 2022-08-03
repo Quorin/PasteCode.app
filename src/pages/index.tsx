@@ -10,7 +10,7 @@ const Home: NextPage = () => {
         <div className="mb-6">
           <label
             htmlFor="title"
-            className="block mb-2 text-sm font-medium text-zinc-300"
+            className="block mb-2 text-sm font-medium text-zinc-300 after:content-['*'] after:ml-0.5 after:text-red-500"
           >
             Title
           </label>
@@ -31,7 +31,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
             htmlFor="description"
             className="block mb-2 text-sm font-medium text-zinc-300"
           >
-            Description {"[optional]"}
+            Description
           </label>
           <input
             id="description"
@@ -43,7 +43,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
           {" "}
           <label
             htmlFor="body"
-            className="block mb-2 text-sm font-medium text-zinc-300"
+            className="block mb-2 text-sm font-medium text-zinc-300 after:content-['*'] after:ml-0.5 after:text-red-500"
           >
             Body
           </label>
@@ -69,7 +69,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
               <div className="w-1/2 md:w-auto">
                 <label
                   htmlFor="expiration"
-                  className="block mb-2 text-sm font-medium text-zinc-400"
+                  className="block mb-2 text-sm font-medium text-zinc-400 after:content-['*'] after:ml-0.5 after:text-red-500"
                 >
                   Expiration
                 </label>
@@ -90,7 +90,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
               <div className="w-1/2 md:w-auto">
                 <label
                   htmlFor="style"
-                  className="block mb-2 text-sm font-medium text-zinc-400"
+                  className="block mb-2 text-sm font-medium text-zinc-400 after:content-['*'] after:ml-0.5 after:text-red-500"
                 >
                   Style
                 </label>
