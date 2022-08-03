@@ -10,13 +10,13 @@ const Home: NextPage = () => {
         <div className="mb-6">
           <label
             htmlFor="title"
-            className="block mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-300"
+            className="block mb-2 text-sm font-medium text-zinc-300"
           >
             Title
           </label>
           <input
             id="title"
-            className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-zinc-700 dark:border-zinc-600 dark:placeholder-zinc-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-400 text-white focus:ring-blue-500 focus:border-blue-500"
             placeholder="In file included from a.cpp:1:0,
             from a.cpp:1,
             from a.cpp:1,
@@ -29,13 +29,13 @@ a.cpp:2:1: error: ‘p’ does not name a type"
         <div className="mb-6">
           <label
             htmlFor="description"
-            className="block mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-300"
+            className="block mb-2 text-sm font-medium text-zinc-300"
           >
             Description {"[optional]"}
           </label>
           <input
             id="description"
-            className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-zinc-700 dark:border-zinc-600 dark:placeholder-zinc-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-400 text-white focus:ring-blue-500 focus:border-blue-500"
             placeholder="ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'by pwd' at line 1"
           ></input>
         </div>
@@ -43,7 +43,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
           {" "}
           <label
             htmlFor="body"
-            className="block mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-300"
+            className="block mb-2 text-sm font-medium text-zinc-300"
           >
             Body
           </label>
@@ -69,14 +69,14 @@ a.cpp:2:1: error: ‘p’ does not name a type"
               <div className="w-1/2 md:w-auto">
                 <label
                   htmlFor="expiration"
-                  className="block mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-400"
+                  className="block mb-2 text-sm font-medium text-zinc-400"
                 >
                   Expiration
                 </label>
                 <select
                   defaultValue={"never"}
                   id="expiration"
-                  className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-zinc-700 dark:border-zinc-600 dark:placeholder-zinc-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-400 text-white focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="never">Never</option>
                   <option value="year">1 Year</option>
@@ -90,14 +90,14 @@ a.cpp:2:1: error: ‘p’ does not name a type"
               <div className="w-1/2 md:w-auto">
                 <label
                   htmlFor="style"
-                  className="block mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-400"
+                  className="block mb-2 text-sm font-medium text-zinc-400"
                 >
                   Style
                 </label>
                 <select
                   defaultValue={"cpp"}
                   id="style"
-                  className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-zinc-700 dark:border-zinc-600 dark:placeholder-zinc-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-400 text-white focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="cpp">C++</option>
                   <option value="java">Java</option>
@@ -108,13 +108,13 @@ a.cpp:2:1: error: ‘p’ does not name a type"
             <div className="flex self-center md:self-end gap-5">
               <button
                 type="submit"
-                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-10 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                className="text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-10 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800"
               >
                 Submit
               </button>
               <button
                 type="reset"
-                className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                className="text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-red-600 hover:bg-red-700 focus:ring-red-800"
               >
                 Clear
               </button>
