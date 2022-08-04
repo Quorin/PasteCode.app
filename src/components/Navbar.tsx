@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useRef, useState } from "react";
 
 const Navbar = () => {
@@ -12,10 +13,14 @@ const Navbar = () => {
   return (
     <div className="px-5 py-5 bg-zinc-900 mb-10 border-b-[1px] border-zinc-700">
       <div className="container flex flex-wrap justify-between items-center mx-auto">
-        <span className="self-center text-3xl font-semibold whitespace-nowrap text-white">
-          <span className="font-semibold">Paste</span>
-          <span className="font-thin">Code</span>
-        </span>
+        <Link href="/">
+          <div className="text-3xl whitespace-nowrap text-white cursor-pointer">
+            <span className="font-semibold bg-white rounded-lg p-1 m-1 text-black">
+              Paste
+            </span>
+            <span className="font-thin underline underline-offset-8">Code</span>
+          </div>
+        </Link>
         <button
           onClick={() => handleCollapse()}
           data-collapse-toggle="navbar-default"
