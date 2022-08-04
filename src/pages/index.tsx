@@ -69,7 +69,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
               <div className="w-1/2 md:w-auto">
                 <label
                   htmlFor="expiration"
-                  className="block mb-2 text-sm font-medium text-zinc-400 after:content-['*'] after:ml-0.5 after:text-red-500"
+                  className="block mb-2 text-sm font-medium text-zinc-300 after:content-['*'] after:ml-0.5 after:text-red-500"
                 >
                   Expiration
                 </label>
@@ -90,7 +90,7 @@ a.cpp:2:1: error: ‘p’ does not name a type"
               <div className="w-1/2 md:w-auto">
                 <label
                   htmlFor="style"
-                  className="block mb-2 text-sm font-medium text-zinc-400 after:content-['*'] after:ml-0.5 after:text-red-500"
+                  className="block mb-2 text-sm font-medium text-zinc-300 after:content-['*'] after:ml-0.5 after:text-red-500"
                 >
                   Style
                 </label>
