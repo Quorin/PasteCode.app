@@ -13,6 +13,7 @@ specifiers:
   argon2: ^0.28.7
   autoprefixer: ^10.4.8
   class-variance-authority: ^0.2.3
+  dayjs: ^1.11.4
   eslint: 8.18.0
   eslint-config-next: 12.2.3
   formik: ^2.2.9
@@ -39,6 +40,7 @@ dependencies:
   '@trpc/server': 9.26.2
   argon2: 0.28.7
   class-variance-authority: 0.2.3_typescript@4.7.4
+  dayjs: 1.11.4
   formik: 2.2.9_react@18.2.0
   next: 12.2.3_biqbaboplfbrettd7655fr4n2y
   next-auth: 4.10.3_biqbaboplfbrettd7655fr4n2y
@@ -847,6 +849,10 @@ packages:
   /damerau-levenshtein/1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
     dev: true
+
+  /dayjs/1.11.4:
+    resolution: {integrity: sha512-Zj/lPM5hOvQ1Bf7uAvewDaUcsJoI6JmNqmHhHl3nyumwe0XHwt8sWdOVAPACJzCebL8gQCi+K49w7iKWnGwX9g==}
+    dev: false
 
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}

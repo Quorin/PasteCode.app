@@ -68,9 +68,9 @@ const Login = () => {
             </div>
 
             <div className="mb-6">
-              <Link href={routes.AUTH.REMIND_PASSWORD}>
+              <Link href={routes.AUTH.RESET_PASSWORD}>
                 <p className="text-red-400 text-sm hover:underline cursor-pointer">
-                  Remind password
+                  Reset password
                 </p>
               </Link>
             </div>

@@ -18,6 +18,7 @@
     "@trpc/server": "^9.26.2",
     "argon2": "^0.28.7",
     "class-variance-authority": "^0.2.3",
+    "dayjs": "^1.11.4",
     "formik": "^2.2.9",
     "next": "12.2.3",
     "next-auth": "^4.10.3",
