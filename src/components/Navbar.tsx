@@ -60,13 +60,8 @@ const Navbar = () => {
                 Home
               </a>
             </li>
-            <li>
-              <a
-                href="#"
-                className="block py-2 pr-4 pl-3 rounded md:border-0 md:p-0 text-zinc-400 md:hover:text-white hover:bg-zinc-700 hover:text-white md:hover:bg-transparent"
-              >
-                Login
-              </a>
+            <li className="block py-2 pr-4 pl-3 rounded md:border-0 md:p-0 text-zinc-400 md:hover:text-white hover:bg-zinc-700 hover:text-white md:hover:bg-transparent">
+              <Link href={routes.AUTH.LOGIN}>Login</Link>
             </li>
             <li className="block py-2 pr-4 pl-3 rounded md:border-0 md:p-0 text-zinc-400 md:hover:text-white hover:bg-zinc-700 hover:text-white md:hover:bg-transparent">
               <Link href={routes.REGISTER}>Register</Link>

@@ -103,24 +103,6 @@ const Register: NextPage = () => {
                 value={values.agree}
               />
             </div>
-            {/* <div className="flex items-center mb-6">
-              <input
-                id="link-checkbox"
-                type="checkbox"
-                value=""
-                className="w-4 h-4 text-blue-600 accent-blue-500 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600"
-              />
-              <label
-                htmlFor="link-checkbox"
-                className="ml-2 text-sm font-medium text-gray-300"
-              >
-                I agree with the{" "}
-                <a href="#" className="text-blue-500 hover:underline">
-                  terms and conditions
-                </a>
-                .
-              </label>
-            </div> */}
             <Button type="submit" className="px-20">
               Submit
             </Button>

@@ -1,10 +1,9 @@
 import NextAuth, { type NextAuthOptions } from "next-auth";
 
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "../../../server/db/client";
-import { env } from "../../../env/server.mjs";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { routes } from "../../../constants/routes";
+import * as argon2 from "argon2";
 
 export const authOptions: NextAuthOptions = {
   callbacks: {
@@ -46,6 +45,14 @@ export const authOptions: NextAuthOptions = {
             email: credentials.email,
           },
         });
+
+        if (!user) {
+          return null;
+        }
+
+        if (!(await argon2.verify(user.password ?? "", credentials.password))) {
+          return null;
+        }
 
         return user;
       },
