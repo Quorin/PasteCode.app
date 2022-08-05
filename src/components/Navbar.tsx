@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { routes } from "../constants/routes";
 
 const Navbar = () => {
   const [menuCollapsed, setMenuCollapsed] = useState(true);
@@ -67,13 +68,8 @@ const Navbar = () => {
                 Login
               </a>
             </li>
-            <li>
-              <a
-                href="#"
-                className="block py-2 pr-4 pl-3 rounded md:border-0 md:p-0 text-zinc-400 md:hover:text-white hover:bg-zinc-700 hover:text-white md:hover:bg-transparent"
-              >
-                Register
-              </a>
+            <li className="block py-2 pr-4 pl-3 rounded md:border-0 md:p-0 text-zinc-400 md:hover:text-white hover:bg-zinc-700 hover:text-white md:hover:bg-transparent">
+              <Link href={routes.REGISTER}>Register</Link>
             </li>
           </ul>
         </div>
