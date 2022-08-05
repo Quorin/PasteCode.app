@@ -1,6 +1,7 @@
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import { NextPage } from "next";
 import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 
@@ -18,6 +19,15 @@ const RemindPassword: NextPage = () => {
     helpers: FormikHelpers<RemindPasswordFields>
   ) => {
     console.log(email);
+
+    toast.custom(
+      (t) => (
+        <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
+          <p>Your email has been sent if we found your account</p>
+        </div>
+      ),
+      { position: "bottom-center" }
+    );
   };
 
   return (
@@ -42,6 +52,7 @@ const RemindPassword: NextPage = () => {
             <Button type="submit" className="px-20">
               Submit
             </Button>
+            <Toaster />
           </Form>
         )}
       </Formik>
