@@ -3,5 +3,6 @@ export const routes = {
   REGISTER: "/register",
   AUTH: {
     LOGIN: "/auth/login",
+    REMIND_PASSWORD: "/auth/remind-password",
   },
 };

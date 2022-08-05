@@ -1,5 +1,6 @@
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import Router from "next/router";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
@@ -64,6 +65,14 @@ const Login = () => {
                 required
                 value={values.password}
               />
+            </div>
+
+            <div className="mb-6">
+              <Link href={routes.AUTH.REMIND_PASSWORD}>
+                <p className="text-red-400 text-sm hover:underline cursor-pointer">
+                  Remind password
+                </p>
+              </Link>
             </div>
 
             <Button type="submit" className="px-20">
