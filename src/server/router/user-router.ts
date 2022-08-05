@@ -58,6 +58,7 @@ export const userRouter = createRouter().mutation("register", {
         email: input.email,
         name: input.name,
         password: await argon2.hash(input.password),
+        acceptTerms: true,
       },
     });
 

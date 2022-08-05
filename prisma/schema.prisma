@@ -13,11 +13,12 @@ datasource db {
 }
 
 model User {
-    id       String    @id @default(uuid())
-    name     String    @unique
-    email    String?   @unique
-    password String?
-    sessions Session[]
+    id          String    @id @default(uuid())
+    name        String    @unique
+    email       String?   @unique
+    acceptTerms Boolean   @default(true)
+    password    String?
+    sessions    Session[]
 }
 
 model Session {
