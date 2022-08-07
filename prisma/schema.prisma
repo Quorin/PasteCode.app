@@ -13,11 +13,13 @@ datasource db {
 }
 
 model User {
-    id       String    @id @default(uuid())
-    name     String    @unique
-    email    String?   @unique
-    password String?
-    sessions Session[]
+    id            String         @id @default(uuid())
+    name          String         @unique
+    email         String?        @unique
+    acceptTerms   Boolean        @default(true)
+    password      String?
+    sessions      Session[]
+    resetPassword ResetPassword?
 }
 
 model Session {
@@ -26,4 +28,14 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ResetPassword {
+    id        String   @id @default(uuid())
+    code      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    expiresAt DateTime
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String   @unique
 }
