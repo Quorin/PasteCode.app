@@ -4,8 +4,61 @@ import * as argon2 from "argon2";
 import * as trpc from "@trpc/server";
 import dayjs from "dayjs";
 import { generateRandomString } from "../../utils/random";
+import { sendResetPasswordEmail } from "../../utils/email";
 
 export const userRouter = createRouter()
+  .mutation("resetPasswordConfirmation", {
+    input: z
+      .object({
+        id: z.string(),
+        code: z.string(),
+        password: z
+          .string()
+          .regex(
+            new RegExp(
+              "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
+            ),
+            "Password must contain at least one lowercase letter, one uppercase letter, one number and one special character"
+          ),
+
+        confirmPassword: z.string(),
+      })
+      .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+      }),
+    async resolve({ ctx, input }) {
+      const rp = await ctx.prisma.resetPassword.findFirst({
+        where: { id: input.id, code: input.code },
+        include: { user: true },
+      });
+
+      if (!rp || dayjs().isAfter(rp.expiresAt)) {
+        throw new trpc.TRPCError({
+          code: "BAD_REQUEST",
+          cause: new ZodError([
+            {
+              path: ["password"],
+              message: "Code is incorrect or expired",
+              code: "custom",
+            },
+          ]),
+        });
+      }
+
+      await ctx.prisma.$transaction([
+        ctx.prisma.user.update({
+          where: {
+            id: rp.user.id,
+          },
+          data: {
+            password: await argon2.hash(input.password),
+          },
+        }),
+        ctx.prisma.resetPassword.delete({ where: { id: rp.id } }),
+      ]);
+    },
+  })
   .mutation("resetPassword", {
     input: z.object({
       email: z.string().email("Email is not valid"),
@@ -38,7 +91,7 @@ export const userRouter = createRouter()
       const code = generateRandomString(36);
       const expiresAt = dayjs().add(10, "minute").toDate();
 
-      await ctx.prisma.resetPassword.upsert({
+      const rp = await ctx.prisma.resetPassword.upsert({
         where: { id: user.resetPassword?.id ?? "" },
         create: {
           code,
@@ -51,7 +104,12 @@ export const userRouter = createRouter()
           code,
           expiresAt,
         },
+        select: {
+          id: true,
+        },
       });
+
+      await sendResetPasswordEmail(input.email, rp.id, code);
 
       return;
     },
