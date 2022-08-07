@@ -10,6 +10,8 @@ export const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   NEXTAUTH_SECRET: z.string(),
   NEXTAUTH_URL: z.string().url(),
+  SENDGRID_API_KEY: z.string().startsWith("SG."),
+  SENDGRID_FROM_EMAIL: z.string(),
 });
 
 /**
