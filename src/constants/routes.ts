@@ -5,4 +5,6 @@ export const routes = {
     LOGIN: "/auth/login",
     RESET_PASSWORD: "/auth/reset-password",
   },
+  PROFILE: "/profile",
+  SETTINGS: "/settings",
 };
