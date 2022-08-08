@@ -13,13 +13,15 @@ datasource db {
 }
 
 model User {
-    id            String         @id @default(uuid())
-    name          String         @unique
-    email         String?        @unique
-    acceptTerms   Boolean        @default(true)
-    password      String?
-    sessions      Session[]
-    resetPassword ResetPassword?
+    id               String            @id @default(uuid())
+    name             String            @unique
+    email            String            @unique
+    acceptTerms      Boolean           @default(true)
+    password         String
+    confirmed        Boolean           @default(false)
+    sessions         Session[]
+    resetPassword    ResetPassword?
+    confirmationCode ConfirmationCode?
 }
 
 model Session {
@@ -31,6 +33,16 @@ model Session {
 }
 
 model ResetPassword {
+    id        String   @id @default(uuid())
+    code      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    expiresAt DateTime
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String   @unique
+}
+
+model ConfirmationCode {
     id        String   @id @default(uuid())
     code      String
     createdAt DateTime @default(now())

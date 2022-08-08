@@ -1,10 +1,9 @@
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import { NextPage } from "next";
-import Router from "next/router";
+import toast, { Toaster } from "react-hot-toast";
 import Button from "../components/Button";
 import Checkbox from "../components/Checkbox";
 import Input from "../components/Input";
-import { routes } from "../constants/routes";
 import { trpc } from "../utils/trpc";
 
 const initialValues = {
@@ -29,7 +28,14 @@ const Register: NextPage = () => {
         helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {});
       },
       onSuccess: () => {
-        Router.push(routes.AUTH.LOGIN);
+        toast.custom(
+          (t) => (
+            <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
+              <p>Check your inbox to confirm account</p>
+            </div>
+          ),
+          { position: "bottom-center" }
+        );
       },
     });
   };
@@ -106,6 +112,7 @@ const Register: NextPage = () => {
             <Button type="submit" className="px-20">
               Submit
             </Button>
+            <Toaster />
           </Form>
         )}
       </Formik>

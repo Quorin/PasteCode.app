@@ -46,7 +46,7 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        if (!user) {
+        if (!user?.confirmed) {
           return null;
         }
 

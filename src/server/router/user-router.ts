@@ -4,9 +4,96 @@ import * as argon2 from "argon2";
 import * as trpc from "@trpc/server";
 import dayjs from "dayjs";
 import { generateRandomString } from "../../utils/random";
-import { sendResetPasswordEmail } from "../../utils/email";
+import {
+  sendConfirmationEmail,
+  sendResetPasswordEmail,
+} from "../../utils/email";
 
 export const userRouter = createRouter()
+  .mutation("resendConfirmationCode", {
+    input: z.object({
+      email: z.string().email("Invalid email"),
+    }),
+    async resolve({ ctx, input }) {
+      const user = await ctx.prisma.user.findFirst({
+        where: { email: input.email },
+        select: { id: true, confirmed: true },
+      });
+
+      if (!user) {
+        throw new trpc.TRPCError({
+          code: "BAD_REQUEST",
+          cause: new ZodError([
+            {
+              path: ["email"],
+              message:
+                "Account with this email does not exist. Please sign up.",
+              code: "custom",
+            },
+          ]),
+        });
+      }
+
+      if (user.confirmed) {
+        throw new trpc.TRPCError({
+          code: "BAD_REQUEST",
+          cause: new ZodError([
+            {
+              path: ["email"],
+              message: "Account is already confirmed. Please sign in.",
+              code: "custom",
+            },
+          ]),
+        });
+      }
+
+      const code = generateRandomString(36);
+
+      let confirmation = await ctx.prisma.confirmationCode.findFirst({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      if (
+        confirmation &&
+        dayjs().diff(dayjs(confirmation.createdAt), "minute") < 10
+      ) {
+        throw new trpc.TRPCError({
+          code: "BAD_REQUEST",
+          cause: new ZodError([
+            {
+              path: ["email"],
+              message:
+                "You have to wait 10 minutes before requesting a new confirmation code",
+              code: "custom",
+            },
+          ]),
+        });
+      }
+
+      confirmation = await ctx.prisma.confirmationCode.upsert({
+        where: {
+          userId: user.id,
+        },
+        update: {
+          code,
+          expiresAt: dayjs().add(48, "hours").toDate(),
+        },
+        create: {
+          code,
+          expiresAt: dayjs().add(48, "hours").toDate(),
+          user: {
+            connect: {
+              email: input.email,
+            },
+          },
+        },
+      });
+
+      await sendConfirmationEmail(input.email, confirmation.id, code);
+    },
+  })
   .mutation("resetPasswordConfirmation", {
     input: z
       .object({
@@ -171,14 +258,36 @@ export const userRouter = createRouter()
         });
       }
 
-      await ctx.prisma.user.create({
+      const code = generateRandomString(36);
+
+      const createdUser = await ctx.prisma.user.create({
         data: {
           email: input.email,
           name: input.name,
           password: await argon2.hash(input.password),
           acceptTerms: true,
+          confirmed: false,
+          confirmationCode: {
+            create: {
+              code,
+              expiresAt: dayjs().add(48, "hours").toDate(),
+            },
+          },
+        },
+        include: {
+          confirmationCode: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
+
+      await sendConfirmationEmail(
+        input.email,
+        createdUser.confirmationCode!.id,
+        code
+      );
 
       return true;
     },
