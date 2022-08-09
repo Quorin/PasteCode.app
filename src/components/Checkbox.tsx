@@ -1,10 +1,10 @@
-import { ErrorMessage, FieldProps } from "formik";
-import Label from "./Label";
+import { ErrorMessage, FieldProps } from 'formik'
+import Label from './Label'
 
 type Props = FieldProps & {
-  label?: string;
-  required?: boolean;
-};
+  label?: string
+  required?: boolean
+}
 
 const Checkbox = ({ label, required, field }: Props) => {
   return (
@@ -27,7 +27,7 @@ const Checkbox = ({ label, required, field }: Props) => {
         <ErrorMessage name={field.name} />
       </p>
     </div>
-  );
-};
+  )
+}
 
-export default Checkbox;
+export default Checkbox

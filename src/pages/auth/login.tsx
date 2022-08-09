@@ -1,47 +1,47 @@
-import { Field, Form, Formik, FormikHelpers } from "formik";
-import { signIn } from "next-auth/react";
-import Link from "next/link";
-import Router from "next/router";
-import toast, { Toaster } from "react-hot-toast";
-import Button from "../../components/Button";
-import Input from "../../components/Input";
-import { routes } from "../../constants/routes";
-import { trpc } from "../../utils/trpc";
+import { Field, Form, Formik, FormikHelpers } from 'formik'
+import { signIn } from 'next-auth/react'
+import Link from 'next/link'
+import Router from 'next/router'
+import toast, { Toaster } from 'react-hot-toast'
+import Button from '../../components/Button'
+import Input from '../../components/Input'
+import { routes } from '../../constants/routes'
+import { trpc } from '../../utils/trpc'
 
 const initialValues = {
-  email: "",
-  password: "",
-};
+  email: '',
+  password: '',
+}
 
-type LoginFields = typeof initialValues;
+type LoginFields = typeof initialValues
 
 const Login = () => {
-  const { mutateAsync } = trpc.useMutation(["user.resendConfirmationCode"]);
+  const { mutateAsync } = trpc.useMutation(['user.resendConfirmationCode'])
 
   const handleSubmit = async (
     { email, password }: LoginFields,
-    helpers: FormikHelpers<LoginFields>
+    helpers: FormikHelpers<LoginFields>,
   ) => {
-    const res = await signIn("credentials", {
+    const res = await signIn('credentials', {
       email,
       password,
       redirect: false,
-    });
+    })
 
     if (res?.ok && res?.status === 200) {
-      Router.push(routes.HOME);
-      return;
+      Router.push(routes.HOME)
+      return
     }
 
     helpers.setErrors({
-      email: "Invalid email or your account is not confirmed",
-      password: "Invalid password or your account is not confirmed",
-    });
-  };
+      email: 'Invalid email or your account is not confirmed',
+      password: 'Invalid password or your account is not confirmed',
+    })
+  }
 
   const resendConfirmation = async (email: string) => {
     if (!email) {
-      return;
+      return
     }
 
     try {
@@ -55,8 +55,8 @@ const Login = () => {
                   <p>Confirmation code has been sent to your email.</p>
                 </div>
               ),
-              { position: "bottom-center" }
-            );
+              { position: 'bottom-center' },
+            )
           },
           onError(error) {
             toast.custom(
@@ -64,17 +64,17 @@ const Login = () => {
                 <div className="text-white bg-red-500 px-5 py-2.5 rounded-lg">
                   <p>
                     {error.data?.zodError?.fieldErrors.email ??
-                      "Cannot send confirmation to this email"}
+                      'Cannot send confirmation to this email'}
                   </p>
                 </div>
               ),
-              { position: "bottom-center" }
-            );
+              { position: 'bottom-center' },
+            )
           },
-        }
-      );
+        },
+      )
     } catch (e) {}
-  };
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -136,7 +136,7 @@ const Login = () => {
         )}
       </Formik>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

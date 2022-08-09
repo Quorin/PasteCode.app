@@ -1,45 +1,45 @@
-import { cva } from "class-variance-authority";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { useRef, useState } from "react";
-import { routes } from "../constants/routes";
+import { cva } from 'class-variance-authority'
+import { useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useRef, useState } from 'react'
+import { routes } from '../constants/routes'
 
 const unauthorizedPaths = [
-  { path: routes.HOME, name: "Home" },
-  { path: routes.AUTH.LOGIN, name: "Login" },
-  { path: routes.REGISTER, name: "Register" },
-];
+  { path: routes.HOME, name: 'Home' },
+  { path: routes.AUTH.LOGIN, name: 'Login' },
+  { path: routes.REGISTER, name: 'Register' },
+]
 
 const authorizedPaths = (name: string) => [
-  { path: routes.HOME, name: "Home" },
+  { path: routes.HOME, name: 'Home' },
   { path: routes.PROFILE, name },
-  { path: routes.SETTINGS, name: "Settings" },
-];
+  { path: routes.SETTINGS, name: 'Settings' },
+]
 
 const link = cva(
   [
-    "block py-2 pr-4 pl-3 rounded md:border-0 md:p-0 text-zinc-400 md:hover:text-white hover:bg-zinc-700 hover:text-white md:hover:bg-transparent",
+    'block py-2 pr-4 pl-3 rounded md:border-0 md:p-0 text-zinc-400 md:hover:text-white hover:bg-zinc-700 hover:text-white md:hover:bg-transparent',
   ],
   {
     variants: {
       active: {
-        true: ["text-blue-500 hover:text-blue-400"],
+        true: ['text-blue-500 hover:text-blue-400'],
       },
     },
-  }
-);
+  },
+)
 
 const Navbar = () => {
-  const [menuCollapsed, setMenuCollapsed] = useState(true);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-  const { status, data } = useSession();
+  const [menuCollapsed, setMenuCollapsed] = useState(true)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+  const { status, data } = useSession()
 
   const handleCollapse = () => {
-    setMenuCollapsed(!menuCollapsed);
-    menuRef.current?.classList["toggle"]("hidden");
-  };
+    setMenuCollapsed(!menuCollapsed)
+    menuRef.current?.classList['toggle']('hidden')
+  }
 
   return (
     <div className="px-5 py-5 bg-zinc-900 mb-10 border-b-[1px] border-zinc-700">
@@ -81,8 +81,8 @@ const Navbar = () => {
           id="navbar-default"
         >
           <ul className="flex flex-col p-4 mt-4 rounded-lg border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 bg-zinc-800 md:bg-zinc-900 border-zinc-700">
-            {status === "authenticated"
-              ? authorizedPaths(data.user?.name ?? "Profile").map(
+            {status === 'authenticated'
+              ? authorizedPaths(data.user?.name ?? 'Profile').map(
                   ({ path, name }) => (
                     <li
                       key={path}
@@ -90,7 +90,7 @@ const Navbar = () => {
                     >
                       <Link href={path}>{name}</Link>
                     </li>
-                  )
+                  ),
                 )
               : unauthorizedPaths.map(({ path, name }) => (
                   <li
@@ -104,7 +104,7 @@ const Navbar = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

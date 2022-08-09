@@ -1,51 +1,51 @@
-import dayjs from "dayjs";
-import { Field, Form, Formik, FormikHelpers } from "formik";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import Router from "next/router";
-import Button from "../../components/Button";
-import Input from "../../components/Input";
-import { routes } from "../../constants/routes";
-import { prisma } from "../../server/db/client";
-import { trpc } from "../../utils/trpc";
+import dayjs from 'dayjs'
+import { Field, Form, Formik, FormikHelpers } from 'formik'
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import Router from 'next/router'
+import Button from '../../components/Button'
+import Input from '../../components/Input'
+import { routes } from '../../constants/routes'
+import { prisma } from '../../server/db/client'
+import { trpc } from '../../utils/trpc'
 
 type Props = {
-  result: boolean;
-  id: string;
-  code: string;
-};
+  result: boolean
+  id: string
+  code: string
+}
 
 const initialValues = {
-  id: "",
-  code: "",
-  password: "",
-  confirmPassword: "",
-};
+  id: '',
+  code: '',
+  password: '',
+  confirmPassword: '',
+}
 
-type ResetPasswordFields = typeof initialValues;
+type ResetPasswordFields = typeof initialValues
 
 const ResetPasswordConfirmation = ({
   result,
   id,
   code,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  initialValues.id = id;
-  initialValues.code = code;
+  initialValues.id = id
+  initialValues.code = code
 
-  const { mutateAsync } = trpc.useMutation(["user.resetPasswordConfirmation"]);
+  const { mutateAsync } = trpc.useMutation(['user.resetPasswordConfirmation'])
 
   const handleSubmit = async (
     fields: ResetPasswordFields,
-    helpers: FormikHelpers<ResetPasswordFields>
+    helpers: FormikHelpers<ResetPasswordFields>,
   ) => {
     await mutateAsync(fields, {
       onError(error) {
-        helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {});
+        helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
       },
       onSuccess() {
-        Router.replace(routes.AUTH.LOGIN);
+        Router.replace(routes.AUTH.LOGIN)
       },
-    });
-  };
+    })
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -104,8 +104,8 @@ const ResetPasswordConfirmation = ({
         )}
       </Formik>
     </div>
-  );
-};
+  )
+}
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({
   query,
@@ -119,24 +119,24 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
     return {
       props: {
         result: false,
-        id: "",
-        code: "",
+        id: '',
+        code: '',
       },
-    };
+    }
   }
 
   const rp = await prisma.resetPassword.findFirst({
     where: { id: query.id, code: query.code },
-  });
+  })
 
   if (!rp || dayjs().isAfter(rp.expiresAt)) {
     return {
       props: {
         result: false,
-        id: "",
-        code: "",
+        id: '',
+        code: '',
       },
-    };
+    }
   }
 
   return {
@@ -145,7 +145,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
       id: query.id,
       code: query.code,
     },
-  };
-};
+  }
+}
 
-export default ResetPasswordConfirmation;
+export default ResetPasswordConfirmation

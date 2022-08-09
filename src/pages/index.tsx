@@ -1,27 +1,27 @@
-import { Field, Form, Formik, FormikHelpers } from "formik";
-import type { NextPage } from "next";
-import Button from "../components/Button";
-import Input from "../components/Input";
-import Select, { Option } from "../components/Select";
-import Textarea from "../components/Textarea";
+import { Field, Form, Formik, FormikHelpers } from 'formik'
+import type { NextPage } from 'next'
+import Button from '../components/Button'
+import Input from '../components/Input'
+import Select, { Option } from '../components/Select'
+import Textarea from '../components/Textarea'
 
 const values = {
-  title: "",
-  description: "",
-  content: "",
-  expiration: "never",
-  style: "cpp",
-};
+  title: '',
+  description: '',
+  content: '',
+  expiration: 'never',
+  style: 'cpp',
+}
 
-type FormValues = typeof values;
+type FormValues = typeof values
 
 const Home: NextPage = () => {
   const handleSubmit = (
     values: FormValues,
-    helpers: FormikHelpers<FormValues>
+    helpers: FormikHelpers<FormValues>,
   ) => {
-    console.log(values);
-  };
+    console.log(values)
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -83,13 +83,13 @@ const Home: NextPage = () => {
                       component={Select}
                       options={
                         [
-                          { key: "never", value: "Never" },
-                          { key: "year", value: "1 Year" },
-                          { key: "month", value: "1 Month" },
-                          { key: "week", value: "1 Week" },
-                          { key: "day", value: "1 Day" },
-                          { key: "hour", value: "1 Hour" },
-                          { key: "10m", value: "10 Minutes" },
+                          { key: 'never', value: 'Never' },
+                          { key: 'year', value: '1 Year' },
+                          { key: 'month', value: '1 Month' },
+                          { key: 'week', value: '1 Week' },
+                          { key: 'day', value: '1 Day' },
+                          { key: 'hour', value: '1 Hour' },
+                          { key: '10m', value: '10 Minutes' },
                         ] as Option[]
                       }
                       required
@@ -109,8 +109,8 @@ const Home: NextPage = () => {
                       required
                       options={
                         [
-                          { key: "cpp", value: "C++" },
-                          { key: "java", value: "Java" },
+                          { key: 'cpp', value: 'C++' },
+                          { key: 'java', value: 'Java' },
                         ] as Option[]
                       }
                     >
@@ -137,7 +137,7 @@ const Home: NextPage = () => {
         )}
       </Formik>
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

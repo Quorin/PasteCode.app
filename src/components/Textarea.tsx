@@ -1,11 +1,11 @@
-import { ErrorMessage, FieldProps } from "formik";
-import Label from "./Label";
+import { ErrorMessage, FieldProps } from 'formik'
+import Label from './Label'
 
 type Props = FieldProps & {
-  label?: string;
-  placeholder?: string;
-  required?: boolean;
-};
+  label?: string
+  placeholder?: string
+  required?: boolean
+}
 
 const Textarea = ({ label, required, field, placeholder }: Props) => {
   return (
@@ -14,7 +14,7 @@ const Textarea = ({ label, required, field, placeholder }: Props) => {
       <textarea
         id={field.name}
         className="block min-h-[30vh] max-h-[50vh] p-2.5 w-full text-sm rounded-lg border bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-        placeholder={placeholder ?? ""}
+        placeholder={placeholder ?? ''}
         required={required}
         {...field}
       ></textarea>
@@ -22,7 +22,7 @@ const Textarea = ({ label, required, field, placeholder }: Props) => {
         <ErrorMessage name={field.name} />
       </p>
     </div>
-  );
-};
+  )
+}
 
-export default Textarea;
+export default Textarea

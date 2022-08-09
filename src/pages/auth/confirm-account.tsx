@@ -1,10 +1,10 @@
-import dayjs from "dayjs";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { prisma } from "../../server/db/client";
+import dayjs from 'dayjs'
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { prisma } from '../../server/db/client'
 
 type Props = {
-  result: boolean;
-};
+  result: boolean
+}
 
 const ConfirmAccount = ({
   result,
@@ -22,8 +22,8 @@ const ConfirmAccount = ({
         </p>
       )}
     </div>
-  );
-};
+  )
+}
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({
   query,
@@ -37,22 +37,22 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
     return {
       props: {
         result: false,
-        id: "",
-        code: "",
+        id: '',
+        code: '',
       },
-    };
+    }
   }
 
   const confirmation = await prisma.confirmationCode.findFirst({
     where: { id: query.id, code: query.code },
-  });
+  })
 
   if (!confirmation || dayjs().isAfter(confirmation.expiresAt)) {
     return {
       props: {
         result: false,
       },
-    };
+    }
   }
 
   await prisma.$transaction([
@@ -63,13 +63,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
       },
     }),
     prisma.confirmationCode.delete({ where: { id: confirmation.id } }),
-  ]);
+  ])
 
   return {
     props: {
       result: true,
     },
-  };
-};
+  }
+}
 
-export default ConfirmAccount;
+export default ConfirmAccount

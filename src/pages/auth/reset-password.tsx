@@ -1,28 +1,28 @@
-import { Field, Form, Formik, FormikHelpers } from "formik";
-import { NextPage } from "next";
-import toast, { Toaster } from "react-hot-toast";
-import Button from "../../components/Button";
-import Input from "../../components/Input";
-import { trpc } from "../../utils/trpc";
+import { Field, Form, Formik, FormikHelpers } from 'formik'
+import { NextPage } from 'next'
+import toast, { Toaster } from 'react-hot-toast'
+import Button from '../../components/Button'
+import Input from '../../components/Input'
+import { trpc } from '../../utils/trpc'
 
 const initialValues = {
-  email: "",
-};
+  email: '',
+}
 
-type ResetPasswordFields = typeof initialValues;
+type ResetPasswordFields = typeof initialValues
 
 const ResetPassword: NextPage = () => {
-  const { mutateAsync } = trpc.useMutation(["user.resetPassword"]);
+  const { mutateAsync } = trpc.useMutation(['user.resetPassword'])
 
   const handleSubmit = async (
     { email }: ResetPasswordFields,
-    helpers: FormikHelpers<ResetPasswordFields>
+    helpers: FormikHelpers<ResetPasswordFields>,
   ) => {
     await mutateAsync(
       { email },
       {
         onError: (error) => {
-          helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {});
+          helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
         },
         onSuccess: () => {
           toast.custom(
@@ -31,12 +31,12 @@ const ResetPassword: NextPage = () => {
                 <p>Email has been sent if we found your account</p>
               </div>
             ),
-            { position: "bottom-center" }
-          );
+            { position: 'bottom-center' },
+          )
         },
-      }
-    );
-  };
+      },
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -65,7 +65,7 @@ const ResetPassword: NextPage = () => {
         )}
       </Formik>
     </div>
-  );
-};
+  )
+}
 
-export default ResetPassword;
+export default ResetPassword

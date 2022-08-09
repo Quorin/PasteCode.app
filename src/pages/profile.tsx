@@ -1,42 +1,42 @@
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import Link from "next/link";
-import Router from "next/router";
-import { useState } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
-import Spinner from "../components/Spinner";
-import { routes } from "../constants/routes";
-import { generateRandomString } from "../utils/random";
+import { useSession } from 'next-auth/react'
+import Image from 'next/image'
+import Link from 'next/link'
+import Router from 'next/router'
+import { useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import Spinner from '../components/Spinner'
+import { routes } from '../constants/routes'
+import { generateRandomString } from '../utils/random'
 
 const Profile = () => {
-  const session = useSession();
+  const session = useSession()
 
-  if (session.status === "unauthenticated") {
-    Router.replace(routes.HOME);
+  if (session.status === 'unauthenticated') {
+    Router.replace(routes.HOME)
   }
 
   const [pastes, setPastes] = useState(
     Array.from({ length: 5 }, (_, i) => ({
-      title: "Hello, world!",
-      description: "Description",
-      tags: ["test"],
+      title: 'Hello, world!',
+      description: 'Description',
+      tags: ['test'],
       id: generateRandomString(36),
-    }))
-  );
+    })),
+  )
 
   const next = () => {
     setTimeout(() => {
       setPastes((p) => [
         ...p,
         ...Array.from({ length: 50 }, (_, i) => ({
-          title: "Hello",
-          description: "nsdsakjdnasndsaodd",
-          tags: ["hello", "world"],
+          title: 'Hello',
+          description: 'nsdsakjdnasndsaodd',
+          tags: ['hello', 'world'],
           id: generateRandomString(36),
         })),
-      ]);
-    }, 1000);
-  };
+      ])
+    }, 1000)
+  }
 
   return (
     <div>
@@ -294,7 +294,7 @@ const Profile = () => {
         </InfiniteScroll>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Profile;
+export default Profile
