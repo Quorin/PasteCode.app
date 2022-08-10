@@ -3,11 +3,11 @@ import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import Code from '../../../components/Code'
 import Spinner from '../../../components/Spinner'
-import { routes } from '../../../constants/routes'
 import { trpc } from '../../../utils/trpc'
 
 const Paste: NextPage = () => {
   const router = useRouter()
+
   const {
     data: paste,
     isLoading,
@@ -66,18 +66,13 @@ const Paste: NextPage = () => {
             >
               Edit
             </button>
-            <button
-              className="bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
+            <a
+              className="cursor-pointer bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
               type="button"
-              onClick={() =>
-                router.push({
-                  pathname: routes.PASTES.RAW,
-                  query: { id: paste.id },
-                })
-              }
+              href={`${router.asPath}/raw`}
             >
               Raw
-            </button>
+            </a>
             <button
               className="bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
               type="button"
