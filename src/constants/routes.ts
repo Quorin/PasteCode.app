@@ -7,4 +7,5 @@ export const routes = {
   },
   PROFILE: '/profile',
   SETTINGS: '/settings',
+  PASTES: '/pastes/[id]',
 }
