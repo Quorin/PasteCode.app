@@ -13,6 +13,7 @@ export const pasteRouter = createRouter()
           id: input.id,
         },
         select: {
+          id: true,
           content: true,
           tags: {
             select: {
@@ -26,6 +27,8 @@ export const pasteRouter = createRouter()
           title: true,
           style: true,
           description: true,
+          createdAt: true,
+          expiresAt: true,
         },
       })
 

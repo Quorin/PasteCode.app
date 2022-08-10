@@ -85,7 +85,7 @@ const Profile = () => {
                 <div
                   onClick={() =>
                     Router.push({
-                      pathname: routes.PASTES,
+                      pathname: routes.PASTES.INDEX,
                       query: { id: p.id },
                     })
                   }
