@@ -25,33 +25,41 @@ const Profile = () => {
     !isLoading && fetchNextPage()
   }
 
+  const count = () => {
+    return (
+      data?.pages.map((p) => p.pastes.length).reduce((a, b) => a + b, 0) ?? 0
+    )
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold text-center text-zinc-100 mb-8">
         Your content
       </h1>
 
-      {false ? (
+      {count() == 0 ? (
         <div className="flex flex-col justify-center items-center">
-          <Image
-            src="/images/empty.svg"
-            alt="No images"
-            width={500}
-            height={400}
-          />
-          <Link href={routes.HOME}>
-            <h3 className="text-lg text-zinc-300 hover:text-zinc-100 cursor-pointer hover:underline">
-              Add your first paste!
-            </h3>
-          </Link>
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <div className="text-center">
+              <Image
+                src="/images/empty.svg"
+                alt="No images"
+                width={500}
+                height={400}
+              />
+              <Link href={routes.HOME}>
+                <h3 className="text-lg text-zinc-300 hover:text-zinc-100 cursor-pointer hover:underline">
+                  Add your first paste!
+                </h3>
+              </Link>
+            </div>
+          )}
         </div>
       ) : (
         <InfiniteScroll
-          dataLength={
-            data?.pages
-              .map((p) => p.pastes.length)
-              .reduce((a, b) => a + b, 0) ?? 0
-          }
+          dataLength={count()}
           next={() => next()}
           hasMore={hasNextPage || false}
           loader={
