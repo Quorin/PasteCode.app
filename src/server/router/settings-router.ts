@@ -7,6 +7,22 @@ import dayjs from 'dayjs'
 import * as argon2 from 'argon2'
 
 export const settingsRouter = createProtectedRouter()
+  .mutation('removeAccount', {
+    async resolve({ ctx }) {
+      await ctx.prisma.user.delete({
+        where: {
+          id: ctx.session.user.id,
+        },
+        include: {
+          confirmationCode: true,
+          resetPassword: true,
+          pastes: true,
+          sessions: true,
+        },
+      })
+      return true
+    },
+  })
   .mutation('changePassword', {
     input: z
       .object({

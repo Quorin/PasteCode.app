@@ -1,7 +1,25 @@
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
+import Modal from '../../components/Modal'
 import { routes } from '../../constants/routes'
+import { trpc } from '../../utils/trpc'
 
 const Settings = () => {
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
+  const { mutateAsync } = trpc.useMutation(['settings.removeAccount'])
+  const router = useRouter()
+
+  const handleDelete = async () => {
+    setIsDeleteModalVisible(false)
+
+    await mutateAsync(undefined, {
+      onSuccess() {
+        router.replace(routes.HOME)
+      },
+    })
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <h2 className="text-3xl text-zinc-200 mb-10 font-semibold self-center">
@@ -24,11 +42,21 @@ const Settings = () => {
             Change Name
           </button>
         </Link>
-        <Link href={routes.SETTINGS.REMOVE_ACCOUNT}>
-          <button className="w-full md:w-1/2 bg-zinc-700 hover:bg-red-300 text-red-300 hover:text-zinc-700 transition-colors mx-auto px-10 py-3 rounded-lg">
-            Remove Account & Data
-          </button>
-        </Link>
+        <button
+          onClick={() => setIsDeleteModalVisible(true)}
+          className="w-full md:w-1/2 bg-zinc-700 hover:bg-red-300 text-red-300 hover:text-zinc-700 transition-colors mx-auto px-10 py-3 rounded-lg"
+        >
+          Remove Account & Data
+        </button>
+        <Modal
+          visible={isDeleteModalVisible}
+          action={() => handleDelete()}
+          close={() => setIsDeleteModalVisible(false)}
+          accentColor="red"
+          title="Remove account"
+          actionTitle="Remove"
+          description="Are you sure you want to deactivate your account? All of your data will be permanently removed. This action cannot be undone."
+        />
       </div>
     </div>
   )
