@@ -3,6 +3,7 @@ import type { NextPage } from 'next'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Select, { Option } from '../components/Select'
+import TagInput from '../components/TagInput'
 import Textarea from '../components/Textarea'
 
 const values = {
@@ -11,6 +12,8 @@ const values = {
   content: '',
   expiration: 'never',
   style: 'cpp',
+  tag: '',
+  tags: [] as string[],
 }
 
 type FormValues = typeof values
@@ -53,6 +56,15 @@ const Home: NextPage = () => {
                 placeholder={
                   "ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'by pwd' at line 1"
                 }
+              />
+            </div>
+            <div className="mb-6">
+              <Field
+                name="tag"
+                component={TagInput}
+                label="Tags"
+                placeholder="hacking"
+                arrayProp="tags"
               />
             </div>
             <div className="mb-6">
