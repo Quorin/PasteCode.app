@@ -51,7 +51,7 @@ const Paste: NextPage = () => {
               ))}
             </div>
           )}
-          <div className="mb-10 flex gap-2">
+          <div className="mb-10 grid grid-cols-2 md:grid-cols-4 md:place-items-stretch md:w-2/3 lg:w-1/2 gap-2">
             <button
               className="bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
               type="button"
@@ -67,7 +67,7 @@ const Paste: NextPage = () => {
               Edit
             </button>
             <a
-              className="cursor-pointer bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
+              className=" text-center cursor-pointer bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
               type="button"
               href={`${router.asPath}/raw`}
             >
