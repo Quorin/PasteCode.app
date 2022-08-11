@@ -1,10 +1,10 @@
-import Head from "next/head";
-import Footer from "./Footer";
-import Navbar from "./Navbar";
+import Head from 'next/head'
+import Footer from './Footer'
+import Navbar from './Navbar'
 
 type Props = {
-  children: React.ReactNode;
-};
+  children: React.ReactNode
+}
 
 const Layout = ({ children }: Props) => {
   return (
@@ -26,7 +26,7 @@ const Layout = ({ children }: Props) => {
         <Footer />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Layout;
+export default Layout

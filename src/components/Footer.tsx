@@ -20,7 +20,7 @@ const Footer = () => {
           </li>
         </ul>
         <p className="text-center text-sm text-zinc-400 my-3">
-          © 2022{" "}
+          © 2022{' '}
           <span className="hover:underline cursor-pointer text-zinc-200">
             <span className="font-bold">Paste</span>Code
           </span>
@@ -28,7 +28,7 @@ const Footer = () => {
         </p>
       </footer>
     </div>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer

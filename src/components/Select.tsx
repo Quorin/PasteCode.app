@@ -1,16 +1,16 @@
-import { ErrorMessage, FieldProps } from "formik";
-import Label from "./Label";
+import { ErrorMessage, FieldProps } from 'formik'
+import Label from './Label'
 
 export type Option = {
-  key: string;
-  value: string;
-};
+  key: string
+  value: string
+}
 
 type Props = FieldProps & {
-  label?: string;
-  required?: boolean;
-  options: Option[];
-};
+  label?: string
+  required?: boolean
+  options: Option[]
+}
 
 const Select = ({ label, required, options, field }: Props) => {
   return (
@@ -31,7 +31,7 @@ const Select = ({ label, required, options, field }: Props) => {
         <ErrorMessage name={field.name} />
       </p>
     </div>
-  );
-};
+  )
+}
 
-export default Select;
+export default Select

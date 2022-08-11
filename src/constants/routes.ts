@@ -1,8 +1,14 @@
 export const routes = {
-  HOME: "/",
-  REGISTER: "/register",
+  HOME: '/',
+  REGISTER: '/register',
   AUTH: {
-    LOGIN: "/auth/login",
-    RESET_PASSWORD: "/auth/reset-password",
+    LOGIN: '/auth/login',
+    RESET_PASSWORD: '/auth/reset-password',
   },
-};
+  PROFILE: '/profile',
+  SETTINGS: '/settings',
+  PASTES: {
+    INDEX: '/pastes/[id]',
+    RAW: '/pastes/[id]/raw',
+  },
+}

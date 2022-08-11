@@ -1,19 +1,19 @@
-import { ErrorMessage, FieldProps } from "formik";
-import Label from "./Label";
+import { ErrorMessage, FieldProps } from 'formik'
+import Label from './Label'
 
 type Props = FieldProps & {
-  label?: string;
-  placeholder?: string;
-  required?: boolean;
-  type?: string;
-};
+  label?: string
+  placeholder?: string
+  required?: boolean
+  type?: string
+}
 
 const Input = ({
   label,
   required,
   field,
   placeholder,
-  type = "text",
+  type = 'text',
 }: Props) => {
   return (
     <div>
@@ -22,7 +22,7 @@ const Input = ({
         id={field.name}
         type={type}
         className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-        placeholder={placeholder ?? ""}
+        placeholder={placeholder ?? ''}
         required={required}
         {...field}
       ></input>
@@ -30,7 +30,7 @@ const Input = ({
         <ErrorMessage name={field.name} />
       </p>
     </div>
-  );
-};
+  )
+}
 
-export default Input;
+export default Input

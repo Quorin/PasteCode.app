@@ -1,38 +1,44 @@
-import { Field, Form, Formik, FormikHelpers } from "formik";
-import { NextPage } from "next";
-import Router from "next/router";
-import Button from "../components/Button";
-import Checkbox from "../components/Checkbox";
-import Input from "../components/Input";
-import { routes } from "../constants/routes";
-import { trpc } from "../utils/trpc";
+import { Field, Form, Formik, FormikHelpers } from 'formik'
+import { NextPage } from 'next'
+import toast, { Toaster } from 'react-hot-toast'
+import Button from '../components/Button'
+import Checkbox from '../components/Checkbox'
+import Input from '../components/Input'
+import { trpc } from '../utils/trpc'
 
 const initialValues = {
-  email: "",
-  name: "",
-  password: "",
-  confirmPassword: "",
+  email: '',
+  name: '',
+  password: '',
+  confirmPassword: '',
   agree: false,
-};
+}
 
-type FormValues = typeof initialValues;
+type FormValues = typeof initialValues
 
 const Register: NextPage = () => {
-  const { mutateAsync } = trpc.useMutation(["user.register"]);
+  const { mutateAsync } = trpc.useMutation(['user.register'])
 
   const handleSubmit = async (
     values: FormValues,
-    helpers: FormikHelpers<FormValues>
+    helpers: FormikHelpers<FormValues>,
   ) => {
     await mutateAsync(values, {
       onError: (error) => {
-        helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {});
+        helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
       },
       onSuccess: () => {
-        Router.push(routes.AUTH.LOGIN);
+        toast.custom(
+          (t) => (
+            <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
+              <p>Check your inbox to confirm account</p>
+            </div>
+          ),
+          { position: 'bottom-center' },
+        )
       },
-    });
-  };
+    })
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -90,11 +96,11 @@ const Register: NextPage = () => {
               <Field
                 label={
                   <>
-                    I agree with the{" "}
+                    I agree with the{' '}
                     <a href="#" className="text-blue-500 hover:underline">
                       terms and conditions
                     </a>
-                    .{" "}
+                    .{' '}
                   </>
                 }
                 required={true}
@@ -106,11 +112,12 @@ const Register: NextPage = () => {
             <Button type="submit" className="px-20">
               Submit
             </Button>
+            <Toaster />
           </Form>
         )}
       </Formik>
     </div>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register

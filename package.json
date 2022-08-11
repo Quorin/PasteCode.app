@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "format": "prettier --write src/",
+    "postinstall": "prisma generate",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.4",
@@ -24,9 +26,11 @@
     "formik": "^2.2.9",
     "next": "12.2.3",
     "next-auth": "^4.10.3",
+    "prismjs": "^1.28.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.3.0",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-query": "3.39.2",
     "superjson": "^1.9.1",
     "trpc-playground": "^0.1.6",
@@ -34,12 +38,17 @@
   },
   "devDependencies": {
     "@types/node": "18.0.0",
+    "@types/prismjs": "^1.26.0",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
     "autoprefixer": "^10.4.8",
     "eslint": "8.18.0",
     "eslint-config-next": "12.2.3",
+    "eslint-config-prettier": "^8.5.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
     "postcss": "^8.4.14",
+    "prettier": "2.7.1",
     "prisma": "^4.1.1",
     "tailwindcss": "^3.1.7",
     "typescript": "4.7.4"
