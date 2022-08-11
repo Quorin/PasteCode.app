@@ -1,23 +1,78 @@
 import dayjs from 'dayjs'
+import { Field, Form, Formik } from 'formik'
 import { NextPage } from 'next'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
+import Button from '../../../components/Button'
 import Code from '../../../components/Code'
+import Input from '../../../components/Input'
 import Spinner from '../../../components/Spinner'
+import { routes } from '../../../constants/routes'
 import { trpc } from '../../../utils/trpc'
+
+const initialValues = {
+  password: '',
+}
+
+type FormValues = typeof initialValues
 
 const Paste: NextPage = () => {
   const router = useRouter()
 
-  const {
-    data: paste,
-    isLoading,
-    error,
-  } = trpc.useQuery([
+  const handleSubmit = async (values: FormValues) => {
+    router.replace({
+      pathname: routes.PASTES.INDEX,
+      query: { id: router.query.id, password: values.password },
+    })
+  }
+
+  const { data, isLoading, error } = trpc.useQuery([
     'paste.getPaste',
     {
       id: router.query.id as string,
+      password: (router.query.password as string) ?? null,
     },
   ])
+
+  console.log(router)
+
+  if (data?.secure) {
+    return (
+      <div className="flex flex-col justify-center items-center">
+        <Image
+          src="/images/secure.svg"
+          alt="Paste is secure"
+          width={500}
+          height={400}
+        />
+        <h3 className="text-lg text-red-300">
+          Paste is secured with a password
+        </h3>
+        <div className="flex flex-col gap-6 mt-6">
+          <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+            {({ handleSubmit, values }) => (
+              <Form onSubmit={handleSubmit}>
+                <div className="mb-6">
+                  <Field
+                    name="password"
+                    type="password"
+                    label=""
+                    component={Input}
+                    placeholder="*******"
+                    required={true}
+                    value={values.password}
+                  />
+                </div>
+                <Button type="submit" className="px-20">
+                  Decrypt Paste
+                </Button>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -25,23 +80,23 @@ const Paste: NextPage = () => {
         <div className="flex justify-center">
           <Spinner />
         </div>
-      ) : !paste ? (
+      ) : !data?.paste ? (
         <h2 className="text-2xl text-zinc-100 text-bold text-center">
           Paste not found
         </h2>
       ) : (
         <div>
           <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-            {paste.title}
+            {data.paste.title}
           </h2>
-          {paste.description && (
+          {data.paste.description && (
             <h3 className="text-lg text-zinc-400 mb-10 font-light italic bg-zinc-700 p-5 rounded-2xl">
-              {paste.description}
+              {data.paste.description}
             </h3>
           )}
-          {paste.tags.length > 0 && (
+          {data.paste.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-10">
-              {paste.tags.map((tag) => (
+              {data.paste.tags.map((tag) => (
                 <span
                   key={tag.tag.name}
                   className="text-zinc-100 bg-zinc-700 px-3 py-1 rounded-2xl"
@@ -55,7 +110,9 @@ const Paste: NextPage = () => {
             <button
               className="bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
               type="button"
-              onClick={() => navigator.clipboard.writeText(paste.content)}
+              onClick={() =>
+                navigator.clipboard.writeText(data?.paste?.content ?? '')
+              }
             >
               Copy
             </button>
@@ -69,7 +126,10 @@ const Paste: NextPage = () => {
             <a
               className=" text-center cursor-pointer bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
               type="button"
-              href={`${router.asPath}/raw`}
+              href={`${router.asPath.replace(
+                router.query.id as string,
+                `${router.query.id}/raw`,
+              )}`}
             >
               Raw
             </a>
@@ -82,19 +142,22 @@ const Paste: NextPage = () => {
             </button>
           </div>
           <div className="mb-10">
-            <Code code={paste.content} language={paste.style ?? 'txt'} />
+            <Code
+              code={data.paste.content}
+              language={data.paste.style ?? 'txt'}
+            />
           </div>
           <p className="text-zinc-300 text-sm">
             Created at:{' '}
             <span className="font-bold">
-              {dayjs(paste.createdAt).format('YYYY/MM/DD')}
+              {dayjs(data.paste.createdAt).format('YYYY/MM/DD')}
             </span>
           </p>
           <p className="text-zinc-300 text-sm">
             Expires at:{' '}
             <span className="font-bold">
-              {paste.expiresAt
-                ? dayjs(paste.expiresAt).format('YYYY/MM/DD')
+              {data.paste.expiresAt
+                ? dayjs(data.paste.expiresAt).format('YYYY/MM/DD')
                 : 'Never'}
             </span>
           </p>

@@ -24,6 +24,7 @@ const values = {
   style: 'cpp',
   tag: '',
   tags: [] as string[],
+  password: '',
 }
 
 type FormValues = typeof values
@@ -106,6 +107,15 @@ const Home: NextPage = () => {
               foo.cpp:1:13: note: expanded from macro 'std'
               #define std +
                           ^"
+              />
+            </div>
+            <div className="mb-6">
+              <Field
+                name="password"
+                component={Input}
+                label="Password"
+                placeholder="Optional password..."
+                type="password"
               />
             </div>
             <div className="mb-6">

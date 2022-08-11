@@ -3,6 +3,8 @@ import * as trpc from '@trpc/server'
 import { createRouter } from './context'
 import dayjs from 'dayjs'
 import { Maybe } from '@trpc/server'
+import * as argon2 from 'argon2'
+import Cryptr from 'cryptr'
 
 export const pasteRouter = createRouter()
   .mutation('createPaste', {
@@ -18,6 +20,7 @@ export const pasteRouter = createRouter()
       expiration: z
         .enum(['never', 'year', 'month', 'week', 'day', 'hour', '10m'])
         .default('never'),
+      password: z.string().optional(),
     }),
     async resolve({ input, ctx }) {
       const expiresAt: () => Maybe<Date> = () => {
@@ -42,10 +45,13 @@ export const pasteRouter = createRouter()
       const paste = await ctx.prisma.paste.create({
         data: {
           title: input.title,
-          content: input.content,
+          content: input.password
+            ? new Cryptr(input.password).encrypt(input.content)
+            : input.content,
           style: input.style,
           description: input.description,
           expiresAt: expiresAt(),
+          password: input.password ? await argon2.hash(input.password) : null,
           user: ctx.session?.user?.id
             ? {
                 connect: {
@@ -83,6 +89,7 @@ export const pasteRouter = createRouter()
   .query('getPaste', {
     input: z.object({
       id: z.string(),
+      password: z.string().nullable(),
     }),
     async resolve({ input, ctx }) {
       const now = new Date()
@@ -104,6 +111,7 @@ export const pasteRouter = createRouter()
         select: {
           id: true,
           content: true,
+          password: true,
           tags: {
             select: {
               tag: {
@@ -121,7 +129,28 @@ export const pasteRouter = createRouter()
         },
       })
 
-      return paste
+      if (paste && paste.password) {
+        if (input.password) {
+          const valid = await argon2.verify(paste.password, input.password)
+
+          if (valid) {
+            return {
+              paste: {
+                ...paste,
+                content: new Cryptr(input.password).decrypt(paste.content),
+              },
+              secure: false,
+            }
+          }
+        }
+
+        paste.content = ''
+        paste.password = ''
+
+        return { paste, secure: true }
+      }
+
+      return { paste, secure: false }
     },
   })
   .query('getUserPastes', {

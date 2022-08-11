@@ -21,6 +21,7 @@
     "@trpc/server": "^9.26.2",
     "argon2": "^0.28.7",
     "class-variance-authority": "^0.2.3",
+    "cryptr": "^6.0.3",
     "csstype": "^3.1.0",
     "dayjs": "^1.11.4",
     "formik": "^2.2.9",
@@ -37,6 +38,7 @@
     "zod": "^3.17.3"
   },
   "devDependencies": {
+    "@types/cryptr": "^4.0.1",
     "@types/node": "18.0.0",
     "@types/prismjs": "^1.26.0",
     "@types/react": "18.0.14",
