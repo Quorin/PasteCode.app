@@ -93,7 +93,9 @@ const Paste: NextPage = () => {
           <p className="text-zinc-300 text-sm">
             Expires at:{' '}
             <span className="font-bold">
-              {dayjs(paste.expiresAt).format('YYYY/MM/DD')}
+              {paste.expiresAt
+                ? dayjs(paste.expiresAt).format('YYYY/MM/DD')
+                : 'Never'}
             </span>
           </p>
         </div>
