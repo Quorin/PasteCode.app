@@ -9,15 +9,16 @@ import { routes } from '../../constants/routes'
 import { trpc } from '../../utils/trpc'
 
 const values = {
-  name: '',
+  email: '',
+  confirmEmail: '',
 }
 
 type FormValues = typeof values
 
-const ChangeName: NextPage = () => {
+const ChangeEmail: NextPage = () => {
   const session = useSession()
   const router = useRouter()
-  const { mutateAsync } = trpc.useMutation(['settings.changeName'])
+  const { mutateAsync } = trpc.useMutation(['settings.changeEmail'])
 
   if (session.status === 'unauthenticated') {
     router.replace(routes.AUTH.LOGIN)
@@ -35,7 +36,7 @@ const ChangeName: NextPage = () => {
         toast.custom(
           (t) => (
             <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
-              <p>Name has been changed</p>
+              <p>Email has been changed</p>
             </div>
           ),
           { position: 'bottom-center' },
@@ -50,17 +51,32 @@ const ChangeName: NextPage = () => {
         {({ handleSubmit }) => (
           <Form onSubmit={handleSubmit}>
             <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-              Change Name
+              Change Email
             </h2>
             <div className="mb-6">
               <Field
-                name="name"
+                name="email"
                 component={Input}
-                label="Name"
-                placeholder=""
+                label="Email"
+                placeholder="hello@pastecode.app"
                 required={true}
+                type="email"
               />
             </div>
+            <div className="mb-6">
+              <Field
+                name="confirmEmail"
+                component={Input}
+                label="Confirm Email"
+                placeholder="hello@pastecode.app"
+                required={true}
+                type="email"
+              />
+            </div>
+
+            <p className="mb-6 text-red-400">
+              You need to verify your new email address before logging in again.
+            </p>
 
             <Button type="submit" className="px-20">
               Submit
@@ -73,4 +89,4 @@ const ChangeName: NextPage = () => {
   )
 }
 
-export default ChangeName
+export default ChangeEmail
