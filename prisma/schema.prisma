@@ -23,7 +23,6 @@ model User {
     resetPassword    ResetPassword?
     confirmationCode ConfirmationCode?
     pastes           Paste[]
-    tags             Tag[]
 }
 
 model Session {
@@ -72,8 +71,6 @@ model Paste {
 model Tag {
     id     String         @id @default(uuid())
     name   String         @unique
-    user   User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId String?
     pastes TagsOnPastes[]
 }
 

@@ -1,29 +1,53 @@
 import { Field, Form, Formik, FormikHelpers } from 'formik'
 import type { NextPage } from 'next'
+import { useRouter } from 'next/router'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Select, { Option } from '../components/Select'
 import TagInput from '../components/TagInput'
 import Textarea from '../components/Textarea'
+import { routes } from '../constants/routes'
+import { trpc } from '../utils/trpc'
 
 const values = {
   title: '',
   description: '',
   content: '',
-  expiration: 'never',
+  expiration: 'never' as
+    | 'year'
+    | 'never'
+    | 'month'
+    | 'week'
+    | 'day'
+    | 'hour'
+    | '10m',
   style: 'cpp',
   tag: '',
   tags: [] as string[],
+  password: '',
 }
 
 type FormValues = typeof values
 
 const Home: NextPage = () => {
-  const handleSubmit = (
+  const { mutateAsync } = trpc.useMutation(['paste.createPaste'])
+  const router = useRouter()
+
+  const handleSubmit = async (
     values: FormValues,
     helpers: FormikHelpers<FormValues>,
   ) => {
-    console.log(values)
+    await mutateAsync(values, {
+      onError: (error) => {
+        helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
+      },
+      onSuccess: (id) => {
+        router.push({
+          pathname: routes.PASTES.INDEX,
+          query: { id },
+        })
+      },
+    })
   }
 
   return (
@@ -65,6 +89,7 @@ const Home: NextPage = () => {
                 label="Tags"
                 placeholder="hacking"
                 arrayProp="tags"
+                maxlength={15}
               />
             </div>
             <div className="mb-6">
@@ -82,6 +107,15 @@ const Home: NextPage = () => {
               foo.cpp:1:13: note: expanded from macro 'std'
               #define std +
                           ^"
+              />
+            </div>
+            <div className="mb-6">
+              <Field
+                name="password"
+                component={Input}
+                label="Password"
+                placeholder="Optional password..."
+                type="password"
               />
             </div>
             <div className="mb-6">

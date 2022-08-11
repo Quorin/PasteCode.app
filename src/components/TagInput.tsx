@@ -7,6 +7,7 @@ type Props = FieldProps<string> & {
   placeholder?: string
   required?: boolean
   arrayProp: string
+  maxlength?: number
 }
 
 const TagInput = ({
@@ -16,6 +17,7 @@ const TagInput = ({
   field,
   form,
   arrayProp,
+  maxlength,
 }: Props) => {
   const [tags, setTags] = useState<string[]>([])
 
@@ -73,10 +75,11 @@ const TagInput = ({
         placeholder={placeholder ?? ''}
         required={required}
         onKeyDownCapture={(e) => handleKey(e)}
+        maxLength={maxlength}
         {...field}
       ></input>
       <p className="mt-2 text-xs text-red-500">
-        <ErrorMessage name={field.name} />
+        <ErrorMessage name={arrayProp} />
       </p>
     </div>
   )
