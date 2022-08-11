@@ -4,10 +4,12 @@ import superjson from 'superjson'
 import { userRouter } from './user-router'
 import { ZodError } from 'zod'
 import { pasteRouter } from './paste-router'
+import { settingsRouter } from './settings-router'
 
 export const appRouter = createRouter()
   .merge('user.', userRouter)
   .merge('paste.', pasteRouter)
+  .merge('settings.', settingsRouter)
   .formatError(({ shape, error }) => {
     return {
       ...shape,

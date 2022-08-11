@@ -6,7 +6,13 @@ export const routes = {
     RESET_PASSWORD: '/auth/reset-password',
   },
   PROFILE: '/profile',
-  SETTINGS: '/settings',
+  SETTINGS: {
+    INDEX: '/settings',
+    CHANGE_NAME: '/settings/change-name',
+    CHANGE_PASSWORD: '/settings/change-password',
+    CHANGE_EMAIL: '/settings/change-email',
+    REMOVE_ACCOUNT: '/settings/remove-account',
+  },
   PASTES: {
     INDEX: '/pastes/[id]',
     RAW: '/pastes/[id]/raw',
