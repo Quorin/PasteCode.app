@@ -10,7 +10,7 @@ export const pasteRouter = createRouter()
       title: z.string().max(150, 'Title is too long'),
       content: z.string().max(10000000, 'Content is too long'),
       style: z.string(),
-      description: z.string().max(10000, 'Description is too long'),
+      description: z.string().max(300, 'Description is too long'),
       tags: z
         .array(z.string().max(15, 'Too long name'))
         .max(20, 'Too many tags')
@@ -164,7 +164,6 @@ export const pasteRouter = createRouter()
         distinct: ['id'],
         select: {
           id: true,
-          content: true,
           tags: {
             select: {
               tag: {
