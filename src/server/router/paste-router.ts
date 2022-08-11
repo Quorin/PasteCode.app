@@ -61,13 +61,14 @@ export const pasteRouter = createRouter()
           data:
             input.tags?.map((tag) => ({
               name: tag.toLowerCase(),
-              userId: ctx.session?.user?.id ?? undefined,
             })) || [],
           skipDuplicates: true,
         })
 
         const tags = await ctx.prisma.tag.findMany({
-          where: { name: { in: input.tags.map((t) => t.toLowerCase()) || [] } },
+          where: {
+            name: { in: input.tags.map((t) => t.toLowerCase()) || [] },
+          },
         })
 
         await ctx.prisma.tagsOnPastes.createMany({
@@ -132,9 +133,16 @@ export const pasteRouter = createRouter()
       const pastes = await ctx.prisma.paste.findMany({
         where: {
           userId,
-          expiresAt: {
-            gt: now,
-          },
+          OR: [
+            {
+              expiresAt: null,
+            },
+            {
+              expiresAt: {
+                gt: now,
+              },
+            },
+          ],
         },
         orderBy: {
           createdAt: 'desc',
