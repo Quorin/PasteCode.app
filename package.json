@@ -26,6 +26,7 @@
     "formik": "^2.2.9",
     "next": "12.2.3",
     "next-auth": "^4.10.3",
+    "prismjs": "^1.28.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.3.0",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@types/node": "18.0.0",
+    "@types/prismjs": "^1.26.0",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
     "autoprefixer": "^10.4.8",

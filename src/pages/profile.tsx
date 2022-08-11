@@ -83,8 +83,14 @@ const Profile = () => {
             {(data?.pages ?? []).map(({ pastes }) =>
               pastes.map((p) => (
                 <div
+                  onClick={() =>
+                    Router.push({
+                      pathname: routes.PASTES.INDEX,
+                      query: { id: p.id },
+                    })
+                  }
                   key={p.id}
-                  className="p-6 bg-white rounded-lg border border-zinc-200 shadow-md dark:bg-zinc-800 dark:border-zinc-700"
+                  className="cursor-pointer p-6 bg-white rounded-lg border border-zinc-200 shadow-md dark:bg-zinc-800 hover:bg-zinc-700 dark:border-zinc-700"
                 >
                   <div className="flex gap-3 items-center overflow-clip">
                     <svg

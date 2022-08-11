@@ -9,6 +9,7 @@ specifiers:
   '@trpc/react': ^9.26.2
   '@trpc/server': ^9.26.2
   '@types/node': 18.0.0
+  '@types/prismjs': ^1.26.0
   '@types/react': 18.0.14
   '@types/react-dom': 18.0.5
   argon2: ^0.28.7
@@ -27,6 +28,7 @@ specifiers:
   postcss: ^8.4.14
   prettier: 2.7.1
   prisma: ^4.1.1
+  prismjs: ^1.28.0
   react: 18.2.0
   react-dom: 18.2.0
   react-hot-toast: ^2.3.0
@@ -53,6 +55,7 @@ dependencies:
   formik: 2.2.9_react@18.2.0
   next: 12.2.3_biqbaboplfbrettd7655fr4n2y
   next-auth: 4.10.3_biqbaboplfbrettd7655fr4n2y
+  prismjs: 1.28.0
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-hot-toast: 2.3.0_vt6aeitzauirmcdhimiad2yjxy
@@ -64,6 +67,7 @@ dependencies:
 
 devDependencies:
   '@types/node': 18.0.0
+  '@types/prismjs': 1.26.0
   '@types/react': 18.0.14
   '@types/react-dom': 18.0.5
   autoprefixer: 10.4.8_postcss@8.4.14
@@ -445,6 +449,10 @@ packages:
 
   /@types/node/18.0.0:
     resolution: {integrity: sha512-cHlGmko4gWLVI27cGJntjs/Sj8th9aYwplmZFwmmgYQQvL5NUsgVJG7OddLvNfLqYS31KFN0s3qlaD9qCaxACA==}
+    dev: true
+
+  /@types/prismjs/1.26.0:
+    resolution: {integrity: sha512-ZTaqn/qSqUuAq1YwvOFQfVW1AR/oQJlLSZVustdjwI+GZ8kr0MSHBj0tsXPW1EqHubx50gtBEjbPGsdZwQwCjQ==}
     dev: true
 
   /@types/prop-types/15.7.5:
@@ -2584,6 +2592,11 @@ packages:
     requiresBuild: true
     dependencies:
       '@prisma/engines': 4.1.1
+
+  /prismjs/1.28.0:
+    resolution: {integrity: sha512-8aaXdYvl1F7iC7Xm1spqSaY/OJBpYW3v+KJ+F17iYxvdc8sfjW194COK5wVhMZX45tGteiBQgdvD/nhxcRwylw==}
+    engines: {node: '>=6'}
+    dev: false
 
   /prop-types/15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}

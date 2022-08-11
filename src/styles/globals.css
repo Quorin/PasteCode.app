@@ -3,9 +3,13 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap');
+@import url('../../node_modules/prismjs/themes/prism-tomorrow.min.css');
+@import url('../../node_modules/prismjs/plugins/line-numbers/prism-line-numbers.min.css');
+@import url('../../node_modules/prismjs/plugins/line-highlight/prism-line-highlight.min.css');
 
 @layer base {
   body {
     @apply bg-zinc-900;
   }
 }
+

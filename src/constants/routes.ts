@@ -7,4 +7,8 @@ export const routes = {
   },
   PROFILE: '/profile',
   SETTINGS: '/settings',
+  PASTES: {
+    INDEX: '/pastes/[id]',
+    RAW: '/pastes/[id]/raw',
+  },
 }
