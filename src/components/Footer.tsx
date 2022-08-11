@@ -4,7 +4,10 @@ const Footer = () => {
       <footer className="container mx-auto">
         <ul className="flex flex-wrap items-center justify-center mb-6 text-sm sm:mb-0 text-zinc-400">
           <li>
-            <a href="#" className="mr-4 hover:underline md:mr-6 ">
+            <a
+              href="https://github.com/Quorin/PasteCode.app"
+              className="mr-4 hover:underline md:mr-6 "
+            >
               Github
             </a>
           </li>
@@ -14,7 +17,7 @@ const Footer = () => {
             </a>
           </li>
           <li>
-            <a href="#" className="hover:underline">
+            <a href="mailto:contact@pastecode.app" className="hover:underline">
               Contact
             </a>
           </li>

@@ -11,10 +11,10 @@ const unauthorizedPaths = [
   { path: routes.REGISTER, name: 'Register' },
 ]
 
-const authorizedPaths = (name: string) => [
+const authorizedPaths = [
   { path: routes.HOME, name: 'Home' },
-  { path: routes.PROFILE, name },
-  { path: routes.SETTINGS, name: 'Settings' },
+  { path: routes.PROFILE, name: 'Profile' },
+  { path: routes.SETTINGS.INDEX, name: 'Settings' },
 ]
 
 const link = cva(
@@ -82,16 +82,14 @@ const Navbar = () => {
         >
           <ul className="flex flex-col p-4 mt-4 rounded-lg border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 bg-zinc-800 md:bg-zinc-900 border-zinc-700">
             {status === 'authenticated'
-              ? authorizedPaths(data.user?.name ?? 'Profile').map(
-                  ({ path, name }) => (
-                    <li
-                      key={path}
-                      className={link({ active: router.pathname === path })}
-                    >
-                      <Link href={path}>{name}</Link>
-                    </li>
-                  ),
-                )
+              ? authorizedPaths.map(({ path, name }) => (
+                  <li
+                    key={path}
+                    className={link({ active: router.pathname === path })}
+                  >
+                    <Link href={path}>{name}</Link>
+                  </li>
+                ))
               : unauthorizedPaths.map(({ path, name }) => (
                   <li
                     key={path}
