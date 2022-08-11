@@ -85,9 +85,21 @@ export const pasteRouter = createRouter()
       id: z.string(),
     }),
     async resolve({ input, ctx }) {
+      const now = new Date()
+
       const paste = await ctx.prisma.paste.findFirst({
         where: {
           id: input.id,
+          OR: [
+            {
+              expiresAt: null,
+            },
+            {
+              expiresAt: {
+                gt: now,
+              },
+            },
+          ],
         },
         select: {
           id: true,
