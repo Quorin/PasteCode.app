@@ -1,4 +1,3 @@
-import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Router from 'next/router'
@@ -6,12 +5,15 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import Spinner from '../components/Spinner'
 import { routes } from '../constants/routes'
 import { trpc } from '../utils/trpc'
+import useUser from '../utils/useUser'
 
 const Profile = () => {
-  const session = useSession()
+  const { user } = useUser({
+    redirectTo: routes.AUTH.LOGIN,
+  })
 
-  if (session.status === 'unauthenticated') {
-    Router.replace(routes.AUTH.LOGIN)
+  if (user && !user.isLoggedIn) {
+    Router.push(routes.AUTH.LOGIN)
   }
 
   const { data, hasNextPage, fetchNextPage, isLoading } = trpc.useInfiniteQuery(

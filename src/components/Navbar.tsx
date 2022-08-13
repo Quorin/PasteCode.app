@@ -1,9 +1,9 @@
 import { cva } from 'class-variance-authority'
-import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useRef, useState } from 'react'
 import { routes } from '../constants/routes'
+import useUser from '../utils/useUser'
 
 const unauthorizedPaths = [
   { path: routes.HOME, name: 'Home' },
@@ -11,9 +11,9 @@ const unauthorizedPaths = [
   { path: routes.REGISTER, name: 'Register' },
 ]
 
-const authorizedPaths = [
+const authorizedPaths = (name: string) => [
   { path: routes.HOME, name: 'Home' },
-  { path: routes.PROFILE, name: 'Profile' },
+  { path: routes.PROFILE, name },
   { path: routes.SETTINGS.INDEX, name: 'Settings' },
 ]
 
@@ -34,7 +34,7 @@ const Navbar = () => {
   const [menuCollapsed, setMenuCollapsed] = useState(true)
   const menuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const { status, data } = useSession()
+  const { user } = useUser({ redirectIfFound: false })
 
   const handleCollapse = () => {
     setMenuCollapsed(!menuCollapsed)
@@ -81,8 +81,8 @@ const Navbar = () => {
           id="navbar-default"
         >
           <ul className="flex flex-col p-4 mt-4 rounded-lg border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 bg-zinc-800 md:bg-zinc-900 border-zinc-700">
-            {status === 'authenticated'
-              ? authorizedPaths.map(({ path, name }) => (
+            {user?.isLoggedIn === true
+              ? authorizedPaths(user.name).map(({ path, name }) => (
                   <li
                     key={path}
                     className={link({ active: router.pathname === path })}

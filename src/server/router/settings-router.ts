@@ -71,6 +71,7 @@ export const settingsRouter = createProtectedRouter()
         where: { id: ctx.session.user.id! },
         data: {
           password: await argon2.hash(input.password),
+          credentialsUpdatedAt: new Date(),
         },
       })
     },
@@ -93,6 +94,7 @@ export const settingsRouter = createProtectedRouter()
         data: {
           email: input.email,
           confirmed: false,
+          credentialsUpdatedAt: new Date(),
           confirmationCode: {
             upsert: {
               update: {

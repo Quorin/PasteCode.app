@@ -1,5 +1,5 @@
 import { Field, Form, Formik, FormikHelpers } from 'formik'
-import { signIn } from 'next-auth/react'
+// import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import Router from 'next/router'
 import toast, { Toaster } from 'react-hot-toast'
@@ -17,26 +17,24 @@ type LoginFields = typeof initialValues
 
 const Login = () => {
   const { mutateAsync } = trpc.useMutation(['user.resendConfirmationCode'])
+  const { mutateAsync: mutateLoginAsync } = trpc.useMutation(['auth.login'])
 
   const handleSubmit = async (
     { email, password }: LoginFields,
     helpers: FormikHelpers<LoginFields>,
   ) => {
-    const res = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    })
-
-    if (res?.ok && res?.status === 200) {
-      Router.push(routes.HOME)
-      return
-    }
-
-    helpers.setErrors({
-      email: 'Invalid email or your account is not confirmed',
-      password: 'Invalid password or your account is not confirmed',
-    })
+    await mutateLoginAsync(
+      { email, password },
+      {
+        onError(error) {
+          helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
+        },
+        async onSuccess() {
+          await Router.push(routes.HOME)
+          Router.reload()
+        },
+      },
+    )
   }
 
   const resendConfirmation = async (email: string) => {

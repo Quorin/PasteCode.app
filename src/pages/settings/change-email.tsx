@@ -1,12 +1,12 @@
 import { Field, Form, Formik, FormikHelpers } from 'formik'
 import type { NextPage } from 'next'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import toast, { Toaster } from 'react-hot-toast'
 import Button from '../../components/Button'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { trpc } from '../../utils/trpc'
+import useUser from '../../utils/useUser'
 
 const values = {
   email: '',
@@ -16,11 +16,11 @@ const values = {
 type FormValues = typeof values
 
 const ChangeEmail: NextPage = () => {
-  const session = useSession()
+  const { user } = useUser({ redirectIfFound: false })
   const router = useRouter()
   const { mutateAsync } = trpc.useMutation(['settings.changeEmail'])
 
-  if (session.status === 'unauthenticated') {
+  if (user && !user.isLoggedIn) {
     router.replace(routes.AUTH.LOGIN)
   }
 
