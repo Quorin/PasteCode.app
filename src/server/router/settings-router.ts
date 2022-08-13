@@ -17,7 +17,6 @@ export const settingsRouter = createProtectedRouter()
           confirmationCode: true,
           resetPassword: true,
           pastes: true,
-          sessions: true,
         },
       })
       return true
