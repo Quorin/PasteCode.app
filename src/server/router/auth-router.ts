@@ -72,6 +72,7 @@ export const authRouter = createRouter()
         ctx.session.user = {
           id: user.id,
           name: user.name,
+          credentialsUpdatedAt: user.credentialsUpdatedAt,
           isLoggedIn: true,
         }
 
@@ -105,6 +106,11 @@ export const authRouter = createRouter()
             ctx.session.user.credentialsUpdatedAt ?? new Date(0),
           )
         ) {
+          console.log('user.credentialsUpdatedAt', user.credentialsUpdatedAt)
+          console.log(
+            'ctx.session.user.credentialsUpdatedAt',
+            ctx.session.user.credentialsUpdatedAt,
+          )
           return unauthorized
         }
       }
