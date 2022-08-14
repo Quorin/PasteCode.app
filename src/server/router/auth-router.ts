@@ -1,15 +1,8 @@
 import dayjs from 'dayjs'
-import { z } from 'zod'
+import { z, ZodError } from 'zod'
 import { createRouter } from './context'
 import * as argon2 from 'argon2'
 import trpc from '@trpc/server'
-import { SessionUser } from '../../utils/useUser'
-
-const unauthorized: SessionUser = {
-  id: '',
-  name: '',
-  isLoggedIn: false,
-}
 
 export const authRouter = createRouter()
   .mutation('logout', {
@@ -32,9 +25,9 @@ export const authRouter = createRouter()
       if (!user) {
         throw new trpc.TRPCError({
           code: 'BAD_REQUEST',
-          cause: new z.ZodError([
+          cause: new ZodError([
             {
-              path: ['email', 'password'],
+              path: ['password'],
               message: 'Invalid email or password.',
               code: 'custom',
             },
@@ -45,7 +38,7 @@ export const authRouter = createRouter()
       if (!user?.confirmed) {
         throw new trpc.TRPCError({
           code: 'BAD_REQUEST',
-          cause: new z.ZodError([
+          cause: new ZodError([
             {
               code: 'custom',
               message: 'Email is not confirmed',
@@ -58,10 +51,10 @@ export const authRouter = createRouter()
       if (!(await argon2.verify(user.password ?? '', input.password))) {
         throw new trpc.TRPCError({
           code: 'BAD_REQUEST',
-          cause: new z.ZodError([
+          cause: new ZodError([
             {
-              path: ['email', 'password'],
               message: 'Invalid email or password.',
+              path: ['password'],
               code: 'custom',
             },
           ]),
@@ -73,7 +66,6 @@ export const authRouter = createRouter()
           id: user.id,
           name: user.name,
           credentialsUpdatedAt: user.credentialsUpdatedAt,
-          isLoggedIn: true,
         }
 
         await ctx.session.save()
@@ -83,7 +75,7 @@ export const authRouter = createRouter()
   .query('checkSession', {
     async resolve({ ctx }) {
       if (!ctx.session?.user?.id) {
-        return unauthorized
+        return null
       }
 
       const user = await ctx.prisma.user.findFirst({
@@ -96,7 +88,6 @@ export const authRouter = createRouter()
       if (!user) {
         return {
           ...ctx.session.user,
-          isLoggedIn: true,
         }
       }
 
@@ -111,13 +102,12 @@ export const authRouter = createRouter()
             'ctx.session.user.credentialsUpdatedAt',
             ctx.session.user.credentialsUpdatedAt,
           )
-          return unauthorized
+          return null
         }
       }
 
       return {
         ...ctx.session.user,
-        isLoggedIn: true,
       }
     },
   })

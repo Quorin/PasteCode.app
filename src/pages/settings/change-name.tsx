@@ -6,7 +6,7 @@ import Button from '../../components/Button'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { trpc } from '../../utils/trpc'
-import useUser from '../../utils/useUser'
+import useAuth from '../../utils/useAuth'
 
 const values = {
   name: '',
@@ -15,11 +15,11 @@ const values = {
 type FormValues = typeof values
 
 const ChangeName: NextPage = () => {
-  const { user } = useUser({ redirectIfFound: false })
+  const { isLoggedIn, isLoading } = useAuth()
   const router = useRouter()
   const { mutateAsync } = trpc.useMutation(['settings.changeName'])
 
-  if (user && !user.isLoggedIn) {
+  if (!isLoading && !isLoggedIn) {
     router.replace(routes.AUTH.LOGIN)
   }
 

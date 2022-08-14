@@ -1,4 +1,4 @@
-import { SessionUser } from './src/utils/useUser'
+import { SessionUser } from './src/utils/useAuth'
 
 declare module 'iron-session' {
   interface IronSessionData {

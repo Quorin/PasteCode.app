@@ -5,26 +5,26 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import Spinner from '../components/Spinner'
 import { routes } from '../constants/routes'
 import { trpc } from '../utils/trpc'
-import useUser from '../utils/useUser'
+import useAuth from '../utils/useAuth'
 
 const Profile = () => {
-  const { user } = useUser({
-    redirectTo: routes.AUTH.LOGIN,
-  })
+  const { isLoggedIn, isLoading } = useAuth()
 
-  if (user && !user.isLoggedIn) {
+  if (!isLoading && !isLoggedIn) {
     Router.push(routes.AUTH.LOGIN)
   }
 
-  const { data, hasNextPage, fetchNextPage, isLoading } = trpc.useInfiniteQuery(
-    ['paste.getUserPastes', { limit: 25 }],
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    },
-  )
+  const {
+    data,
+    hasNextPage,
+    fetchNextPage,
+    isLoading: isLoadingPastes,
+  } = trpc.useInfiniteQuery(['paste.getUserPastes', { limit: 25 }], {
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+  })
 
   const next = () => {
-    !isLoading && fetchNextPage()
+    !isLoadingPastes && fetchNextPage()
   }
 
   const count = () => {
@@ -41,7 +41,7 @@ const Profile = () => {
 
       {count() == 0 ? (
         <div className="flex flex-col justify-center items-center">
-          {isLoading ? (
+          {isLoadingPastes ? (
             <Spinner />
           ) : (
             <div className="text-center">

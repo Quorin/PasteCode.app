@@ -1,5 +1,4 @@
 import { Field, Form, Formik, FormikHelpers } from 'formik'
-// import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import Router from 'next/router'
 import toast, { Toaster } from 'react-hot-toast'
@@ -7,6 +6,7 @@ import Button from '../../components/Button'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { trpc } from '../../utils/trpc'
+import useAuth from '../../utils/useAuth'
 
 const initialValues = {
   email: '',
@@ -16,6 +16,7 @@ const initialValues = {
 type LoginFields = typeof initialValues
 
 const Login = () => {
+  const { refresh } = useAuth()
   const { mutateAsync } = trpc.useMutation(['user.resendConfirmationCode'])
   const { mutateAsync: mutateLoginAsync } = trpc.useMutation(['auth.login'])
 
@@ -30,8 +31,8 @@ const Login = () => {
           helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
         },
         async onSuccess() {
+          await refresh()
           await Router.push(routes.HOME)
-          Router.reload()
         },
       },
     )

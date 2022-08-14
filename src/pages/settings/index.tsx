@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Modal from '../../components/Modal'
 import { routes } from '../../constants/routes'
 import { trpc } from '../../utils/trpc'
+import useAuth from '../../utils/useAuth'
 
 const Settings = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
@@ -12,6 +13,7 @@ const Settings = () => {
   ])
   const router = useRouter()
   const { mutateAsync: mutateLogoutAsync } = trpc.useMutation(['auth.logout'])
+  const { logout } = useAuth()
 
   const handleDelete = async () => {
     setIsDeleteModalVisible(false)
@@ -25,9 +27,9 @@ const Settings = () => {
 
   const handleLogout = async () => {
     await mutateLogoutAsync(undefined, {
-      async onSuccess() {
-        await router.replace(routes.HOME)
-        router.reload()
+      async onSettled() {
+        logout()
+        await router.push(routes.HOME)
       },
     })
   }

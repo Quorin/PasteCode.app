@@ -5,12 +5,15 @@ import superjson from 'superjson'
 import Layout from '../components/Layout'
 import type { AppRouter } from '../server/router'
 import '../styles/globals.css'
+import { AuthProvider } from '../utils/useAuth'
 
 const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <AuthProvider>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </AuthProvider>
   )
 }
 
