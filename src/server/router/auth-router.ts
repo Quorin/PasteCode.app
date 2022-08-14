@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import { z, ZodError } from 'zod'
 import { createRouter } from './context'
 import * as argon2 from 'argon2'
-import trpc from '@trpc/server'
+import * as trpc from '@trpc/server'
 
 export const authRouter = createRouter()
   .mutation('logout', {
