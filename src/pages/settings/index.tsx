@@ -4,18 +4,32 @@ import { useState } from 'react'
 import Modal from '../../components/Modal'
 import { routes } from '../../constants/routes'
 import { trpc } from '../../utils/trpc'
+import useAuth from '../../utils/useAuth'
 
 const Settings = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
-  const { mutateAsync } = trpc.useMutation(['settings.removeAccount'])
+  const { mutateAsync: mutateRemoveAccountAsync } = trpc.useMutation([
+    'settings.removeAccount',
+  ])
   const router = useRouter()
+  const { mutateAsync: mutateLogoutAsync } = trpc.useMutation(['auth.logout'])
+  const { logout } = useAuth()
 
   const handleDelete = async () => {
     setIsDeleteModalVisible(false)
 
-    await mutateAsync(undefined, {
+    await mutateRemoveAccountAsync(undefined, {
       onSuccess() {
         router.replace(routes.HOME)
+      },
+    })
+  }
+
+  const handleLogout = async () => {
+    await mutateLogoutAsync(undefined, {
+      async onSettled() {
+        logout()
+        await router.push(routes.HOME)
       },
     })
   }
@@ -43,8 +57,14 @@ const Settings = () => {
           </button>
         </Link>
         <button
-          onClick={() => setIsDeleteModalVisible(true)}
+          onClick={() => handleLogout()}
           className="w-full md:w-1/2 bg-zinc-700 hover:bg-red-300 text-red-300 hover:text-zinc-700 transition-colors mx-auto px-10 py-3 rounded-lg"
+        >
+          Logout
+        </button>
+        <button
+          onClick={() => setIsDeleteModalVisible(true)}
+          className="mt-10 w-full md:w-1/2 bg-zinc-700 hover:bg-red-300 text-red-300 hover:text-zinc-700 transition-colors mx-auto px-10 py-3 rounded-lg"
         >
           Remove Account & Data
         </button>

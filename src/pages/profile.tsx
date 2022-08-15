@@ -1,4 +1,3 @@
-import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Router from 'next/router'
@@ -6,23 +5,26 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import Spinner from '../components/Spinner'
 import { routes } from '../constants/routes'
 import { trpc } from '../utils/trpc'
+import useAuth from '../utils/useAuth'
 
 const Profile = () => {
-  const session = useSession()
+  const { isLoggedIn, isLoading } = useAuth()
 
-  if (session.status === 'unauthenticated') {
-    Router.replace(routes.AUTH.LOGIN)
+  if (!isLoading && !isLoggedIn) {
+    Router.push(routes.AUTH.LOGIN)
   }
 
-  const { data, hasNextPage, fetchNextPage, isLoading } = trpc.useInfiniteQuery(
-    ['paste.getUserPastes', { limit: 25 }],
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    },
-  )
+  const {
+    data,
+    hasNextPage,
+    fetchNextPage,
+    isLoading: isLoadingPastes,
+  } = trpc.useInfiniteQuery(['paste.getUserPastes', { limit: 25 }], {
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+  })
 
   const next = () => {
-    !isLoading && fetchNextPage()
+    !isLoadingPastes && fetchNextPage()
   }
 
   const count = () => {
@@ -39,7 +41,7 @@ const Profile = () => {
 
       {count() == 0 ? (
         <div className="flex flex-col justify-center items-center">
-          {isLoading ? (
+          {isLoadingPastes ? (
             <Spinner />
           ) : (
             <div className="text-center">

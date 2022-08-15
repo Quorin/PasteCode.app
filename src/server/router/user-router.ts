@@ -140,6 +140,7 @@ export const userRouter = createRouter()
           },
           data: {
             password: await argon2.hash(input.password),
+            credentialsUpdatedAt: new Date(),
           },
         }),
         ctx.prisma.resetPassword.delete({ where: { id: rp.id } }),

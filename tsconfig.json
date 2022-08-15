@@ -18,7 +18,7 @@
   },
   "include": [
     "next-env.d.ts",
-    "next-auth.d.ts",
+    "iron-session.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.js"
