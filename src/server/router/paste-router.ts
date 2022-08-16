@@ -1,10 +1,9 @@
 import { z } from 'zod'
 import * as trpc from '@trpc/server'
 import { createRouter } from './context'
-import dayjs from 'dayjs'
-import { Maybe } from '@trpc/server'
 import * as argon2 from 'argon2'
 import Cryptr from 'cryptr'
+import { getExpirationDate, upsertTags } from '../../utils/paste'
 
 export const pasteRouter = createRouter()
   .mutation('updatePaste', {
@@ -68,27 +67,6 @@ export const pasteRouter = createRouter()
         }
       }
 
-      const expiresAt = (current: Maybe<Date>) => {
-        switch (input.expiration) {
-          case 'year':
-            return dayjs().add(1, 'year').toDate()
-          case 'month':
-            return dayjs().add(1, 'month').toDate()
-          case 'week':
-            return dayjs().add(1, 'week').toDate()
-          case 'day':
-            return dayjs().add(1, 'day').toDate()
-          case 'hour':
-            return dayjs().add(1, 'hour').toDate()
-          case '10m':
-            return dayjs().add(10, 'minute').toDate()
-          case 'same':
-            return current ?? null
-          default:
-            return null
-        }
-      }
-
       await ctx.prisma.paste.update({
         where: {
           id: input.id,
@@ -100,31 +78,12 @@ export const pasteRouter = createRouter()
             : input.content,
           style: input.style,
           description: input.description,
-          expiresAt: expiresAt(paste.expiresAt),
+          expiresAt: getExpirationDate(input.expiration, paste.expiresAt),
           password: input.password ? await argon2.hash(input.password) : null,
         },
       })
 
-      if (input.tags && input.tags.length > 0) {
-        await ctx.prisma.tag.createMany({
-          data:
-            input.tags?.map((tag) => ({
-              name: tag.toLowerCase(),
-            })) || [],
-          skipDuplicates: true,
-        })
-
-        const tags = await ctx.prisma.tag.findMany({
-          where: {
-            name: { in: input.tags.map((t) => t.toLowerCase()) || [] },
-          },
-        })
-
-        await ctx.prisma.tagsOnPastes.createMany({
-          skipDuplicates: true,
-          data: tags.map((tag) => ({ pasteId: paste.id, tagId: tag.id })),
-        })
-      }
+      await upsertTags(ctx.prisma, input.tags, input.id)
     },
   })
   .mutation('createPaste', {
@@ -143,25 +102,6 @@ export const pasteRouter = createRouter()
       password: z.string().optional(),
     }),
     async resolve({ input, ctx }) {
-      const expiresAt: () => Maybe<Date> = () => {
-        switch (input.expiration) {
-          case 'year':
-            return dayjs().add(1, 'year').toDate()
-          case 'month':
-            return dayjs().add(1, 'month').toDate()
-          case 'week':
-            return dayjs().add(1, 'week').toDate()
-          case 'day':
-            return dayjs().add(1, 'day').toDate()
-          case 'hour':
-            return dayjs().add(1, 'hour').toDate()
-          case '10m':
-            return dayjs().add(10, 'minute').toDate()
-          default:
-            return undefined
-        }
-      }
-
       const paste = await ctx.prisma.paste.create({
         data: {
           title: input.title,
@@ -170,7 +110,7 @@ export const pasteRouter = createRouter()
             : input.content,
           style: input.style,
           description: input.description,
-          expiresAt: expiresAt(),
+          expiresAt: getExpirationDate(input.expiration),
           password: input.password ? await argon2.hash(input.password) : null,
           user: ctx.session?.user?.id
             ? {
@@ -182,26 +122,7 @@ export const pasteRouter = createRouter()
         },
       })
 
-      if (input.tags && input.tags.length > 0) {
-        await ctx.prisma.tag.createMany({
-          data:
-            input.tags?.map((tag) => ({
-              name: tag.toLowerCase(),
-            })) || [],
-          skipDuplicates: true,
-        })
-
-        const tags = await ctx.prisma.tag.findMany({
-          where: {
-            name: { in: input.tags.map((t) => t.toLowerCase()) || [] },
-          },
-        })
-
-        await ctx.prisma.tagsOnPastes.createMany({
-          skipDuplicates: true,
-          data: tags.map((tag) => ({ pasteId: paste.id, tagId: tag.id })),
-        })
-      }
+      await upsertTags(ctx.prisma, input.tags, paste.id)
 
       return paste.id
     },
