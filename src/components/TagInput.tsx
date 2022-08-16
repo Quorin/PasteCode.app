@@ -19,7 +19,7 @@ const TagInput = ({
   arrayProp,
   maxlength,
 }: Props) => {
-  const [tags, setTags] = useState<string[]>([])
+  const [tags, setTags] = useState<string[]>(form.initialValues.tags ?? [])
 
   useEffect(() => {
     form.setFieldValue(arrayProp, tags)

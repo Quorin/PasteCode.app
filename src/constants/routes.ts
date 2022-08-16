@@ -16,5 +16,6 @@ export const routes = {
   PASTES: {
     INDEX: '/pastes/[id]',
     RAW: '/pastes/[id]/raw',
+    EDIT: '/pastes/[id]/edit',
   },
 }

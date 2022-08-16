@@ -31,7 +31,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const query = trpc.useQuery(['auth.checkSession'], {
     enabled: false,
-    onSettled: async () => {},
     onSuccess: (user) => {
       if (user && user.id) {
         setUser(user)
@@ -57,7 +56,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const refresh = async () => {
-    console.log('refresh')
     setIsLoading(true)
     await query.refetch()
   }
