@@ -9,6 +9,7 @@ import Input from '../../../components/Input'
 import Spinner from '../../../components/Spinner'
 import { routes } from '../../../constants/routes'
 import { trpc } from '../../../utils/trpc'
+import useAuth from '../../../utils/useAuth'
 
 const initialValues = {
   password: '',
@@ -18,6 +19,7 @@ type FormValues = typeof initialValues
 
 const Paste: NextPage = () => {
   const router = useRouter()
+  const { isLoggedIn, isLoading: isAuthLoading, user } = useAuth()
 
   const handleSubmit = async (values: FormValues) => {
     router.replace({
@@ -34,7 +36,8 @@ const Paste: NextPage = () => {
     },
   ])
 
-  console.log(router)
+  const canEdit = () =>
+    !isAuthLoading && isLoggedIn && user?.id === data?.paste?.userId
 
   if (data?.secure) {
     return (
@@ -116,13 +119,23 @@ const Paste: NextPage = () => {
             >
               Copy
             </button>
-            <button
-              className="bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
-              type="button"
-              onClick={() => {}}
-            >
-              Edit
-            </button>
+            {canEdit() && (
+              <button
+                className="bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
+                type="button"
+                onClick={() =>
+                  router.push({
+                    pathname: routes.PASTES.EDIT,
+                    query: {
+                      id: router.query.id,
+                      password: router.query.password,
+                    },
+                  })
+                }
+              >
+                Edit
+              </button>
+            )}
             <a
               className=" text-center cursor-pointer bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
               type="button"
