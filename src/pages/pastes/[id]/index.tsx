@@ -15,8 +15,11 @@ import {
   ClipboardCopyIcon,
   DocumentTextIcon,
   PencilIcon,
+  TrashIcon,
 } from '@heroicons/react/outline'
 import { DuplicateIcon } from '@heroicons/react/outline'
+import Modal from '../../../components/Modal'
+import { useState } from 'react'
 
 dayjs.extend(relativeTime)
 
@@ -29,6 +32,7 @@ type FormValues = typeof initialValues
 const Paste: NextPage = () => {
   const router = useRouter()
   const { isLoggedIn, isLoading: isAuthLoading, user } = useAuth()
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
 
   const handleSubmit = async (values: FormValues) => {
     router.replace({
@@ -45,7 +49,23 @@ const Paste: NextPage = () => {
     },
   ])
 
-  const canEdit = () =>
+  const { mutateAsync: deletePasteAsync } = trpc.useMutation([
+    'paste.removePaste',
+  ])
+
+  const handleDelete = async (id: string) => {
+    setIsDeleteModalVisible(false)
+    await deletePasteAsync(
+      { id, password: (router.query.password as string) ?? null },
+      {
+        async onSuccess() {
+          await router.replace(routes.HOME)
+        },
+      },
+    )
+  }
+
+  const canEdit =
     !isAuthLoading && isLoggedIn && user?.id === data?.paste?.userId
 
   if (data?.secure) {
@@ -132,7 +152,7 @@ const Paste: NextPage = () => {
                 Copy
               </div>
             </button>
-            {canEdit() && (
+            {canEdit && (
               <button
                 className="bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
                 type="button"
@@ -183,6 +203,27 @@ const Paste: NextPage = () => {
                 Duplicate
               </div>
             </button>
+            {canEdit && (
+              <button
+                className="bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
+                type="button"
+                onClick={() => setIsDeleteModalVisible(true)}
+              >
+                <div className="flex items-center gap-2 justify-center">
+                  <TrashIcon className="w-6" />
+                  Delete
+                </div>
+              </button>
+            )}
+            <Modal
+              visible={isDeleteModalVisible}
+              action={() => handleDelete(data.paste?.id ?? '')}
+              close={() => setIsDeleteModalVisible(false)}
+              accentColor="red"
+              title="Remove paste"
+              actionTitle="Remove"
+              description="Are you sure you want to remove this paste? It's cannot be undone."
+            />
           </div>
           <div className="mb-10">
             <Code

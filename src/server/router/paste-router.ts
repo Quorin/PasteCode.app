@@ -6,6 +6,69 @@ import Cryptr from 'cryptr'
 import { getExpirationDate, upsertTags } from '../../utils/paste'
 
 export const pasteRouter = createRouter()
+  .mutation('removePaste', {
+    input: z.object({
+      id: z.string(),
+      password: z.string().optional(),
+    }),
+    async resolve({ input, ctx }) {
+      if (!ctx.session?.user) {
+        throw new trpc.TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'You are not authorized to remove this paste',
+        })
+      }
+
+      const paste = await ctx.prisma.paste.findFirst({
+        where: {
+          id: input.id,
+        },
+        select: {
+          id: true,
+          userId: true,
+          password: true,
+        },
+      })
+
+      if (!paste) {
+        throw new trpc.TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Paste not found',
+        })
+      }
+
+      if (paste.userId !== ctx.session.user.id) {
+        throw new trpc.TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'You are not authorized to remove this paste',
+        })
+      }
+
+      if (paste.password) {
+        if (input.password) {
+          const valid = await argon2.verify(paste.password, input.password)
+          if (!valid) {
+            throw new trpc.TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'Password is incorrect',
+            })
+          }
+        } else {
+          throw new trpc.TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Password is required',
+          })
+        }
+      }
+
+      await ctx.prisma.paste.delete({
+        where: {
+          id: input.id,
+        },
+        select: null,
+      })
+    },
+  })
   .mutation('updatePaste', {
     input: z.object({
       id: z.string(),
