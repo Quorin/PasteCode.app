@@ -8,8 +8,9 @@ import TagInput from '../components/TagInput'
 import Textarea from '../components/Textarea'
 import { routes } from '../constants/routes'
 import { trpc } from '../utils/trpc'
+import Spinner from '../components/Spinner'
 
-const values = {
+let values = {
   title: '',
   description: '',
   content: '',
@@ -33,6 +34,29 @@ const Home: NextPage = () => {
   const { mutateAsync } = trpc.useMutation(['paste.createPaste'])
   const router = useRouter()
 
+  const forkId = Array.isArray(router.query.fork)
+    ? router.query.fork[0]
+    : router.query.fork
+
+  const forkPassword = Array.isArray(router.query.password)
+    ? router.query.password[0]
+    : router.query.password
+
+  const forkQuery = trpc.useQuery(
+    ['paste.getPaste', { id: forkId ?? '', password: forkPassword ?? null }],
+    {
+      enabled: !!forkId,
+      onSuccess: ({ paste }) => {
+        values.title = paste?.title ?? ''
+        values.description = paste?.description ?? ''
+        values.content = paste?.content ?? ''
+        values.style = paste?.style ?? 'cpp'
+        values.tags = paste?.tags.map((tag) => tag.tag.name) ?? []
+        values.tag = ''
+      },
+    },
+  )
+
   const handleSubmit = async (
     values: FormValues,
     helpers: FormikHelpers<FormValues>,
@@ -48,6 +72,14 @@ const Home: NextPage = () => {
         })
       },
     })
+  }
+
+  if (forkId && (forkQuery.isLoading || forkQuery.error)) {
+    return (
+      <div className="flex justify-center">
+        <Spinner />
+      </div>
+    )
   }
 
   return (

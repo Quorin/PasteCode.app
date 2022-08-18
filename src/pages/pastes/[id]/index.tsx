@@ -149,7 +149,15 @@ const Paste: NextPage = () => {
             <button
               className="bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
               type="button"
-              onClick={() => {}}
+              onClick={() =>
+                router.push({
+                  pathname: routes.HOME,
+                  query: {
+                    fork: data.paste?.id,
+                    password: router.query.password ?? null,
+                  },
+                })
+              }
             >
               Fork
             </button>
