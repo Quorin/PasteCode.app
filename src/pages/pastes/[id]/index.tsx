@@ -10,6 +10,9 @@ import Spinner from '../../../components/Spinner'
 import { routes } from '../../../constants/routes'
 import { trpc } from '../../../utils/trpc'
 import useAuth from '../../../utils/useAuth'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+dayjs.extend(relativeTime)
 
 const initialValues = {
   password: '',
@@ -175,10 +178,10 @@ const Paste: NextPage = () => {
             </span>
           </p>
           <p className="text-zinc-300 text-sm">
-            Expires at:{' '}
+            Expires:{' '}
             <span className="font-bold">
               {data.paste.expiresAt
-                ? dayjs(data.paste.expiresAt).format('YYYY/MM/DD')
+                ? dayjs(data.paste.expiresAt).fromNow()
                 : 'Never'}
             </span>
           </p>
