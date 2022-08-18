@@ -22,8 +22,11 @@ const TagInput = ({
   const [tags, setTags] = useState<string[]>(form.initialValues.tags ?? [])
 
   useEffect(() => {
+    setTags(form.initialValues.tags)
+  }, [form.initialValues.tags])
+
+  useEffect(() => {
     form.setFieldValue(arrayProp, tags)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tags])
 
   const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
