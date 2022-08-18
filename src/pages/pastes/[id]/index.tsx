@@ -11,6 +11,12 @@ import { routes } from '../../../constants/routes'
 import { trpc } from '../../../utils/trpc'
 import useAuth from '../../../utils/useAuth'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import {
+  ClipboardCopyIcon,
+  DocumentTextIcon,
+  PencilIcon,
+} from '@heroicons/react/outline'
+import { DuplicateIcon } from '@heroicons/react/outline'
 
 dayjs.extend(relativeTime)
 
@@ -92,39 +98,43 @@ const Paste: NextPage = () => {
         </h2>
       ) : (
         <div>
-          <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
+          <h2 className="text-3xl text-zinc-200 mb-10 font-semibold break-all">
             {data.paste.title}
           </h2>
-          {data.paste.description && (
-            <h3 className="text-lg text-zinc-400 mb-10 font-light italic bg-zinc-700 p-5 rounded-2xl">
-              {data.paste.description}
-            </h3>
-          )}
           {data.paste.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-10">
+            <div className="flex flex-wrap gap-2 my-5">
               {data.paste.tags.map((tag) => (
-                <span
+                <p
                   key={tag.tag.name}
-                  className="text-zinc-100 bg-zinc-700 px-3 py-1 rounded-2xl"
+                  className="inline-flex items-center py-1 px-2 text-sm font-medium text-gray-800 bg-gray-100 rounded dark:bg-zinc-500 dark:text-zinc-200"
                 >
-                  {tag.tag.name}
-                </span>
+                  #{tag.tag.name}
+                </p>
               ))}
             </div>
           )}
-          <div className="mb-10 grid grid-cols-2 md:grid-cols-4 md:place-items-stretch md:w-2/3 lg:w-1/2 gap-2">
+          {data.paste.description && (
+            <h3 className="text-sm text-zinc-400 mb-10 font-light italic break-all">
+              {data.paste.description}
+            </h3>
+          )}
+
+          <div className="mb-10 flex gap-2 flex-wrap">
             <button
-              className="bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
+              className="bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
               type="button"
               onClick={() =>
                 navigator.clipboard.writeText(data?.paste?.content ?? '')
               }
             >
-              Copy
+              <div className="flex items-center gap-2 justify-center">
+                <ClipboardCopyIcon className="w-6" />
+                Copy
+              </div>
             </button>
             {canEdit() && (
               <button
-                className="bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
+                className="bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
                 type="button"
                 onClick={() =>
                   router.push({
@@ -136,21 +146,27 @@ const Paste: NextPage = () => {
                   })
                 }
               >
-                Edit
+                <div className="flex items-center gap-2 justify-center">
+                  <PencilIcon className="w-6" />
+                  Edit
+                </div>
               </button>
             )}
             <a
-              className=" text-center cursor-pointer bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
+              className="text-center cursor-pointer bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
               type="button"
               href={`${router.asPath.replace(
                 router.query.id as string,
                 `${router.query.id}/raw`,
               )}`}
             >
-              Raw
+              <div className="flex items-center gap-2 justify-center">
+                <DocumentTextIcon className="w-6" />
+                Raw View
+              </div>
             </a>
             <button
-              className="bg-zinc-200 px-5 py-2 rounded text-zinc-700 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
+              className="bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
               type="button"
               onClick={() =>
                 router.push({
@@ -162,7 +178,10 @@ const Paste: NextPage = () => {
                 })
               }
             >
-              Fork
+              <div className="flex items-center gap-2 justify-center">
+                <DuplicateIcon className="w-6" />
+                Duplicate
+              </div>
             </button>
           </div>
           <div className="mb-10">

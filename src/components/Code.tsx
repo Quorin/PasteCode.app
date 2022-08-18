@@ -15,7 +15,7 @@ const Code = ({ code, language }: CodeProps) => {
 
   return (
     <div className="code">
-      <pre className="rounded-2xl line-numbers">
+      <pre className="rounded-md line-numbers">
         <code className={`language-${language}`}>{code}</code>
       </pre>
     </div>
