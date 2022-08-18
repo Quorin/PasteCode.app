@@ -235,6 +235,8 @@ export const pasteRouter = createRouter()
         distinct: ['id'],
         select: {
           id: true,
+          createdAt: true,
+          expiresAt: true,
           tags: {
             select: {
               tag: {

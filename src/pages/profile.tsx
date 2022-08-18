@@ -6,6 +6,10 @@ import Spinner from '../components/Spinner'
 import { routes } from '../constants/routes'
 import { trpc } from '../utils/trpc'
 import useAuth from '../utils/useAuth'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+dayjs.extend(relativeTime)
 
 const Profile = () => {
   const { isLoggedIn, isLoading } = useAuth()
@@ -159,7 +163,10 @@ const Profile = () => {
                       />
                     </svg>
                     <p className="font-normal text-zinc-400">
-                      Expires in <span className="font-bold">2h 59m</span>
+                      Expires{' '}
+                      <span className="font-bold">
+                        {p.expiresAt ? dayjs(p.expiresAt).fromNow() : 'Never'}
+                      </span>
                     </p>
                   </div>
                   <div className="flex gap-1 -ml-1 mt-1 items-center text-xs">
@@ -251,7 +258,10 @@ const Profile = () => {
                       />
                     </svg>
                     <p className="font-normal text-zinc-400 mt-0.5">
-                      Created At <span className="font-bold">14/01/2022</span>
+                      Created At{' '}
+                      <span className="font-bold">
+                        {dayjs(p.createdAt).format('YYYY/MM/DD')}
+                      </span>
                     </p>
                   </div>
                   <div className="relative">
