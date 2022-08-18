@@ -57,6 +57,15 @@ const Home: NextPage = () => {
     },
   )
 
+  const resetFork = async () => {
+    if (forkId) {
+      await router.replace({
+        pathname: router.pathname,
+      })
+      router.reload()
+    }
+  }
+
   const handleSubmit = async (
     values: FormValues,
     helpers: FormikHelpers<FormValues>,
@@ -203,6 +212,7 @@ const Home: NextPage = () => {
                     Submit
                   </Button>
                   <Button
+                    onClick={() => resetFork()}
                     type="reset"
                     className="bg-red-600 hover:bg-red-700 focus:ring-red-800 px-5"
                   >
