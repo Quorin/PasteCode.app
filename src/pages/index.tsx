@@ -9,26 +9,30 @@ import Textarea from '../components/Textarea'
 import { routes } from '../constants/routes'
 import { trpc } from '../utils/trpc'
 import Spinner from '../components/Spinner'
+import { DefaultLanguage, Languages } from '../components/Code'
+import { capitalize } from '../utils/strings'
 
-let values = {
+let values: FormValues = {
   title: '',
   description: '',
   content: '',
-  expiration: 'never' as
-    | 'year'
-    | 'never'
-    | 'month'
-    | 'week'
-    | 'day'
-    | 'hour'
-    | '10m',
-  style: 'cpp',
+  expiration: 'never',
+  style: DefaultLanguage.key,
   tag: '',
-  tags: [] as string[],
+  tags: [],
   password: '',
 }
 
-type FormValues = typeof values
+type FormValues = {
+  password: string
+  description: string
+  expiration: 'year' | 'never' | 'month' | 'week' | 'day' | 'hour' | '10m'
+  style: string
+  tag: string
+  title: string
+  content: string
+  tags: string[]
+}
 
 const Home: NextPage = () => {
   const { mutateAsync } = trpc.useMutation(['paste.createPaste'])
@@ -50,7 +54,7 @@ const Home: NextPage = () => {
         values.title = paste?.title ?? ''
         values.description = paste?.description ?? ''
         values.content = paste?.content ?? ''
-        values.style = paste?.style ?? 'cpp'
+        values.style = paste?.style ?? DefaultLanguage.key
         values.tags = paste?.tags.map((tag) => tag.tag.name) ?? []
         values.tag = ''
       },
@@ -194,16 +198,11 @@ const Home: NextPage = () => {
                       value={values.style}
                       component={Select}
                       required
-                      options={
-                        [
-                          { key: 'cpp', value: 'C++' },
-                          { key: 'java', value: 'Java' },
-                        ] as Option[]
-                      }
-                    >
-                      <option value="cpp">C++</option>
-                      <option value="java">Java</option>
-                    </Field>
+                      options={Languages.map((lang) => ({
+                        key: lang,
+                        value: lang ? capitalize(lang) : DefaultLanguage.value,
+                      }))}
+                    ></Field>
                   </div>
                 </div>
 

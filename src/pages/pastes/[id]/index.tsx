@@ -4,7 +4,6 @@ import { NextPage } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import Button from '../../../components/Button'
-import Code from '../../../components/Code'
 import Input from '../../../components/Input'
 import Spinner from '../../../components/Spinner'
 import { routes } from '../../../constants/routes'
@@ -20,6 +19,7 @@ import {
 import { DuplicateIcon } from '@heroicons/react/outline'
 import Modal from '../../../components/Modal'
 import { useState } from 'react'
+import Code from '../../../components/Code'
 
 dayjs.extend(relativeTime)
 

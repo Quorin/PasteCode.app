@@ -21,6 +21,7 @@
     "@trpc/react": "^9.26.2",
     "@trpc/server": "^9.26.2",
     "argon2": "^0.28.7",
+    "babel-plugin-prismjs": "^2.1.0",
     "class-variance-authority": "^0.2.3",
     "cryptr": "^6.0.3",
     "csstype": "^3.1.0",

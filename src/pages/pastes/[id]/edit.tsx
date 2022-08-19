@@ -9,6 +9,8 @@ import { trpc } from '../../../utils/trpc'
 import { useRouter } from 'next/router'
 import { routes } from '../../../constants/routes'
 import Spinner from '../../../components/Spinner'
+import { DefaultLanguage, Languages } from '../../../components/Code'
+import { capitalize } from '../../../utils/strings'
 
 type FormType = {
   id: string
@@ -89,7 +91,7 @@ const Edit: NextPage = () => {
     title: paste?.title ?? '',
     description: paste?.description ?? '',
     content: paste?.content ?? '',
-    style: paste?.style ?? 'cpp',
+    style: paste?.style ?? DefaultLanguage.key,
     tag: '',
     tags: paste?.tags.map((tag) => tag.tag.name) ?? [],
     expiration: 'same',
@@ -183,19 +185,14 @@ const Edit: NextPage = () => {
                     </label>
                     <Field
                       name="style"
-                      value={'cpp'}
+                      value={DefaultLanguage.key}
                       component={Select}
                       required
-                      options={
-                        [
-                          { key: 'cpp', value: 'C++' },
-                          { key: 'java', value: 'Java' },
-                        ] as Option[]
-                      }
-                    >
-                      <option value="cpp">C++</option>
-                      <option value="java">Java</option>
-                    </Field>
+                      options={Languages.map((lang) => ({
+                        key: lang,
+                        value: lang ? capitalize(lang) : DefaultLanguage.value,
+                      }))}
+                    ></Field>
                   </div>
                 </div>
 
