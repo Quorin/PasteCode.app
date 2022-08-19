@@ -56,7 +56,7 @@ const Paste: NextPage = () => {
   const handleDelete = async (id: string) => {
     setIsDeleteModalVisible(false)
     await deletePasteAsync(
-      { id, password: (router.query.password as string) ?? null },
+      { id, password: (router.query.password as string) ?? undefined },
       {
         async onSuccess() {
           await router.replace(routes.HOME)
