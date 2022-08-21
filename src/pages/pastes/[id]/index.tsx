@@ -23,6 +23,7 @@ import { getPasteSchema } from '../../../server/router/schema'
 import { getQueryArg } from '../../../utils/http'
 import { inferQueryInput, trpc, useZodForm } from '../../../utils/trpc'
 import useAuth from '../../../utils/useAuth'
+import NotFound from '../../404'
 
 dayjs.extend(relativeTime)
 
@@ -124,7 +125,7 @@ const Paste: NextPage = () => {
         </div>
       ) : !data?.paste ? (
         <h2 className="text-2xl text-zinc-100 text-bold text-center">
-          Paste not found
+          <NotFound />
         </h2>
       ) : (
         <div>

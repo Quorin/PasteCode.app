@@ -16,6 +16,7 @@ import { errorHandler } from '../../../utils/errorHandler'
 import { getQueryArg } from '../../../utils/http'
 import { capitalize } from '../../../utils/strings'
 import { inferMutationInput, trpc, useZodForm } from '../../../utils/trpc'
+import NotFound from '../../404'
 
 type FormValues = inferMutationInput<'paste.updatePaste'> & { tag: string }
 
@@ -72,6 +73,10 @@ const Edit: NextPage = () => {
 
   const paste = data?.paste
 
+  if (!paste) {
+    return <NotFound />
+  }
+
   return (
     <FormProvider {...methods}>
       <FormTitle title="Edit paste" />
@@ -88,7 +93,7 @@ const Edit: NextPage = () => {
           type="text"
           placeholder="Error"
           required={true}
-          defaultValue={paste?.title}
+          defaultValue={paste.title}
         />
         <Input
           id="description"
@@ -97,7 +102,7 @@ const Edit: NextPage = () => {
           type="text"
           placeholder="System.NullReferenceException"
           required={false}
-          defaultValue={paste?.description ?? ''}
+          defaultValue={paste.description ?? ''}
         />
         <TagInput
           id="tag"
@@ -114,7 +119,7 @@ const Edit: NextPage = () => {
           name="content"
           placeholder="Object reference not set to an instance of an object."
           required={true}
-          defaultValue={paste?.content ?? ''}
+          defaultValue={paste.content ?? ''}
         />
         <Input
           id="password"
@@ -151,7 +156,7 @@ const Edit: NextPage = () => {
                 label={'Style'}
                 required={false}
                 name={'style'}
-                defaultValue={paste?.style ?? DefaultLanguage.value}
+                defaultValue={paste.style ?? DefaultLanguage.value}
                 options={Languages.map((lang) => ({
                   key: lang,
                   value: lang ? capitalize(lang) : DefaultLanguage.value,
