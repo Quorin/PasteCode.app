@@ -135,7 +135,7 @@ const Paste: NextPage = () => {
               {data.paste.tags.map((tag) => (
                 <p
                   key={tag.tag.name}
-                  className="inline-flex items-center py-1 px-2 text-sm font-medium text-gray-800 bg-gray-100 rounded dark:bg-zinc-500 dark:text-zinc-200"
+                  className="inline-flex items-center py-1 px-2 text-sm font-medium  rounded bg-zinc-500 text-zinc-200"
                 >
                   #{tag.tag.name}
                 </p>

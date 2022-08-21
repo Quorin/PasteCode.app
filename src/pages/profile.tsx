@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import Image from 'next/image'
 import Link from 'next/link'
 import Router from 'next/router'
@@ -6,8 +8,6 @@ import Spinner from '../components/Spinner'
 import { routes } from '../constants/routes'
 import { trpc } from '../utils/trpc'
 import useAuth from '../utils/useAuth'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 
 dayjs.extend(relativeTime)
 
@@ -108,7 +108,7 @@ const Profile = () => {
                           {p.tags.map((t, i) => (
                             <p
                               key={i}
-                              className="inline-flex items-center py-1 px-2 text-sm font-medium text-gray-800 bg-gray-100 rounded dark:bg-zinc-500 dark:text-zinc-200"
+                              className="inline-flex items-center py-1 px-2 text-sm font-medium bg-gray-100 rounded text-zinc-200"
                             >
                               #{t.tag.name}
                             </p>
