@@ -3,6 +3,7 @@ import { z, ZodError } from 'zod'
 import { createRouter } from './context'
 import * as argon2 from 'argon2'
 import * as trpc from '@trpc/server'
+import { loginSchema } from './schema'
 
 export const authRouter = createRouter()
   .mutation('logout', {
@@ -11,10 +12,7 @@ export const authRouter = createRouter()
     },
   })
   .mutation('login', {
-    input: z.object({
-      email: z.string().email('Invalid email'),
-      password: z.string(),
-    }),
+    input: loginSchema,
     async resolve({ ctx, input }) {
       const user = await ctx.prisma.user.findFirst({
         where: {
@@ -97,11 +95,6 @@ export const authRouter = createRouter()
             ctx.session.user.credentialsUpdatedAt ?? new Date(0),
           )
         ) {
-          console.log('user.credentialsUpdatedAt', user.credentialsUpdatedAt)
-          console.log(
-            'ctx.session.user.credentialsUpdatedAt',
-            ctx.session.user.credentialsUpdatedAt,
-          )
           return null
         }
       }

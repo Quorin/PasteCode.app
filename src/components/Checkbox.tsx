@@ -1,31 +1,42 @@
-import { ErrorMessage, FieldProps } from 'formik'
+import { ErrorMessage } from '@hookform/error-message'
+import { InputHTMLAttributes, ReactElement } from 'react'
+import { useFormContext } from 'react-hook-form'
 import Label from './Label'
 
-type Props = FieldProps & {
-  label?: string
-  required?: boolean
+type Props = InputHTMLAttributes<HTMLInputElement> & {
+  label?: string | ReactElement
 }
 
-const Checkbox = ({ label, required, field }: Props) => {
+const Checkbox = ({ label, ...props }: Props) => {
+  const { register, formState } = useFormContext()
   return (
     <div className="mb-6">
       <div className="flex flex-row gap-3 place-items-center">
         <input
-          id={field.name}
+          id={props.id}
           type="checkbox"
           multiple={false}
-          {...field}
+          {...register(props.name ?? '')}
+          {...props}
           className="w-4 h-4 text-blue-600 accent-blue-500 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600"
         />
         {label && (
           <div className="-mb-2">
-            <Label htmlFor={field.name} required={required} text={label} />
+            <Label
+              htmlFor={props.id ?? ''}
+              required={props.required}
+              text={label}
+            />
           </div>
         )}
       </div>
-      <p className="mt-2 text-xs text-red-500">
-        <ErrorMessage name={field.name} />
-      </p>
+      <ErrorMessage
+        name={props.name ?? ''}
+        errors={formState.errors}
+        render={({ message }) => (
+          <p className="mt-2 text-xs text-red-500">{message}</p>
+        )}
+      />
     </div>
   )
 }

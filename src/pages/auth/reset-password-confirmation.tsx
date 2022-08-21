@@ -1,12 +1,14 @@
 import dayjs from 'dayjs'
-import { Field, Form, Formik, FormikHelpers } from 'formik'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Router from 'next/router'
+import { FormProvider } from 'react-hook-form'
 import Button from '../../components/Button'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { prisma } from '../../server/db/client'
-import { trpc } from '../../utils/trpc'
+import { resetPasswordConfirmationSchema } from '../../server/router/schema'
+import { errorHandler } from '../../utils/errorHandler'
+import { inferMutationInput, trpc, useZodForm } from '../../utils/trpc'
 
 type Props = {
   result: boolean
@@ -14,32 +16,31 @@ type Props = {
   code: string
 }
 
-const initialValues = {
-  id: '',
-  code: '',
-  password: '',
-  confirmPassword: '',
-}
-
-type ResetPasswordFields = typeof initialValues
+type ResetPasswordFields = inferMutationInput<'user.resetPasswordConfirmation'>
 
 const ResetPasswordConfirmation = ({
   result,
   id,
   code,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  initialValues.id = id
-  initialValues.code = code
+  const mutation = trpc.useMutation(['user.resetPasswordConfirmation'])
+  const methods = useZodForm({
+    schema: resetPasswordConfirmationSchema,
+    mode: 'onBlur',
+    defaultValues: {
+      id,
+      code,
+      password: '',
+      confirmPassword: '',
+    },
+  })
 
-  const { mutateAsync } = trpc.useMutation(['user.resetPasswordConfirmation'])
-
-  const handleSubmit = async (
+  const handleResetPasswordConfirmation = async (
     fields: ResetPasswordFields,
-    helpers: FormikHelpers<ResetPasswordFields>,
   ) => {
-    await mutateAsync(fields, {
+    mutation.mutate(fields, {
       onError(error) {
-        helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
+        errorHandler(methods.setError, error)
       },
       onSuccess() {
         Router.replace(routes.AUTH.LOGIN)
@@ -47,63 +48,47 @@ const ResetPasswordConfirmation = ({
     })
   }
 
+  if (!result) {
+    return (
+      <p className="text-red-500 text-center">Code is incorrect or expired.</p>
+    )
+  }
+
   return (
-    <div className="flex flex-col gap-6">
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-        {({ handleSubmit, values }) => (
-          <Form onSubmit={handleSubmit}>
-            {result ? (
-              <div>
-                <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-                  Create new password
-                </h2>
-                <Field
-                  type="hidden"
-                  name="id"
-                  id="id"
-                  value={initialValues.id}
-                />
-                <Field
-                  type="hidden"
-                  name="code"
-                  id="code"
-                  value={initialValues.code}
-                />
-                <div className="mb-6">
-                  <Field
-                    name="password"
-                    type="password"
-                    label="Password"
-                    component={Input}
-                    placeholder="*******"
-                    required
-                    value={values.password}
-                  />
-                </div>
-                <div className="mb-6">
-                  <Field
-                    name="confirmPassword"
-                    type="password"
-                    label="Confirm Password"
-                    component={Input}
-                    placeholder="*******"
-                    required
-                    value={values.confirmPassword}
-                  />
-                </div>
-                <Button type="submit" className="px-20">
-                  Submit
-                </Button>
-              </div>
-            ) : (
-              <p className="text-red-500 text-center">
-                Code is incorrect or expired.
-              </p>
-            )}
-          </Form>
-        )}
-      </Formik>
-    </div>
+    <FormProvider {...methods}>
+      <form
+        onSubmit={methods.handleSubmit(async (v) => {
+          await handleResetPasswordConfirmation(v)
+        })}
+      >
+        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
+          Create new password
+        </h2>
+        <div className="mb-6">
+          <Input
+            id={'password'}
+            name={'password'}
+            type={'password'}
+            label={'Password'}
+            placeholder={'********'}
+            required={true}
+          />
+        </div>
+        <div className="mb-6">
+          <Input
+            id={'confirmPassword'}
+            name={'confirmPassword'}
+            type={'password'}
+            label={'Confirm Password'}
+            placeholder={'********'}
+            required={true}
+          />
+        </div>
+        <Button type="submit" className="px-20" disabled={mutation.isLoading}>
+          Submit
+        </Button>
+      </form>
+    </FormProvider>
   )
 }
 

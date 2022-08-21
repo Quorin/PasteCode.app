@@ -1,7 +1,8 @@
 import { cva } from 'class-variance-authority'
+import { ReactElement } from 'react'
 
 type Props = {
-  text: string
+  text: string | ReactElement
   htmlFor: string
   required?: boolean
 }

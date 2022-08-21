@@ -1,35 +1,39 @@
-import { Field, Form, Formik, FormikHelpers } from 'formik'
 import { NextPage } from 'next'
+import { FormProvider } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
 import Button from '../components/Button'
 import Checkbox from '../components/Checkbox'
 import Input from '../components/Input'
-import { trpc } from '../utils/trpc'
+import { registerSchema } from '../server/router/schema'
+import { errorHandler } from '../utils/errorHandler'
+import { inferMutationInput, trpc, useZodForm } from '../utils/trpc'
 
-const initialValues = {
-  email: '',
-  name: '',
-  password: '',
-  confirmPassword: '',
-  agree: false,
-}
-
-type FormValues = typeof initialValues
+type FormValues = inferMutationInput<'user.register'>
 
 const Register: NextPage = () => {
-  const { mutateAsync } = trpc.useMutation(['user.register'])
+  const mutation = trpc.useMutation(['user.register'])
 
-  const handleSubmit = async (
-    values: FormValues,
-    helpers: FormikHelpers<FormValues>,
-  ) => {
-    await mutateAsync(values, {
+  const methods = useZodForm({
+    mode: 'onBlur',
+    schema: registerSchema,
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      agree: false,
+      name: '',
+    },
+  })
+
+  const handleRegister = async (values: FormValues) => {
+    mutation.mutate(values, {
       onError: (error) => {
-        helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
+        errorHandler(methods.setError, error)
       },
       onSuccess: () => {
+        methods.reset()
         toast.custom(
-          (t) => (
+          () => (
             <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
               <p>Check your inbox to confirm account</p>
             </div>
@@ -42,80 +46,82 @@ const Register: NextPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-        {({ handleSubmit, values }) => (
-          <Form onSubmit={handleSubmit}>
-            <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-              Create an account
-            </h2>
-            <div className="mb-6">
-              <Field
-                name="email"
-                type="email"
-                component={Input}
-                label="Email"
-                required
-                placeholder="hello@world.localhost"
-                value={values.email}
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="name"
-                type="text"
-                label="Name"
-                placeholder=""
-                component={Input}
-                required
-                value={values.name}
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="password"
-                type="password"
-                label="Password"
-                component={Input}
-                placeholder="**** ***"
-                required
-                value={values.password}
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="confirmPassword"
-                type="password"
-                label="Confirm Password"
-                component={Input}
-                placeholder="**** ***"
-                required
-                value={values.confirmPassword}
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                label={
-                  <>
-                    I agree with the{' '}
-                    <a href="#" className="text-blue-500 hover:underline">
-                      terms and conditions
-                    </a>
-                    .{' '}
-                  </>
-                }
-                required={true}
-                name="agree"
-                component={Checkbox}
-                value={values.agree}
-              />
-            </div>
-            <Button type="submit" className="px-20">
-              Submit
-            </Button>
-            <Toaster />
-          </Form>
-        )}
-      </Formik>
+      <FormProvider {...methods}>
+        <form
+          onSubmit={methods.handleSubmit(
+            async (v) => {
+              await handleRegister(v)
+            },
+            async (v) => {
+              console.log('error', v)
+            },
+          )}
+        >
+          <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
+            Create an account
+          </h2>
+          <div className="mb-6">
+            <Input
+              id={'email'}
+              name={'email'}
+              type={'email'}
+              label={'Email'}
+              required={true}
+              placeholder={'hello@world.localhost'}
+            />
+          </div>
+          <div className="mb-6">
+            <Input
+              id={'name'}
+              name={'name'}
+              type={'name'}
+              label={'Name'}
+              required={true}
+              placeholder={'John Doe'}
+            />
+          </div>
+          <div className="mb-6">
+            <Input
+              id={'password'}
+              name={'password'}
+              type={'password'}
+              label={'Password'}
+              placeholder={'********'}
+              required={true}
+            />
+          </div>
+          <div className="mb-6">
+            <Input
+              id={'confirmPassword'}
+              name={'confirmPassword'}
+              type={'password'}
+              label={'Confirm Password'}
+              placeholder={'********'}
+              required={true}
+            />
+          </div>
+          <div className="mb-6">
+            <Checkbox
+              label={
+                <>
+                  I agree with the{' '}
+                  <a href="#" className="text-blue-500 hover:underline">
+                    terms and conditions
+                  </a>
+                  .{' '}
+                </>
+              }
+              required={true}
+              id={'agree'}
+              name={'agree'}
+            />
+          </div>
+          <Button type="submit" className="px-20" disabled={mutation.isLoading}>
+            Submit
+          </Button>
+          <Toaster />
+        </form>
+      </FormProvider>
     </div>
   )
 }

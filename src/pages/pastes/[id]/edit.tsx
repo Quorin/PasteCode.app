@@ -1,69 +1,59 @@
 import { NextPage } from 'next'
-import { Field, Form, Formik, FormikHelpers } from 'formik'
+import { useRouter } from 'next/router'
+import { FormProvider } from 'react-hook-form'
+import { z } from 'zod'
+import Button from '../../../components/Button'
+import { DefaultLanguage, Languages } from '../../../components/Code'
 import Input from '../../../components/Input'
+import Select from '../../../components/Select'
+import Spinner from '../../../components/Spinner'
 import TagInput from '../../../components/TagInput'
 import Textarea from '../../../components/Textarea'
-import Select, { Option } from '../../../components/Select'
-import Button from '../../../components/Button'
-import { trpc } from '../../../utils/trpc'
-import { useRouter } from 'next/router'
 import { routes } from '../../../constants/routes'
-import Spinner from '../../../components/Spinner'
-import { DefaultLanguage, Languages } from '../../../components/Code'
+import { updatePasteSchema } from '../../../server/router/schema'
+import { errorHandler } from '../../../utils/errorHandler'
+import { getQueryArg } from '../../../utils/http'
 import { capitalize } from '../../../utils/strings'
+import { inferMutationInput, trpc, useZodForm } from '../../../utils/trpc'
 
-type FormType = {
-  id: string
-  description: string
-  style: string
-  tag: string
-  title: string
-  content: string
-  tags: string[]
-  currentPassword: string
-  password: string
-  expiration:
-    | 'same'
-    | 'never'
-    | 'year'
-    | 'month'
-    | 'week'
-    | 'day'
-    | 'hour'
-    | '10m'
-}
+type FormValues = inferMutationInput<'paste.updatePaste'> & { tag: string }
 
 const Edit: NextPage = () => {
   const router = useRouter()
+  const mutation = trpc.useMutation(['paste.updatePaste'])
+
+  const methods = useZodForm({
+    schema: updatePasteSchema.extend({ tag: z.string() }),
+    mode: 'onBlur',
+  })
+
   const { isLoading, data, error } = trpc.useQuery(
     [
       'paste.getPaste',
       {
-        id: router.query.id as string,
-        password: (router.query.password as string) ?? null,
+        id: getQueryArg(router.query.id) ?? '',
+        password: getQueryArg(router.query.password) ?? null,
       },
     ],
     {
-      onError: (error) => {
-        console.error(error)
+      refetchOnWindowFocus: false,
+      onSuccess: ({ paste }) => {
+        methods.setValue('id', paste?.id ?? '')
+        methods.setValue('tags', paste?.tags.map((tag) => tag.tag.name) ?? [])
+      },
+      onError: async () => {
+        await router.replace(routes.HOME)
       },
     },
   )
 
-  const { mutateAsync: mutateUpdateAsync } = trpc.useMutation([
-    'paste.updatePaste',
-  ])
-
-  const handleSubmit = async (
-    values: FormType,
-    helpers: FormikHelpers<FormType>,
-  ) => {
-    await mutateUpdateAsync(values, {
+  const updatePaste = async (values: FormValues) => {
+    mutation.mutate(values, {
       onError: (error) => {
-        helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
+        errorHandler(methods.setError, error)
       },
-      onSuccess: () => {
-        router.push({
+      onSuccess: async () => {
+        await router.push({
           pathname: routes.PASTES.INDEX,
           query: { id: values.id },
         })
@@ -79,134 +69,122 @@ const Edit: NextPage = () => {
     )
   }
 
-  const getPassword = () =>
-    Array.isArray(router.query.password)
-      ? router.query.password[0] ?? ''
-      : router.query.password ?? ''
-
   const paste = data?.paste
 
-  const initialValues: FormType = {
-    id: paste?.id ?? '',
-    title: paste?.title ?? '',
-    description: paste?.description ?? '',
-    content: paste?.content ?? '',
-    style: paste?.style ?? DefaultLanguage.key,
-    tag: '',
-    tags: paste?.tags.map((tag) => tag.tag.name) ?? [],
-    expiration: 'same',
-    password: getPassword(),
-    currentPassword: getPassword(),
-  }
-
   return (
-    <div className="flex flex-col gap-6">
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-        {({ handleSubmit, initialValues }) => (
-          <Form onSubmit={handleSubmit}>
-            <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-              Edit paste
-            </h2>
-            <div className="mb-6">
-              <Field
-                name="title"
-                component={Input}
-                label="Title"
-                defaultValue={initialValues?.title}
-                required={true}
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="description"
-                component={Input}
-                label="Description"
-                defaultValue={initialValues?.description}
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="tag"
-                component={TagInput}
-                label="Tags"
-                placeholder="hacking"
-                arrayProp="tags"
-                maxlength={15}
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="content"
-                component={Textarea}
-                required
-                label="Content"
-                defaultValue={initialValues?.content}
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="password"
-                component={Input}
-                label="Password"
-                placeholder="Optional password..."
-                type="password"
-              />
-            </div>
-            <div className="mb-6">
-              <div className="flex justify-between flex-col md:flex-row">
-                <div className="flex gap-5 mb-6 md:mb-0">
-                  <div className="w-1/2 md:w-auto">
-                    <Field
-                      label="Expiration"
-                      name="expiration"
-                      defaultValue={initialValues?.expiration}
-                      component={Select}
-                      options={
-                        [
-                          { key: 'same', value: 'No Changes' },
-                          { key: 'never', value: 'Never' },
-                          { key: 'year', value: '1 Year' },
-                          { key: 'month', value: '1 Month' },
-                          { key: 'week', value: '1 Week' },
-                          { key: 'day', value: '1 Day' },
-                          { key: 'hour', value: '1 Hour' },
-                          { key: '10m', value: '10 Minutes' },
-                        ] as Option[]
-                      }
-                      required
-                    ></Field>
-                  </div>
-                  <div className="w-1/2 md:w-auto">
-                    <label
-                      htmlFor="style"
-                      className="block mb-2 text-sm font-medium text-zinc-300 after:content-['*'] after:ml-0.5 after:text-red-500"
-                    >
-                      Style
-                    </label>
-                    <Field
-                      name="style"
-                      value={DefaultLanguage.key}
-                      component={Select}
-                      required
-                      options={Languages.map((lang) => ({
-                        key: lang,
-                        value: lang ? capitalize(lang) : DefaultLanguage.value,
-                      }))}
-                    ></Field>
-                  </div>
-                </div>
+    <FormProvider {...methods}>
+      <form
+        onSubmit={methods.handleSubmit(async (v) => {
+          await updatePaste(v)
+        })}
+      >
+        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
+          Edit paste
+        </h2>
 
-                <div className="flex self-center md:self-end gap-5">
-                  <Button type="submit" className="px-10">
-                    Submit
-                  </Button>
-                </div>
+        <div className="mb-6">
+          <Input
+            id="title"
+            label="Title"
+            name="title"
+            type="text"
+            placeholder="Paste's title..."
+            required={true}
+            defaultValue={paste?.title}
+          />
+        </div>
+        <div className="mb-6">
+          <Input
+            id="description"
+            label="Description"
+            name="description"
+            type="text"
+            placeholder="Paste's description..."
+            required={false}
+            defaultValue={paste?.description ?? ''}
+          />
+        </div>
+        <div className="mb-6">
+          <TagInput
+            id="tag"
+            placeholder="hacking"
+            label={'Tags'}
+            arrayProp={'tags'}
+            required={false}
+            maxlength={15}
+            name={'tag'}
+          />
+        </div>
+        <div className="mb-6">
+          <Textarea
+            id="content"
+            label="Content"
+            name="content"
+            placeholder="Paste's content..."
+            required={true}
+            defaultValue={paste?.content ?? ''}
+          />
+        </div>
+        <div className="mb-6">
+          <Input
+            id="password"
+            label="Password"
+            type="password"
+            name="password"
+            placeholder="Optional password..."
+            required={false}
+          />
+        </div>
+        <div className="mb-6">
+          <div className="flex justify-between flex-col md:flex-row">
+            <div className="flex gap-5 mb-6 md:mb-0">
+              <div className="w-1/2 md:w-auto">
+                <Select
+                  id={'expiration'}
+                  label={'Expiration'}
+                  required={true}
+                  defaultValue={'same'}
+                  name={'expiration'}
+                  options={[
+                    { key: 'same', value: 'No Changes' },
+                    { key: 'never', value: 'Never' },
+                    { key: 'year', value: '1 Year' },
+                    { key: 'month', value: '1 Month' },
+                    { key: 'week', value: '1 Week' },
+                    { key: 'day', value: '1 Day' },
+                    { key: 'hour', value: '1 Hour' },
+                    { key: '10m', value: '10 Minutes' },
+                  ]}
+                />
+              </div>
+              <div className="w-1/2 md:w-auto">
+                <Select
+                  id={'style'}
+                  label={'Style'}
+                  required={false}
+                  name={'style'}
+                  defaultValue={paste?.style ?? DefaultLanguage.value}
+                  options={Languages.map((lang) => ({
+                    key: lang,
+                    value: lang ? capitalize(lang) : DefaultLanguage.value,
+                  }))}
+                />
               </div>
             </div>
-          </Form>
-        )}
-      </Formik>
-    </div>
+
+            <div className="flex self-center md:self-end gap-5">
+              <Button
+                type="submit"
+                className="px-10"
+                disabled={mutation.isLoading}
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </FormProvider>
   )
 }
 

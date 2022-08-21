@@ -4,14 +4,16 @@ import { createRouter } from './context'
 import * as argon2 from 'argon2'
 import Cryptr from 'cryptr'
 import { getExpirationDate, upsertTags } from '../../utils/paste'
-import { DefaultLanguage, Languages } from '../../components/Code'
+import {
+  createPasteSchema,
+  getPasteSchema,
+  removePasteSchema,
+  updatePasteSchema,
+} from './schema'
 
 export const pasteRouter = createRouter()
   .mutation('removePaste', {
-    input: z.object({
-      id: z.string(),
-      password: z.string().optional(),
-    }),
+    input: removePasteSchema,
     async resolve({ input, ctx }) {
       if (!ctx.session?.user) {
         throw new trpc.TRPCError({
@@ -71,25 +73,7 @@ export const pasteRouter = createRouter()
     },
   })
   .mutation('updatePaste', {
-    input: z.object({
-      id: z.string(),
-      title: z.string().max(150, 'Title is too long'),
-      content: z.string().max(10000000, 'Content is too long'),
-      style: z
-        .string()
-        .default(DefaultLanguage.key)
-        .refine((s) => Languages.includes(s), 'Invalid style'),
-      description: z.string().max(300, 'Description is too long'),
-      tags: z
-        .array(z.string().max(15, 'Too long name'))
-        .max(20, 'Too many tags')
-        .optional(),
-      expiration: z
-        .enum(['same', 'never', 'year', 'month', 'week', 'day', 'hour', '10m'])
-        .default('never'),
-      currentPassword: z.string().optional(),
-      password: z.string().optional(),
-    }),
+    input: updatePasteSchema,
     async resolve({ input, ctx }) {
       const paste = await ctx.prisma.paste.findFirst({
         where: {
@@ -154,23 +138,7 @@ export const pasteRouter = createRouter()
     },
   })
   .mutation('createPaste', {
-    input: z.object({
-      title: z.string().max(150, 'Title is too long'),
-      content: z.string().max(10000000, 'Content is too long'),
-      style: z
-        .string()
-        .default(DefaultLanguage.key)
-        .refine((s) => Languages.includes(s), 'Invalid style'),
-      description: z.string().max(300, 'Description is too long'),
-      tags: z
-        .array(z.string().max(15, 'Too long name'))
-        .max(20, 'Too many tags')
-        .optional(),
-      expiration: z
-        .enum(['never', 'year', 'month', 'week', 'day', 'hour', '10m'])
-        .default('never'),
-      password: z.string().optional(),
-    }),
+    input: createPasteSchema,
     async resolve({ input, ctx }) {
       const paste = await ctx.prisma.paste.create({
         data: {
@@ -198,10 +166,7 @@ export const pasteRouter = createRouter()
     },
   })
   .query('getPaste', {
-    input: z.object({
-      id: z.string(),
-      password: z.string().nullable(),
-    }),
+    input: getPasteSchema,
     async resolve({ input, ctx }) {
       const now = new Date()
 

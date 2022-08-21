@@ -1,139 +1,147 @@
-import { Field, Form, Formik, FormikHelpers } from 'formik'
 import Link from 'next/link'
 import Router from 'next/router'
+import { FormProvider } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
+import { z } from 'zod'
 import Button from '../../components/Button'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
-import { trpc } from '../../utils/trpc'
+import { loginSchema } from '../../server/router/schema'
+import { errorHandler } from '../../utils/errorHandler'
+import { inferMutationInput, trpc, useZodForm } from '../../utils/trpc'
 import useAuth from '../../utils/useAuth'
 
-const initialValues = {
-  email: '',
-  password: '',
-}
-
-type LoginFields = typeof initialValues
+type LoginFields = inferMutationInput<'auth.login'>
 
 const Login = () => {
   const { refresh } = useAuth()
-  const { mutateAsync } = trpc.useMutation(['user.resendConfirmationCode'])
-  const { mutateAsync: mutateLoginAsync } = trpc.useMutation(['auth.login'])
+  const resendMutation = trpc.useMutation(['user.resendConfirmationCode'])
+  const loginMutation = trpc.useMutation(['auth.login'])
 
-  const handleSubmit = async (
-    { email, password }: LoginFields,
-    helpers: FormikHelpers<LoginFields>,
-  ) => {
-    await mutateLoginAsync(
-      { email, password },
+  const methods = useZodForm({
+    schema: loginSchema,
+    mode: 'onBlur',
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
+
+  const handleLogin = async (values: LoginFields) => {
+    loginMutation.mutate(values, {
+      onError(error) {
+        errorHandler(methods.setError, error)
+      },
+      async onSuccess() {
+        await refresh()
+        await Router.push(routes.HOME)
+      },
+    })
+  }
+
+  const resendConfirmation = async () => {
+    let email = ''
+
+    try {
+      email = z.string().email().parse(methods.getValues('email'))
+    } catch {
+      methods.setError('email', {
+        message: 'You need to provide a valid email',
+      })
+    }
+
+    if (!email) {
+      return
+    }
+
+    resendMutation.mutate(
+      { email },
       {
-        onError(error) {
-          helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
+        onSuccess() {
+          toast.custom(
+            (t) => (
+              <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
+                <p>Confirmation code has been sent to your email.</p>
+              </div>
+            ),
+            { position: 'bottom-center' },
+          )
         },
-        async onSuccess() {
-          await refresh()
-          await Router.push(routes.HOME)
+        onError(error) {
+          toast.custom(
+            (t) => (
+              <div className="text-white bg-red-500 px-5 py-2.5 rounded-lg">
+                <p>
+                  {error.data?.zodError?.fieldErrors.email ??
+                    'Cannot send confirmation to this email'}
+                </p>
+              </div>
+            ),
+            { position: 'bottom-center' },
+          )
         },
       },
     )
   }
 
-  const resendConfirmation = async (email: string) => {
-    if (!email) {
-      return
-    }
-
-    try {
-      await mutateAsync(
-        { email },
-        {
-          onSuccess() {
-            toast.custom(
-              (t) => (
-                <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
-                  <p>Confirmation code has been sent to your email.</p>
-                </div>
-              ),
-              { position: 'bottom-center' },
-            )
-          },
-          onError(error) {
-            toast.custom(
-              (t) => (
-                <div className="text-white bg-red-500 px-5 py-2.5 rounded-lg">
-                  <p>
-                    {error.data?.zodError?.fieldErrors.email ??
-                      'Cannot send confirmation to this email'}
-                  </p>
-                </div>
-              ),
-              { position: 'bottom-center' },
-            )
-          },
-        },
-      )
-    } catch (e) {}
-  }
-
   return (
     <div className="flex flex-col gap-6">
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-        {({ handleSubmit, values, errors }) => (
-          <Form onSubmit={handleSubmit}>
-            <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-              Login
-            </h2>
-            <div className="mb-6">
-              <Field
-                name="email"
-                type="email"
-                component={Input}
-                label="Email"
-                required
-                placeholder="hello@world.localhost"
-                value={values.email}
-              />
-            </div>
+      <FormProvider {...methods}>
+        <form
+          onSubmit={methods.handleSubmit(async (v) => {
+            await handleLogin(v)
+          })}
+        >
+          <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">Login</h2>
+          <div className="mb-6">
+            <Input
+              id={'email'}
+              name={'email'}
+              type={'email'}
+              label={'Email'}
+              required={true}
+              placeholder={'hello@world.localhost'}
+            />
+          </div>
+          <div className="mb-6">
+            <Input
+              id={'password'}
+              type={'password'}
+              name={'password'}
+              label={'Password'}
+              placeholder={'********'}
+              required={true}
+            />
+          </div>
+          <div className="mb-6">
+            <Link href={routes.AUTH.RESET_PASSWORD}>
+              <p className="text-red-400 text-sm hover:underline cursor-pointer">
+                Reset password
+              </p>
+            </Link>
+          </div>
 
-            <div className="mb-6">
-              <Field
-                name="password"
-                type="password"
-                label="Password"
-                component={Input}
-                placeholder="********"
-                required
-                value={values.password}
-              />
-            </div>
+          <div className="flex flex-col md:items-start gap-2 md:flex-row">
+            <Button
+              type="submit"
+              className="px-20"
+              disabled={loginMutation.isLoading}
+            >
+              Submit
+            </Button>
 
-            <div className="mb-6">
-              <Link href={routes.AUTH.RESET_PASSWORD}>
-                <p className="text-red-400 text-sm hover:underline cursor-pointer">
-                  Reset password
-                </p>
-              </Link>
-            </div>
-
-            <div className="flex flex-col md:items-start gap-2 md:flex-row">
-              <Button type="submit" className="px-20">
-                Submit
-              </Button>
-
-              {errors.email && (
-                <Button
-                  className="bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-800"
-                  type="button"
-                  onClick={() => resendConfirmation(values.email)}
-                >
-                  Send Confirmation
-                </Button>
-              )}
-            </div>
-            <Toaster />
-          </Form>
-        )}
-      </Formik>
+            <Button
+              className="bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-800"
+              type="button"
+              disabled={resendMutation.isLoading}
+              onClick={() => resendConfirmation()}
+            >
+              Send Confirmation
+            </Button>
+          </div>
+          <Toaster />
+        </form>
+      </FormProvider>
     </div>
   )
 }
