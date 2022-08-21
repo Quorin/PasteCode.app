@@ -109,7 +109,7 @@ const Home: NextPage = () => {
             label="Title"
             name="title"
             type="text"
-            placeholder="Paste's title..."
+            placeholder="Error"
             required={true}
           />
         </div>
@@ -119,14 +119,14 @@ const Home: NextPage = () => {
             label="Description"
             name="description"
             type="text"
-            placeholder="Paste's description..."
+            placeholder="System.NullReferenceException"
             required={false}
           />
         </div>
         <div className="mb-6">
           <TagInput
             id="tag"
-            placeholder="hacking"
+            placeholder="bug"
             name="tag"
             label={'Tags'}
             arrayProp={'tags'}
@@ -139,7 +139,7 @@ const Home: NextPage = () => {
             id="content"
             label="Content"
             name="content"
-            placeholder="Paste's content..."
+            placeholder="Object reference not set to an instance of an object."
             required={true}
           />
         </div>
@@ -149,7 +149,7 @@ const Home: NextPage = () => {
             label="Password"
             type="password"
             name="password"
-            placeholder="Optional password..."
+            placeholder="Secure your paste"
             required={false}
           />
         </div>
