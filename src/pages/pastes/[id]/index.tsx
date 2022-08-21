@@ -1,62 +1,69 @@
-import dayjs from 'dayjs'
-import { Field, Form, Formik } from 'formik'
-import { NextPage } from 'next'
-import Image from 'next/image'
-import { useRouter } from 'next/router'
-import Button from '../../../components/Button'
-import Input from '../../../components/Input'
-import Spinner from '../../../components/Spinner'
-import { routes } from '../../../constants/routes'
-import { trpc } from '../../../utils/trpc'
-import useAuth from '../../../utils/useAuth'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import {
   ClipboardCopyIcon,
   DocumentTextIcon,
+  DuplicateIcon,
   PencilIcon,
   TrashIcon,
 } from '@heroicons/react/outline'
-import { DuplicateIcon } from '@heroicons/react/outline'
-import Modal from '../../../components/Modal'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { NextPage } from 'next'
+import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { useState } from 'react'
+import { FormProvider } from 'react-hook-form'
+import Button from '../../../components/Button'
 import Code from '../../../components/Code'
+import Input from '../../../components/Input'
+import Modal from '../../../components/Modal'
+import Spinner from '../../../components/Spinner'
+import { routes } from '../../../constants/routes'
+import { getPasteSchema } from '../../../server/router/schema'
+import { getQueryArg } from '../../../utils/http'
+import { inferQueryInput, trpc, useZodForm } from '../../../utils/trpc'
+import useAuth from '../../../utils/useAuth'
 
 dayjs.extend(relativeTime)
 
-const initialValues = {
-  password: '',
-}
-
-type FormValues = typeof initialValues
+type FormValues = inferQueryInput<'paste.getPaste'>
 
 const Paste: NextPage = () => {
   const router = useRouter()
   const { isLoggedIn, isLoading: isAuthLoading, user } = useAuth()
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
 
-  const handleSubmit = async (values: FormValues) => {
+  const unlockPasteMethods = useZodForm({
+    schema: getPasteSchema,
+    mode: 'onBlur',
+    defaultValues: {
+      id: getQueryArg(router.query.id) ?? '',
+      password: '',
+    },
+  })
+  const handleUnlockPaste = async (values: FormValues) => {
     router.replace({
       pathname: routes.PASTES.INDEX,
       query: { id: router.query.id, password: values.password },
     })
   }
 
-  const { data, isLoading, error } = trpc.useQuery([
-    'paste.getPaste',
-    {
-      id: router.query.id as string,
-      password: (router.query.password as string) ?? null,
-    },
-  ])
+  const { data, isLoading, error } = trpc.useQuery(
+    [
+      'paste.getPaste',
+      {
+        id: getQueryArg(router.query.id) ?? '',
+        password: getQueryArg(router.query.password) ?? null,
+      },
+    ],
+    { refetchOnWindowFocus: false },
+  )
 
-  const { mutateAsync: deletePasteAsync } = trpc.useMutation([
-    'paste.removePaste',
-  ])
+  const mutation = trpc.useMutation(['paste.removePaste'])
 
   const handleDelete = async (id: string) => {
     setIsDeleteModalVisible(false)
-    await deletePasteAsync(
-      { id, password: (router.query.password as string) ?? undefined },
+    mutation.mutate(
+      { id, password: getQueryArg(router.query.password) ?? undefined },
       {
         async onSuccess() {
           await router.replace(routes.HOME)
@@ -81,26 +88,28 @@ const Paste: NextPage = () => {
           Paste is secured with a password
         </h3>
         <div className="flex flex-col gap-6 mt-6">
-          <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-            {({ handleSubmit, values }) => (
-              <Form onSubmit={handleSubmit}>
-                <div className="mb-6">
-                  <Field
-                    name="password"
-                    type="password"
-                    label=""
-                    component={Input}
-                    placeholder="*******"
-                    required={true}
-                    value={values.password}
-                  />
-                </div>
-                <Button type="submit" className="px-20">
-                  Decrypt Paste
-                </Button>
-              </Form>
-            )}
-          </Formik>
+          <FormProvider {...unlockPasteMethods}>
+            <form
+              onSubmit={unlockPasteMethods.handleSubmit(async (v) => {
+                await handleUnlockPaste(v)
+              })}
+            >
+              <div className="mb-6">
+                {' '}
+                <Input
+                  id="password"
+                  name="password"
+                  type={'password'}
+                  placeholder="*********"
+                  required={true}
+                />
+              </div>
+
+              <Button type="submit" className="px-20">
+                Decrypt Paste
+              </Button>
+            </form>
+          </FormProvider>
         </div>
       </div>
     )

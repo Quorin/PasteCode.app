@@ -5,6 +5,11 @@ import { generateRandomString } from '../../utils/random'
 import { sendConfirmationEmail } from '../../utils/email'
 import dayjs from 'dayjs'
 import * as argon2 from 'argon2'
+import {
+  changeEmailSchema,
+  changeNameSchema,
+  changePasswordSchema,
+} from './schema'
 
 export const settingsRouter = createProtectedRouter()
   .mutation('removeAccount', {
@@ -23,23 +28,7 @@ export const settingsRouter = createProtectedRouter()
     },
   })
   .mutation('changePassword', {
-    input: z
-      .object({
-        currentPassword: z.string(),
-        password: z
-          .string()
-          .regex(
-            new RegExp(
-              '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})',
-            ),
-            'Password must contain at least one lowercase letter, one uppercase letter, one number and one special character',
-          ),
-        confirmPassword: z.string(),
-      })
-      .refine((data) => data.password === data.confirmPassword, {
-        message: 'Passwords do not match',
-        path: ['confirmPassword'],
-      }),
+    input: changePasswordSchema,
     async resolve({ input, ctx }) {
       const user = await ctx.prisma.user.findFirst({
         where: { id: ctx.session.user.id! },
@@ -76,15 +65,7 @@ export const settingsRouter = createProtectedRouter()
     },
   })
   .mutation('changeEmail', {
-    input: z
-      .object({
-        email: z.string().email('Email is not valid'),
-        confirmEmail: z.string().email('Email is not valid'),
-      })
-      .refine((data) => data.email === data.confirmEmail, {
-        message: 'Emails do not match',
-        path: ['confirmEmail'],
-      }),
+    input: changeEmailSchema,
     async resolve({ ctx, input }) {
       const code = generateRandomString(36)
 
@@ -125,9 +106,7 @@ export const settingsRouter = createProtectedRouter()
     },
   })
   .mutation('changeName', {
-    input: z.object({
-      name: z.string().max(24, 'Name must be shorter or equal 24'),
-    }),
+    input: changeNameSchema,
     async resolve({ input, ctx }) {
       const exists = await ctx.prisma.user.findFirst({
         where: { id: input.name },

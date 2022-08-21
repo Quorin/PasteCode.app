@@ -8,6 +8,11 @@ import {
   sendConfirmationEmail,
   sendResetPasswordEmail,
 } from '../../utils/email'
+import {
+  registerSchema,
+  resetPasswordConfirmationSchema,
+  resetPasswordSchema,
+} from './schema'
 
 export const userRouter = createRouter()
   .mutation('resendConfirmationCode', {
@@ -95,25 +100,7 @@ export const userRouter = createRouter()
     },
   })
   .mutation('resetPasswordConfirmation', {
-    input: z
-      .object({
-        id: z.string(),
-        code: z.string(),
-        password: z
-          .string()
-          .regex(
-            new RegExp(
-              '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})',
-            ),
-            'Password must contain at least one lowercase letter, one uppercase letter, one number and one special character',
-          ),
-
-        confirmPassword: z.string(),
-      })
-      .refine((data) => data.password === data.confirmPassword, {
-        message: 'Passwords do not match',
-        path: ['confirmPassword'],
-      }),
+    input: resetPasswordConfirmationSchema,
     async resolve({ ctx, input }) {
       const rp = await ctx.prisma.resetPassword.findFirst({
         where: { id: input.id, code: input.code },
@@ -148,9 +135,7 @@ export const userRouter = createRouter()
     },
   })
   .mutation('resetPassword', {
-    input: z.object({
-      email: z.string().email('Email is not valid'),
-    }),
+    input: resetPasswordSchema,
     async resolve({ input, ctx }) {
       const user = await ctx.prisma.user.findFirst({
         where: { email: input.email },
@@ -203,32 +188,7 @@ export const userRouter = createRouter()
     },
   })
   .mutation('register', {
-    input: z
-      .object({
-        email: z.string().email('Email is not valid'),
-        name: z.string().max(24, 'Name must be shorter or equal 24'),
-        password: z
-          .string()
-          .regex(
-            new RegExp(
-              '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})',
-            ),
-            'Password must contain at least one lowercase letter, one uppercase letter, one number and one special character',
-          ),
-
-        confirmPassword: z.string(),
-        agree: z
-          .boolean()
-          .refine(
-            (agree) => agree === true,
-            'You must agree to the terms and conditions',
-          ),
-      })
-      .refine((data) => data.password === data.confirmPassword, {
-        message: 'Passwords do not match',
-        path: ['confirmPassword'],
-      }),
-
+    input: registerSchema,
     async resolve({ input, ctx }) {
       const user = await ctx.prisma.user.findFirst({
         where: { OR: [{ email: input.email }, { name: input.name }] },

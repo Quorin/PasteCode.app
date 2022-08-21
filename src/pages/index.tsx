@@ -1,67 +1,68 @@
-import { Field, Form, Formik, FormikHelpers } from 'formik'
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
+import { FormProvider } from 'react-hook-form'
+import { z } from 'zod'
 import Button from '../components/Button'
+import { DefaultLanguage, Languages } from '../components/Code'
 import Input from '../components/Input'
-import Select, { Option } from '../components/Select'
+import Select from '../components/Select'
+import Spinner from '../components/Spinner'
 import TagInput from '../components/TagInput'
 import Textarea from '../components/Textarea'
 import { routes } from '../constants/routes'
-import { trpc } from '../utils/trpc'
-import Spinner from '../components/Spinner'
-import { DefaultLanguage, Languages } from '../components/Code'
+import { createPasteSchema } from '../server/router/schema'
+import { errorHandler } from '../utils/errorHandler'
+import { getQueryArg } from '../utils/http'
 import { capitalize } from '../utils/strings'
+import { inferMutationInput, trpc, useZodForm } from '../utils/trpc'
 
-let values: FormValues = {
-  title: '',
-  description: '',
-  content: '',
-  expiration: 'never',
-  style: DefaultLanguage.key,
-  tag: '',
-  tags: [],
-  password: '',
-}
-
-type FormValues = {
-  password: string
-  description: string
-  expiration: 'year' | 'never' | 'month' | 'week' | 'day' | 'hour' | '10m'
-  style: string
-  tag: string
-  title: string
-  content: string
-  tags: string[]
-}
+type FormValues = inferMutationInput<'paste.createPaste'> & { tag: string }
 
 const Home: NextPage = () => {
-  const { mutateAsync } = trpc.useMutation(['paste.createPaste'])
+  const mutation = trpc.useMutation(['paste.createPaste'])
   const router = useRouter()
 
-  const forkId = Array.isArray(router.query.fork)
-    ? router.query.fork[0]
-    : router.query.fork
+  const methods = useZodForm({
+    schema: createPasteSchema.extend({ tag: z.string() }),
+    defaultValues: {
+      title: '',
+      description: '',
+      content: '',
+      expiration: 'never',
+      style: DefaultLanguage.key,
+      tag: '',
+      tags: [],
+      password: '',
+    },
+    mode: 'onBlur',
+  })
 
-  const forkPassword = Array.isArray(router.query.password)
-    ? router.query.password[0]
-    : router.query.password
+  const forkId = getQueryArg(router.query.fork)
+  const forkPassword = getQueryArg(router.query.password)
 
   const forkQuery = trpc.useQuery(
     ['paste.getPaste', { id: forkId ?? '', password: forkPassword ?? null }],
     {
+      refetchOnWindowFocus: false,
       enabled: !!forkId,
       onSuccess: ({ paste }) => {
-        values.title = paste?.title ?? ''
-        values.description = paste?.description ?? ''
-        values.content = paste?.content ?? ''
-        values.style = paste?.style ?? DefaultLanguage.key
-        values.tags = paste?.tags.map((tag) => tag.tag.name) ?? []
-        values.tag = ''
+        if (!paste) {
+          return
+        }
+
+        methods.setValue('title', paste.title)
+        methods.setValue('description', paste.description ?? '')
+        methods.setValue('content', paste.content)
+        methods.setValue('style', paste.style ?? DefaultLanguage.key)
+        methods.setValue('tags', paste.tags.map((tag) => tag.tag.name) ?? [])
+        methods.resetField('tag')
       },
     },
   )
 
-  const resetFork = async () => {
+  const resetForm = async () => {
+    methods.setValue('tags', [])
+
     if (forkId) {
       await router.replace({
         pathname: router.pathname,
@@ -70,16 +71,13 @@ const Home: NextPage = () => {
     }
   }
 
-  const handleSubmit = async (
-    values: FormValues,
-    helpers: FormikHelpers<FormValues>,
-  ) => {
-    await mutateAsync(values, {
-      onError: (error) => {
-        helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
+  const createPaste = async (v: FormValues) => {
+    mutation.mutate(v, {
+      onError: (e) => {
+        errorHandler(methods.setError, e)
       },
-      onSuccess: (id) => {
-        router.push({
+      async onSuccess(id) {
+        await router.push({
           pathname: routes.PASTES.INDEX,
           query: { id },
         })
@@ -96,134 +94,119 @@ const Home: NextPage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <Formik initialValues={values} onSubmit={handleSubmit}>
-        {({ handleSubmit, values }) => (
-          <Form onSubmit={handleSubmit}>
-            <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-              Create new paste
-            </h2>
-            <div className="mb-6">
-              <Field
-                name="title"
-                component={Input}
-                label="Title"
-                placeholder="In file included from a.cpp:1:0,
-              from a.cpp:1,
-              from a.cpp:1,
-              from a.cpp:1,
-              from a.cpp:1:
-  a.cpp:2:1: error: ‘p’ does not name a type"
-                required={true}
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="description"
-                component={Input}
-                label="Description"
-                placeholder={
-                  "ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'by pwd' at line 1"
-                }
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="tag"
-                component={TagInput}
-                label="Tags"
-                placeholder="hacking"
-                arrayProp="tags"
-                maxlength={15}
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="content"
-                component={Textarea}
-                required
-                label="Content"
-                placeholder="c++ foo.cpp -o foo -ferror-limit=-1
-              In file included from foo.cpp:2:
-              In file included from /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/c++/v1/map:422:
-              /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/c++/v1/__config:347:11: error: expected identifier or '{'
-              namespace std {
-                        ^
-              foo.cpp:1:13: note: expanded from macro 'std'
-              #define std +
-                          ^"
-              />
-            </div>
-            <div className="mb-6">
-              <Field
-                name="password"
-                component={Input}
-                label="Password"
-                placeholder="Optional password..."
-                type="password"
-              />
-            </div>
-            <div className="mb-6">
-              <div className="flex justify-between flex-col md:flex-row">
-                <div className="flex gap-5 mb-6 md:mb-0">
-                  <div className="w-1/2 md:w-auto">
-                    <Field
-                      label="Expiration"
-                      name="expiration"
-                      value={values.expiration}
-                      component={Select}
-                      options={
-                        [
-                          { key: 'never', value: 'Never' },
-                          { key: 'year', value: '1 Year' },
-                          { key: 'month', value: '1 Month' },
-                          { key: 'week', value: '1 Week' },
-                          { key: 'day', value: '1 Day' },
-                          { key: 'hour', value: '1 Hour' },
-                          { key: '10m', value: '10 Minutes' },
-                        ] as Option[]
-                      }
-                      required
-                    ></Field>
-                  </div>
-                  <div className="w-1/2 md:w-auto">
-                    <label
-                      htmlFor="style"
-                      className="block mb-2 text-sm font-medium text-zinc-300 after:content-['*'] after:ml-0.5 after:text-red-500"
-                    >
-                      Style
-                    </label>
-                    <Field
-                      name="style"
-                      value={values.style}
-                      component={Select}
-                      required
-                      options={Languages.map((lang) => ({
-                        key: lang,
-                        value: lang ? capitalize(lang) : DefaultLanguage.value,
-                      }))}
-                    ></Field>
-                  </div>
-                </div>
-
-                <div className="flex self-center md:self-end gap-5">
-                  <Button type="submit" className="px-10">
-                    Submit
-                  </Button>
-                  <Button
-                    onClick={() => resetFork()}
-                    type="reset"
-                    className="bg-red-600 hover:bg-red-700 focus:ring-red-800 px-5"
-                  >
-                    Reset
-                  </Button>
-                </div>
+    <FormProvider {...methods}>
+      <form
+        onSubmit={methods.handleSubmit(async (v) => {
+          await createPaste(v)
+        })}
+      >
+        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
+          Create new paste
+        </h2>
+        <div className="mb-6">
+          <Input
+            id="title"
+            label="Title"
+            name="title"
+            type="text"
+            placeholder="Paste's title..."
+            required={true}
+          />
+        </div>
+        <div className="mb-6">
+          <Input
+            id="description"
+            label="Description"
+            name="description"
+            type="text"
+            placeholder="Paste's description..."
+            required={false}
+          />
+        </div>
+        <div className="mb-6">
+          <TagInput
+            id="tag"
+            placeholder="hacking"
+            name="tag"
+            label={'Tags'}
+            arrayProp={'tags'}
+            required={false}
+            maxlength={15}
+          />
+        </div>
+        <div className="mb-6">
+          <Textarea
+            id="content"
+            label="Content"
+            name="content"
+            placeholder="Paste's content..."
+            required={true}
+          />
+        </div>
+        <div className="mb-6">
+          <Input
+            id="password"
+            label="Password"
+            type="password"
+            name="password"
+            placeholder="Optional password..."
+            required={false}
+          />
+        </div>
+        <div className="mb-6">
+          <div className="flex justify-between flex-col md:flex-row">
+            <div className="flex gap-5 mb-6 md:mb-0">
+              <div className="w-1/2 md:w-auto">
+                <Select
+                  id={'expiration'}
+                  label={'Expiration'}
+                  required={true}
+                  name={'expiration'}
+                  options={[
+                    { key: 'never', value: 'Never' },
+                    { key: 'year', value: '1 Year' },
+                    { key: 'month', value: '1 Month' },
+                    { key: 'week', value: '1 Week' },
+                    { key: 'day', value: '1 Day' },
+                    { key: 'hour', value: '1 Hour' },
+                    { key: '10m', value: '10 Minutes' },
+                  ]}
+                />
+              </div>
+              <div className="w-1/2 md:w-auto">
+                <Select
+                  id={'style'}
+                  label={'Style'}
+                  name={'style'}
+                  required={false}
+                  options={Languages.map((lang) => ({
+                    key: lang,
+                    value: lang ? capitalize(lang) : DefaultLanguage.value,
+                  }))}
+                />
               </div>
             </div>
-          </Form>
-        )}
-      </Formik>
-    </div>
+
+            <div className="flex self-center md:self-end gap-5">
+              <Button
+                type="submit"
+                className="px-10"
+                disabled={mutation.isLoading}
+              >
+                Submit
+              </Button>
+              <Button
+                onClick={() => resetForm()}
+                type="reset"
+                className="bg-red-600 hover:bg-red-700 focus:ring-red-800 px-5"
+              >
+                Reset
+              </Button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </FormProvider>
   )
 }
 

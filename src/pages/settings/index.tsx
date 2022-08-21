@@ -8,25 +8,25 @@ import useAuth from '../../utils/useAuth'
 
 const Settings = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
-  const { mutateAsync: mutateRemoveAccountAsync } = trpc.useMutation([
-    'settings.removeAccount',
-  ])
+
   const router = useRouter()
-  const { mutateAsync: mutateLogoutAsync } = trpc.useMutation(['auth.logout'])
+  const logoutMutation = trpc.useMutation(['auth.logout'])
+  const removeAccountMutation = trpc.useMutation(['settings.removeAccount'])
   const { logout } = useAuth()
 
   const handleDelete = async () => {
     setIsDeleteModalVisible(false)
 
-    await mutateRemoveAccountAsync(undefined, {
-      onSuccess() {
-        router.replace(routes.HOME)
+    removeAccountMutation.mutate(undefined, {
+      async onSuccess() {
+        logout()
+        await router.replace(routes.HOME)
       },
     })
   }
 
   const handleLogout = async () => {
-    await mutateLogoutAsync(undefined, {
+    logoutMutation.mutate(undefined, {
       async onSettled() {
         logout()
         await router.push(routes.HOME)

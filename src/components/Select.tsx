@@ -1,4 +1,7 @@
-import { ErrorMessage, FieldProps } from 'formik'
+import { ErrorMessage } from '@hookform/error-message'
+import { cx } from 'class-variance-authority'
+import { SelectHTMLAttributes } from 'react'
+import { useFormContext } from 'react-hook-form'
 import Label from './Label'
 
 export type Option = {
@@ -6,20 +9,30 @@ export type Option = {
   value: string
 }
 
-type Props = FieldProps & {
+type Props = SelectHTMLAttributes<HTMLSelectElement> & {
   label?: string
-  required?: boolean
   options: Option[]
 }
 
-const Select = ({ label, required, options, field }: Props) => {
+const Select = ({ label, options, ...props }: Props) => {
+  const { register, formState } = useFormContext()
   return (
     <div>
-      {label && <Label htmlFor={field.name} required={required} text={label} />}
+      {label && (
+        <Label
+          htmlFor={props.id ?? ''}
+          required={props.required}
+          text={label}
+        />
+      )}
       <select
-        id={field.name}
-        className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-        {...field}
+        id={props.id}
+        {...register(props.name ?? '')}
+        {...props}
+        className={cx(
+          'border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none',
+          props.className,
+        )}
       >
         {options.map((o) => (
           <option key={o.key} value={o.key}>
@@ -27,9 +40,13 @@ const Select = ({ label, required, options, field }: Props) => {
           </option>
         ))}
       </select>
-      <p className="mt-2 text-xs text-red-500">
-        <ErrorMessage name={field.name} />
-      </p>
+      <ErrorMessage
+        name={props.name ?? ''}
+        errors={formState.errors}
+        render={({ message }) => (
+          <p className="mt-2 text-xs text-red-500">{message}</p>
+        )}
+      />
     </div>
   )
 }

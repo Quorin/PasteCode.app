@@ -1,70 +1,70 @@
-import { Field, Form, Formik, FormikHelpers } from 'formik'
 import { NextPage } from 'next'
+import { FormProvider } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
 import Button from '../../components/Button'
 import Input from '../../components/Input'
-import { trpc } from '../../utils/trpc'
+import { resetPasswordSchema } from '../../server/router/schema'
+import { errorHandler } from '../../utils/errorHandler'
+import { inferMutationInput, trpc, useZodForm } from '../../utils/trpc'
 
-const initialValues = {
-  email: '',
-}
-
-type ResetPasswordFields = typeof initialValues
+type ResetPasswordFields = inferMutationInput<'user.resetPassword'>
 
 const ResetPassword: NextPage = () => {
-  const { mutateAsync } = trpc.useMutation(['user.resetPassword'])
+  const mutation = trpc.useMutation(['user.resetPassword'])
 
-  const handleSubmit = async (
-    { email }: ResetPasswordFields,
-    helpers: FormikHelpers<ResetPasswordFields>,
-  ) => {
-    await mutateAsync(
-      { email },
-      {
-        onError: (error) => {
-          helpers.setErrors(error?.data?.zodError?.fieldErrors ?? {})
-        },
-        onSuccess: () => {
-          toast.custom(
-            (t) => (
-              <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
-                <p>Email has been sent if we found your account</p>
-              </div>
-            ),
-            { position: 'bottom-center' },
-          )
-        },
+  const methods = useZodForm({
+    schema: resetPasswordSchema,
+    mode: 'onBlur',
+    defaultValues: {
+      email: '',
+    },
+  })
+
+  const handleResetPassword = async (values: ResetPasswordFields) => {
+    mutation.mutate(values, {
+      onError: (error) => {
+        errorHandler(methods.setError, error)
       },
-    )
+      onSuccess: () => {
+        toast.custom(
+          (t) => (
+            <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
+              <p>Email has been sent if we found your account</p>
+            </div>
+          ),
+          { position: 'bottom-center' },
+        )
+      },
+    })
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-        {({ handleSubmit, values }) => (
-          <Form onSubmit={handleSubmit}>
-            <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-              Reset password
-            </h2>
-            <div className="mb-6">
-              <Field
-                name="email"
-                type="email"
-                component={Input}
-                label="Email"
-                required
-                placeholder="hello@world.localhost"
-                value={values.email}
-              />
-            </div>
-            <Button type="submit" className="px-20">
-              Submit
-            </Button>
-            <Toaster />
-          </Form>
-        )}
-      </Formik>
-    </div>
+    <FormProvider {...methods}>
+      <form
+        onSubmit={methods.handleSubmit(async (v) => {
+          await handleResetPassword(v)
+        })}
+      >
+        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
+          Reset password
+        </h2>
+
+        <div className="mb-6">
+          <Input
+            id={'email'}
+            name={'email'}
+            type={'email'}
+            label={'Email'}
+            required={true}
+            placeholder={'hello@world.localhost'}
+          />
+        </div>
+        <Button type="submit" className="px-20">
+          Submit
+        </Button>
+        <Toaster />
+      </form>
+    </FormProvider>
   )
 }
 

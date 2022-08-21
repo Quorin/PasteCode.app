@@ -1,26 +1,43 @@
-import { ErrorMessage, FieldProps } from 'formik'
+import { ErrorMessage } from '@hookform/error-message'
+import { cx } from 'class-variance-authority'
+import { TextareaHTMLAttributes } from 'react'
+import { useFormContext } from 'react-hook-form'
 import Label from './Label'
 
-type Props = FieldProps & {
+type Props = TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label?: string
-  placeholder?: string
-  required?: boolean
 }
 
-const Textarea = ({ label, required, field, placeholder }: Props) => {
+const Textarea = ({ label, ...props }: Props) => {
+  const { register, formState } = useFormContext()
+
   return (
     <div>
-      {label && <Label htmlFor={field.name} required={required} text={label} />}
+      {label && (
+        <Label
+          htmlFor={props.id ?? ''}
+          required={props.required}
+          text={label}
+        />
+      )}
       <textarea
-        id={field.name}
-        className="block min-h-[30vh] max-h-[50vh] p-2.5 w-full text-sm rounded-lg border bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-        placeholder={placeholder ?? ''}
-        required={required}
-        {...field}
+        id={props.id}
+        placeholder={props.placeholder}
+        required={props.required}
+        {...register(props.name ?? '')}
+        {...props}
+        className={cx(
+          'block min-h-[30vh] max-h-[50vh] p-2.5 w-full text-sm rounded-lg border bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none',
+          props.className,
+        )}
       ></textarea>
-      <p className="mt-2 text-xs text-red-500">
-        <ErrorMessage name={field.name} />
-      </p>
+      <ErrorMessage
+        name={props.name ?? ''}
+        errors={formState.errors}
+        render={({ message }) => (
+          <p className="mt-2 text-xs text-red-500">{message}</p>
+        )}
+      />
     </div>
   )
 }

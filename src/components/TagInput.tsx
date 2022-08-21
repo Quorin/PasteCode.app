@@ -1,59 +1,69 @@
-import { ErrorMessage, FieldProps } from 'formik'
-import { KeyboardEvent, useEffect, useState } from 'react'
+import { cx } from 'class-variance-authority'
+import { InputHTMLAttributes, KeyboardEvent } from 'react'
 import Label from './Label'
 
-type Props = FieldProps<string> & {
+import { ErrorMessage } from '@hookform/error-message'
+import { useFormContext } from 'react-hook-form'
+
+type Props = InputHTMLAttributes<HTMLInputElement> & {
   label?: string
-  placeholder?: string
-  required?: boolean
   arrayProp: string
   maxlength?: number
 }
 
 const TagInput = ({
   label,
-  placeholder,
-  required,
-  field,
-  form,
   arrayProp,
   maxlength,
+  defaultValue,
+  ...props
 }: Props) => {
-  const [tags, setTags] = useState<string[]>(form.initialValues.tags ?? [])
+  const {
+    register,
+    getValues,
+    formState,
+    setValue,
+    resetField,
+    watch,
+    trigger,
+  } = useFormContext()
 
-  useEffect(() => {
-    setTags(form.initialValues.tags)
-  }, [form.initialValues.tags])
-
-  useEffect(() => {
-    form.setFieldValue(arrayProp, tags)
-  }, [tags])
+  const tags = watch('tags') as string[] | undefined
 
   const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    const value = getValues('tag')
+
     if ([' ', 'enter', ','].includes(e.key.toLowerCase())) {
       e.preventDefault()
 
-      if (field.value && !tags.includes(field.value.toLowerCase())) {
-        setTags((t) => [...t, field.value.toLowerCase()])
-
-        field.value = ''
-        e.currentTarget.value = ''
-
-        field.onChange(e)
+      if (value && tags !== undefined && !tags.includes(value.toLowerCase())) {
+        setValue('tags', [...tags, value.toLowerCase()])
+        resetField('tag')
+        trigger('tags')
       }
     }
   }
 
   const removeTag = (tag: string) => {
-    if (tags.includes(tag)) {
-      setTags((t) => t.filter((t) => t !== tag))
+    if (tags && tags.includes(tag)) {
+      setValue(
+        'tags',
+        tags.filter((t) => t !== tag),
+      )
+      trigger('tags')
     }
   }
 
   return (
     <div>
-      {label && <Label htmlFor={field.name} required={required} text={label} />}
-      {tags.length > 0 && (
+      {label && (
+        <Label
+          htmlFor={props.id ?? ''}
+          required={props.required}
+          text={label}
+        />
+      )}
+      {tags && tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {tags.map((tag) => (
             <span
@@ -72,18 +82,26 @@ const TagInput = ({
         </div>
       )}
       <input
-        id={field.name}
+        id={props.id}
         type="text"
-        className="border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-        placeholder={placeholder ?? ''}
-        required={required}
+        placeholder={props.placeholder}
+        required={props.required}
         onKeyDownCapture={(e) => handleKey(e)}
         maxLength={maxlength}
-        {...field}
+        {...register(props.name ?? '')}
+        {...props}
+        className={cx(
+          'border text-sm rounded-lg block w-full p-2.5 bg-zinc-700 border-zinc-600 placeholder-zinc-500 text-white focus:ring-blue-500 focus:border-blue-500 focus:outline-none',
+          props.className,
+        )}
       ></input>
-      <p className="mt-2 text-xs text-red-500">
-        <ErrorMessage name={arrayProp} />
-      </p>
+      <ErrorMessage
+        name={arrayProp ?? ''}
+        errors={formState.errors}
+        render={({ message }) => (
+          <p className="mt-2 text-xs text-red-500">{message}</p>
+        )}
+      />
     </div>
   )
 }
