@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import Modal from '../../components/Modal'
+import PageTitle from '../../components/PageTitle'
 import { routes } from '../../constants/routes'
 import { trpc } from '../../utils/trpc'
 import useAuth from '../../utils/useAuth'
@@ -35,10 +36,8 @@ const Settings = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <h2 className="text-3xl text-zinc-200 mb-10 font-semibold self-center">
-        Settings
-      </h2>
+    <div className="flex flex-col">
+      <PageTitle title="Settings" />
 
       <div className="flex flex-col gap-6 justify-center">
         <Link href={routes.SETTINGS.CHANGE_PASSWORD}>

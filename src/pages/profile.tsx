@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Router from 'next/router'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import PageTitle from '../components/PageTitle'
 import Spinner from '../components/Spinner'
 import { routes } from '../constants/routes'
 import { trpc } from '../utils/trpc'
@@ -38,10 +39,8 @@ const Profile = () => {
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-center text-zinc-100 mb-8">
-        Your content
-      </h1>
+    <div className="flex flex-col">
+      <PageTitle title="Your content" />
 
       {count() == 0 ? (
         <div className="flex flex-col justify-center items-center">

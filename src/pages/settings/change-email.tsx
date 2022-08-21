@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { FormProvider } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
 import Button from '../../components/Button'
+import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { changeEmailSchema } from '../../server/router/schema'
@@ -52,9 +53,7 @@ const ChangeEmail: NextPage = () => {
 
   return (
     <FormProvider {...methods}>
-      <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-        Change Email
-      </h2>
+      <FormTitle title="Change Email" />
       <form
         onSubmit={methods.handleSubmit(async (v) => {
           await handleChangeEmail(v)

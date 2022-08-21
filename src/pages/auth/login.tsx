@@ -4,6 +4,7 @@ import { FormProvider } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
 import { z } from 'zod'
 import Button from '../../components/Button'
+import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { loginSchema } from '../../server/router/schema'
@@ -86,7 +87,7 @@ const Login = () => {
 
   return (
     <div>
-      <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">Login</h2>
+      <FormTitle title="Login" />
 
       <FormProvider {...methods}>
         <form

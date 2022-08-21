@@ -1,13 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import PageTitle from '../components/PageTitle'
 import { routes } from '../constants/routes'
 
 const NotFound = () => {
   return (
     <div className="flex flex-col justify-center items-center">
-      <h1 className="text-3xl font-bold text-center text-zinc-100 mb-8">
-        Not found
-      </h1>
+      <PageTitle title="Not found" />
 
       <Image src="/images/404.svg" alt="Not found" width={500} height={400} />
       <Link href={routes.HOME}>

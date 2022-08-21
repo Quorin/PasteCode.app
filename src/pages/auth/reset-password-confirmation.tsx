@@ -3,6 +3,7 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Router from 'next/router'
 import { FormProvider } from 'react-hook-form'
 import Button from '../../components/Button'
+import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { prisma } from '../../server/db/client'
@@ -56,9 +57,7 @@ const ResetPasswordConfirmation = ({
 
   return (
     <FormProvider {...methods}>
-      <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-        Create new password
-      </h2>
+      <FormTitle title="Create new password" />
       <form
         onSubmit={methods.handleSubmit(async (v) => {
           await handleResetPasswordConfirmation(v)

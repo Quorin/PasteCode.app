@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 import Button from '../../../components/Button'
 import Code from '../../../components/Code'
+import FormTitle from '../../../components/FormTitle'
 import Input from '../../../components/Input'
 import Modal from '../../../components/Modal'
 import Spinner from '../../../components/Spinner'
@@ -127,9 +128,7 @@ const Paste: NextPage = () => {
         </h2>
       ) : (
         <div>
-          <h2 className="text-3xl text-zinc-200 mb-10 font-semibold break-all">
-            {data.paste.title}
-          </h2>
+          <FormTitle title={data.paste.title} />
           {data.paste.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 my-5">
               {data.paste.tags.map((tag) => (

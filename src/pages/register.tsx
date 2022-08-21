@@ -3,6 +3,7 @@ import { FormProvider } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
 import Button from '../components/Button'
 import Checkbox from '../components/Checkbox'
+import FormTitle from '../components/FormTitle'
 import Input from '../components/Input'
 import { registerSchema } from '../server/router/schema'
 import { errorHandler } from '../utils/errorHandler'
@@ -47,9 +48,7 @@ const Register: NextPage = () => {
   return (
     <div>
       <FormProvider {...methods}>
-        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-          Create an account
-        </h2>
+        <FormTitle title="Create an account" />
         <form
           onSubmit={methods.handleSubmit(
             async (v) => {

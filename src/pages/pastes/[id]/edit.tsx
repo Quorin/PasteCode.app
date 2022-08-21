@@ -4,6 +4,7 @@ import { FormProvider } from 'react-hook-form'
 import { z } from 'zod'
 import Button from '../../../components/Button'
 import { DefaultLanguage, Languages } from '../../../components/Code'
+import FormTitle from '../../../components/FormTitle'
 import Input from '../../../components/Input'
 import Select from '../../../components/Select'
 import Spinner from '../../../components/Spinner'
@@ -73,7 +74,7 @@ const Edit: NextPage = () => {
 
   return (
     <FormProvider {...methods}>
-      <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">Edit paste</h2>
+      <FormTitle title="Edit paste" />
       <form
         onSubmit={methods.handleSubmit(async (v) => {
           await updatePaste(v)
