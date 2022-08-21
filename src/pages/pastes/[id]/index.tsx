@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 import Button from '../../../components/Button'
 import Code from '../../../components/Code'
+import FormTitle from '../../../components/FormTitle'
 import Input from '../../../components/Input'
 import Modal from '../../../components/Modal'
 import Spinner from '../../../components/Spinner'
@@ -22,6 +23,7 @@ import { getPasteSchema } from '../../../server/router/schema'
 import { getQueryArg } from '../../../utils/http'
 import { inferQueryInput, trpc, useZodForm } from '../../../utils/trpc'
 import useAuth from '../../../utils/useAuth'
+import NotFound from '../../404'
 
 dayjs.extend(relativeTime)
 
@@ -123,19 +125,17 @@ const Paste: NextPage = () => {
         </div>
       ) : !data?.paste ? (
         <h2 className="text-2xl text-zinc-100 text-bold text-center">
-          Paste not found
+          <NotFound />
         </h2>
       ) : (
         <div>
-          <h2 className="text-3xl text-zinc-200 mb-10 font-semibold break-all">
-            {data.paste.title}
-          </h2>
+          <FormTitle title={data.paste.title} />
           {data.paste.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 my-5">
               {data.paste.tags.map((tag) => (
                 <p
                   key={tag.tag.name}
-                  className="inline-flex items-center py-1 px-2 text-sm font-medium text-gray-800 bg-gray-100 rounded dark:bg-zinc-500 dark:text-zinc-200"
+                  className="inline-flex items-center py-1 px-2 text-sm font-medium  rounded bg-zinc-500 text-zinc-200"
                 >
                   #{tag.tag.name}
                 </p>

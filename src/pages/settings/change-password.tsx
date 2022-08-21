@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { FormProvider } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
 import Button from '../../components/Button'
+import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { changePasswordSchema } from '../../server/router/schema'
@@ -51,43 +52,40 @@ const ChangePassword: NextPage = () => {
 
   return (
     <FormProvider {...methods}>
+      <FormTitle title="Change password" />
       <form
         onSubmit={methods.handleSubmit(async (v) => handleChangePassword(v))}
+        className="flex flex-col gap-6"
       >
-        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-          Change password
-        </h2>
-        <div className="mb-6">
-          <Input
-            id={'currentPassword'}
-            name={'currentPassword'}
-            type={'password'}
-            label={'Current Password'}
-            placeholder={'********'}
-            required={true}
-          />
-        </div>
-        <div className="mb-6">
-          <Input
-            id={'password'}
-            name={'password'}
-            type={'password'}
-            label={'New Password'}
-            placeholder={'********'}
-            required={true}
-          />
-        </div>
-        <div className="mb-6">
-          <Input
-            id={'confirmPassword'}
-            name={'confirmPassword'}
-            type={'password'}
-            label={'Confirm Password'}
-            placeholder={'********'}
-            required={true}
-          />
-        </div>
-        <Button type="submit" className="px-20" disabled={mutation.isLoading}>
+        <Input
+          id={'currentPassword'}
+          name={'currentPassword'}
+          type={'password'}
+          label={'Current Password'}
+          placeholder={'********'}
+          required={true}
+        />
+        <Input
+          id={'password'}
+          name={'password'}
+          type={'password'}
+          label={'New Password'}
+          placeholder={'********'}
+          required={true}
+        />
+        <Input
+          id={'confirmPassword'}
+          name={'confirmPassword'}
+          type={'password'}
+          label={'Confirm Password'}
+          placeholder={'********'}
+          required={true}
+        />
+        <Button
+          type="submit"
+          className="px-20 self-start"
+          disabled={mutation.isLoading}
+        >
           Submit
         </Button>
         <Toaster />

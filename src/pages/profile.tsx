@@ -1,13 +1,14 @@
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import Image from 'next/image'
 import Link from 'next/link'
 import Router from 'next/router'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import PageTitle from '../components/PageTitle'
 import Spinner from '../components/Spinner'
 import { routes } from '../constants/routes'
 import { trpc } from '../utils/trpc'
 import useAuth from '../utils/useAuth'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 
 dayjs.extend(relativeTime)
 
@@ -38,10 +39,8 @@ const Profile = () => {
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-center text-zinc-100 mb-8">
-        Your content
-      </h1>
+    <div className="flex flex-col">
+      <PageTitle title="Your content" />
 
       {count() == 0 ? (
         <div className="flex flex-col justify-center items-center">
@@ -108,7 +107,7 @@ const Profile = () => {
                           {p.tags.map((t, i) => (
                             <p
                               key={i}
-                              className="inline-flex items-center py-1 px-2 text-sm font-medium text-gray-800 bg-gray-100 rounded dark:bg-zinc-500 dark:text-zinc-200"
+                              className="inline-flex items-center py-1 px-2 text-sm font-medium bg-zinc-500 rounded text-zinc-200"
                             >
                               #{t.tag.name}
                             </p>

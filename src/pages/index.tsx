@@ -4,6 +4,7 @@ import { FormProvider } from 'react-hook-form'
 import { z } from 'zod'
 import Button from '../components/Button'
 import { DefaultLanguage, Languages } from '../components/Code'
+import FormTitle from '../components/FormTitle'
 import Input from '../components/Input'
 import Select from '../components/Select'
 import Spinner from '../components/Spinner'
@@ -95,114 +96,101 @@ const Home: NextPage = () => {
 
   return (
     <FormProvider {...methods}>
+      <FormTitle title="Create new paste" />
       <form
         onSubmit={methods.handleSubmit(async (v) => {
           await createPaste(v)
         })}
+        className="flex flex-col gap-6"
       >
-        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-          Create new paste
-        </h2>
-        <div className="mb-6">
-          <Input
-            id="title"
-            label="Title"
-            name="title"
-            type="text"
-            placeholder="Paste's title..."
-            required={true}
-          />
-        </div>
-        <div className="mb-6">
-          <Input
-            id="description"
-            label="Description"
-            name="description"
-            type="text"
-            placeholder="Paste's description..."
-            required={false}
-          />
-        </div>
-        <div className="mb-6">
-          <TagInput
-            id="tag"
-            placeholder="hacking"
-            name="tag"
-            label={'Tags'}
-            arrayProp={'tags'}
-            required={false}
-            maxlength={15}
-          />
-        </div>
-        <div className="mb-6">
-          <Textarea
-            id="content"
-            label="Content"
-            name="content"
-            placeholder="Paste's content..."
-            required={true}
-          />
-        </div>
-        <div className="mb-6">
-          <Input
-            id="password"
-            label="Password"
-            type="password"
-            name="password"
-            placeholder="Optional password..."
-            required={false}
-          />
-        </div>
-        <div className="mb-6">
-          <div className="flex justify-between flex-col md:flex-row">
-            <div className="flex gap-5 mb-6 md:mb-0">
-              <div className="w-1/2 md:w-auto">
-                <Select
-                  id={'expiration'}
-                  label={'Expiration'}
-                  required={true}
-                  name={'expiration'}
-                  options={[
-                    { key: 'never', value: 'Never' },
-                    { key: 'year', value: '1 Year' },
-                    { key: 'month', value: '1 Month' },
-                    { key: 'week', value: '1 Week' },
-                    { key: 'day', value: '1 Day' },
-                    { key: 'hour', value: '1 Hour' },
-                    { key: '10m', value: '10 Minutes' },
-                  ]}
-                />
-              </div>
-              <div className="w-1/2 md:w-auto">
-                <Select
-                  id={'style'}
-                  label={'Style'}
-                  name={'style'}
-                  required={false}
-                  options={Languages.map((lang) => ({
-                    key: lang,
-                    value: lang ? capitalize(lang) : DefaultLanguage.value,
-                  }))}
-                />
-              </div>
+        <Input
+          id="title"
+          label="Title"
+          name="title"
+          type="text"
+          placeholder="Error"
+          required={true}
+        />
+        <Input
+          id="description"
+          label="Description"
+          name="description"
+          type="text"
+          placeholder="System.NullReferenceException"
+          required={false}
+        />
+        <TagInput
+          id="tag"
+          placeholder="bug"
+          name="tag"
+          label={'Tags'}
+          arrayProp={'tags'}
+          required={false}
+          maxlength={15}
+        />
+        <Textarea
+          id="content"
+          label="Content"
+          name="content"
+          placeholder="Object reference not set to an instance of an object."
+          required={true}
+        />
+        <Input
+          id="password"
+          label="Password"
+          type="password"
+          name="password"
+          placeholder="Secure your paste"
+          required={false}
+        />
+        <div className="flex justify-between flex-col md:flex-row">
+          <div className="flex gap-6 mb-6 md:mb-0">
+            <div className="w-1/2 md:w-auto">
+              <Select
+                id={'expiration'}
+                label={'Expiration'}
+                required={true}
+                name={'expiration'}
+                options={[
+                  { key: 'never', value: 'Never' },
+                  { key: 'year', value: '1 Year' },
+                  { key: 'month', value: '1 Month' },
+                  { key: 'week', value: '1 Week' },
+                  { key: 'day', value: '1 Day' },
+                  { key: 'hour', value: '1 Hour' },
+                  { key: '10m', value: '10 Minutes' },
+                ]}
+              />
             </div>
+            <div className="w-1/2 md:w-auto">
+              <Select
+                id={'style'}
+                label={'Style'}
+                name={'style'}
+                required={false}
+                options={Languages.map((lang) => ({
+                  key: lang,
+                  value: lang ? capitalize(lang) : DefaultLanguage.value,
+                }))}
+              />
+            </div>
+          </div>
 
-            <div className="flex self-center md:self-end gap-5">
-              <Button
-                type="submit"
-                className="px-10"
-                disabled={mutation.isLoading}
-              >
-                Submit
-              </Button>
-              <Button
-                onClick={() => resetForm()}
-                type="reset"
-                className="bg-red-600 hover:bg-red-700 focus:ring-red-800 px-5"
-              >
-                Reset
-              </Button>
-            </div>
+          <div className="flex self-center md:self-end gap-6">
+            <Button
+              type="submit"
+              className="px-10"
+              disabled={mutation.isLoading}
+            >
+              Submit
+            </Button>
+            <Button
+              onClick={() => resetForm()}
+              type="reset"
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-800 px-5"
+            >
+              Reset
+            </Button>
           </div>
         </div>
       </form>

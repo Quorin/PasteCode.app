@@ -4,6 +4,7 @@ import { FormProvider } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
 import { z } from 'zod'
 import Button from '../../components/Button'
+import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { loginSchema } from '../../server/router/schema'
@@ -85,41 +86,37 @@ const Login = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div>
+      <FormTitle title="Login" />
+
       <FormProvider {...methods}>
         <form
           onSubmit={methods.handleSubmit(async (v) => {
             await handleLogin(v)
           })}
+          className="flex flex-col gap-6"
         >
-          <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">Login</h2>
-          <div className="mb-6">
-            <Input
-              id={'email'}
-              name={'email'}
-              type={'email'}
-              label={'Email'}
-              required={true}
-              placeholder={'hello@world.localhost'}
-            />
-          </div>
-          <div className="mb-6">
-            <Input
-              id={'password'}
-              type={'password'}
-              name={'password'}
-              label={'Password'}
-              placeholder={'********'}
-              required={true}
-            />
-          </div>
-          <div className="mb-6">
-            <Link href={routes.AUTH.RESET_PASSWORD}>
-              <p className="text-red-400 text-sm hover:underline cursor-pointer">
-                Reset password
-              </p>
-            </Link>
-          </div>
+          <Input
+            id={'email'}
+            name={'email'}
+            type={'email'}
+            label={'Email'}
+            required={true}
+            placeholder={'hello@world.localhost'}
+          />
+          <Input
+            id={'password'}
+            type={'password'}
+            name={'password'}
+            label={'Password'}
+            placeholder={'********'}
+            required={true}
+          />
+          <Link href={routes.AUTH.RESET_PASSWORD}>
+            <p className="text-red-400 text-sm hover:underline cursor-pointer">
+              Reset password
+            </p>
+          </Link>
 
           <div className="flex flex-col md:items-start gap-2 md:flex-row">
             <Button

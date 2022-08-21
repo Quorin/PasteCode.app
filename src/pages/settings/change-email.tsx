@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { FormProvider } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
 import Button from '../../components/Button'
+import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { changeEmailSchema } from '../../server/router/schema'
@@ -52,38 +53,35 @@ const ChangeEmail: NextPage = () => {
 
   return (
     <FormProvider {...methods}>
+      <FormTitle title="Change Email" />
       <form
         onSubmit={methods.handleSubmit(async (v) => {
           await handleChangeEmail(v)
         })}
+        className="flex flex-col gap-6"
       >
-        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-          Change Email
-        </h2>
+        <Input
+          id={'email'}
+          name={'email'}
+          type={'email'}
+          label={'New Email'}
+          required={true}
+          placeholder={'hello@world.localhost'}
+        />
+        <Input
+          id={'confirmEmail'}
+          name={'confirmEmail'}
+          type={'email'}
+          label={'Confirm Email'}
+          required={true}
+          placeholder={'hello@world.localhost'}
+        />
 
-        <div className="mb-6">
-          <Input
-            id={'email'}
-            name={'email'}
-            type={'email'}
-            label={'New Email'}
-            required={true}
-            placeholder={'hello@world.localhost'}
-          />
-        </div>
-
-        <div className="mb-6">
-          <Input
-            id={'confirmEmail'}
-            name={'confirmEmail'}
-            type={'email'}
-            label={'Confirm Email'}
-            required={true}
-            placeholder={'hello@world.localhost'}
-          />
-        </div>
-
-        <Button type="submit" className="px-20" disabled={mutation.isLoading}>
+        <Button
+          type="submit"
+          className="px-20 self-start"
+          disabled={mutation.isLoading}
+        >
           Submit
         </Button>
         <Toaster />

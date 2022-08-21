@@ -2,6 +2,7 @@ import { NextPage } from 'next'
 import { FormProvider } from 'react-hook-form'
 import toast, { Toaster } from 'react-hot-toast'
 import Button from '../../components/Button'
+import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
 import { resetPasswordSchema } from '../../server/router/schema'
 import { errorHandler } from '../../utils/errorHandler'
@@ -40,26 +41,22 @@ const ResetPassword: NextPage = () => {
 
   return (
     <FormProvider {...methods}>
+      <FormTitle title="Reset password" />
       <form
         onSubmit={methods.handleSubmit(async (v) => {
           await handleResetPassword(v)
         })}
+        className="flex flex-col gap-6"
       >
-        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-          Reset password
-        </h2>
-
-        <div className="mb-6">
-          <Input
-            id={'email'}
-            name={'email'}
-            type={'email'}
-            label={'Email'}
-            required={true}
-            placeholder={'hello@world.localhost'}
-          />
-        </div>
-        <Button type="submit" className="px-20">
+        <Input
+          id={'email'}
+          name={'email'}
+          type={'email'}
+          label={'Email'}
+          required={true}
+          placeholder={'hello@world.localhost'}
+        />
+        <Button type="submit" className="px-20 self-start">
           Submit
         </Button>
         <Toaster />
