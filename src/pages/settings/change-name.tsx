@@ -49,20 +49,25 @@ const ChangeName: NextPage = () => {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(async (v) => handleChangeName(v))}>
-        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-          Change Name
-        </h2>
-        <div className="mb-6">
-          <Input
-            id={'name'}
-            name={'name'}
-            type={'text'}
-            label={'New Name'}
-            required={true}
-          />
-        </div>
-        <Button type="submit" className="px-20" disabled={mutation.isLoading}>
+      <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
+        Change Name
+      </h2>
+      <form
+        onSubmit={methods.handleSubmit(async (v) => handleChangeName(v))}
+        className="flex flex-col gap-6"
+      >
+        <Input
+          id={'name'}
+          name={'name'}
+          type={'text'}
+          label={'New Name'}
+          required={true}
+        />
+        <Button
+          type="submit"
+          className="px-20 self-start"
+          disabled={mutation.isLoading}
+        >
           Submit
         </Button>
         <Toaster />

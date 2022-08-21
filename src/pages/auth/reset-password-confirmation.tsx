@@ -56,35 +56,36 @@ const ResetPasswordConfirmation = ({
 
   return (
     <FormProvider {...methods}>
+      <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
+        Create new password
+      </h2>
       <form
         onSubmit={methods.handleSubmit(async (v) => {
           await handleResetPasswordConfirmation(v)
         })}
+        className="flex flex-col gap-6"
       >
-        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-          Create new password
-        </h2>
-        <div className="mb-6">
-          <Input
-            id={'password'}
-            name={'password'}
-            type={'password'}
-            label={'Password'}
-            placeholder={'********'}
-            required={true}
-          />
-        </div>
-        <div className="mb-6">
-          <Input
-            id={'confirmPassword'}
-            name={'confirmPassword'}
-            type={'password'}
-            label={'Confirm Password'}
-            placeholder={'********'}
-            required={true}
-          />
-        </div>
-        <Button type="submit" className="px-20" disabled={mutation.isLoading}>
+        <Input
+          id={'password'}
+          name={'password'}
+          type={'password'}
+          label={'Password'}
+          placeholder={'********'}
+          required={true}
+        />
+        <Input
+          id={'confirmPassword'}
+          name={'confirmPassword'}
+          type={'password'}
+          label={'Confirm Password'}
+          placeholder={'********'}
+          required={true}
+        />
+        <Button
+          type="submit"
+          className="px-20 self-start"
+          disabled={mutation.isLoading}
+        >
           Submit
         </Button>
       </form>

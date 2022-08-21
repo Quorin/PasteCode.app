@@ -10,7 +10,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 const Checkbox = ({ label, ...props }: Props) => {
   const { register, formState } = useFormContext()
   return (
-    <div className="mb-6">
+    <div>
       <div className="flex flex-row gap-3 place-items-center">
         <input
           id={props.id}

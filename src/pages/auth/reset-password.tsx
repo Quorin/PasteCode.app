@@ -40,26 +40,24 @@ const ResetPassword: NextPage = () => {
 
   return (
     <FormProvider {...methods}>
+      <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
+        Reset password
+      </h2>
       <form
         onSubmit={methods.handleSubmit(async (v) => {
           await handleResetPassword(v)
         })}
+        className="flex flex-col gap-6"
       >
-        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-          Reset password
-        </h2>
-
-        <div className="mb-6">
-          <Input
-            id={'email'}
-            name={'email'}
-            type={'email'}
-            label={'Email'}
-            required={true}
-            placeholder={'hello@world.localhost'}
-          />
-        </div>
-        <Button type="submit" className="px-20">
+        <Input
+          id={'email'}
+          name={'email'}
+          type={'email'}
+          label={'Email'}
+          required={true}
+          placeholder={'hello@world.localhost'}
+        />
+        <Button type="submit" className="px-20 self-start">
           Submit
         </Button>
         <Toaster />

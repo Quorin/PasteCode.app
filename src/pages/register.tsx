@@ -45,8 +45,11 @@ const Register: NextPage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div>
       <FormProvider {...methods}>
+        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
+          Create an account
+        </h2>
         <form
           onSubmit={methods.handleSubmit(
             async (v) => {
@@ -56,67 +59,59 @@ const Register: NextPage = () => {
               console.log('error', v)
             },
           )}
+          className="flex flex-col gap-6"
         >
-          <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-            Create an account
-          </h2>
-          <div className="mb-6">
-            <Input
-              id={'email'}
-              name={'email'}
-              type={'email'}
-              label={'Email'}
-              required={true}
-              placeholder={'hello@world.localhost'}
-            />
-          </div>
-          <div className="mb-6">
-            <Input
-              id={'name'}
-              name={'name'}
-              type={'name'}
-              label={'Name'}
-              required={true}
-              placeholder={'John Doe'}
-            />
-          </div>
-          <div className="mb-6">
-            <Input
-              id={'password'}
-              name={'password'}
-              type={'password'}
-              label={'Password'}
-              placeholder={'********'}
-              required={true}
-            />
-          </div>
-          <div className="mb-6">
-            <Input
-              id={'confirmPassword'}
-              name={'confirmPassword'}
-              type={'password'}
-              label={'Confirm Password'}
-              placeholder={'********'}
-              required={true}
-            />
-          </div>
-          <div className="mb-6">
-            <Checkbox
-              label={
-                <>
-                  I agree with the{' '}
-                  <a href="#" className="text-blue-500 hover:underline">
-                    terms and conditions
-                  </a>
-                  .{' '}
-                </>
-              }
-              required={true}
-              id={'agree'}
-              name={'agree'}
-            />
-          </div>
-          <Button type="submit" className="px-20" disabled={mutation.isLoading}>
+          <Input
+            id={'email'}
+            name={'email'}
+            type={'email'}
+            label={'Email'}
+            required={true}
+            placeholder={'hello@world.localhost'}
+          />
+          <Input
+            id={'name'}
+            name={'name'}
+            type={'name'}
+            label={'Name'}
+            required={true}
+            placeholder={'John Doe'}
+          />
+          <Input
+            id={'password'}
+            name={'password'}
+            type={'password'}
+            label={'Password'}
+            placeholder={'********'}
+            required={true}
+          />
+          <Input
+            id={'confirmPassword'}
+            name={'confirmPassword'}
+            type={'password'}
+            label={'Confirm Password'}
+            placeholder={'********'}
+            required={true}
+          />
+          <Checkbox
+            label={
+              <>
+                I agree with the{' '}
+                <a href="#" className="text-blue-500 hover:underline">
+                  terms and conditions
+                </a>
+                .{' '}
+              </>
+            }
+            required={true}
+            id={'agree'}
+            name={'agree'}
+          />
+          <Button
+            type="submit"
+            className="px-20 self-start"
+            disabled={mutation.isLoading}
+          >
             Submit
           </Button>
           <Toaster />

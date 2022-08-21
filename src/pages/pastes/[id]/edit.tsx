@@ -73,114 +73,100 @@ const Edit: NextPage = () => {
 
   return (
     <FormProvider {...methods}>
+      <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">Edit paste</h2>
       <form
         onSubmit={methods.handleSubmit(async (v) => {
           await updatePaste(v)
         })}
+        className="flex flex-col gap-6"
       >
-        <h2 className="text-3xl text-zinc-200 mb-10 font-semibold">
-          Edit paste
-        </h2>
-
-        <div className="mb-6">
-          <Input
-            id="title"
-            label="Title"
-            name="title"
-            type="text"
-            placeholder="Error"
-            required={true}
-            defaultValue={paste?.title}
-          />
-        </div>
-        <div className="mb-6">
-          <Input
-            id="description"
-            label="Description"
-            name="description"
-            type="text"
-            placeholder="System.NullReferenceException"
-            required={false}
-            defaultValue={paste?.description ?? ''}
-          />
-        </div>
-        <div className="mb-6">
-          <TagInput
-            id="tag"
-            placeholder="bug"
-            label={'Tags'}
-            arrayProp={'tags'}
-            required={false}
-            maxlength={15}
-            name={'tag'}
-          />
-        </div>
-        <div className="mb-6">
-          <Textarea
-            id="content"
-            label="Content"
-            name="content"
-            placeholder="Object reference not set to an instance of an object."
-            required={true}
-            defaultValue={paste?.content ?? ''}
-          />
-        </div>
-        <div className="mb-6">
-          <Input
-            id="password"
-            label="Password"
-            type="password"
-            name="password"
-            placeholder="Secure your paste"
-            required={false}
-          />
-        </div>
-        <div className="mb-6">
-          <div className="flex justify-between flex-col md:flex-row">
-            <div className="flex gap-5 mb-6 md:mb-0">
-              <div className="w-1/2 md:w-auto">
-                <Select
-                  id={'expiration'}
-                  label={'Expiration'}
-                  required={true}
-                  defaultValue={'same'}
-                  name={'expiration'}
-                  options={[
-                    { key: 'same', value: 'No Changes' },
-                    { key: 'never', value: 'Never' },
-                    { key: 'year', value: '1 Year' },
-                    { key: 'month', value: '1 Month' },
-                    { key: 'week', value: '1 Week' },
-                    { key: 'day', value: '1 Day' },
-                    { key: 'hour', value: '1 Hour' },
-                    { key: '10m', value: '10 Minutes' },
-                  ]}
-                />
-              </div>
-              <div className="w-1/2 md:w-auto">
-                <Select
-                  id={'style'}
-                  label={'Style'}
-                  required={false}
-                  name={'style'}
-                  defaultValue={paste?.style ?? DefaultLanguage.value}
-                  options={Languages.map((lang) => ({
-                    key: lang,
-                    value: lang ? capitalize(lang) : DefaultLanguage.value,
-                  }))}
-                />
-              </div>
+        <Input
+          id="title"
+          label="Title"
+          name="title"
+          type="text"
+          placeholder="Error"
+          required={true}
+          defaultValue={paste?.title}
+        />
+        <Input
+          id="description"
+          label="Description"
+          name="description"
+          type="text"
+          placeholder="System.NullReferenceException"
+          required={false}
+          defaultValue={paste?.description ?? ''}
+        />
+        <TagInput
+          id="tag"
+          placeholder="bug"
+          label={'Tags'}
+          arrayProp={'tags'}
+          required={false}
+          maxlength={15}
+          name={'tag'}
+        />
+        <Textarea
+          id="content"
+          label="Content"
+          name="content"
+          placeholder="Object reference not set to an instance of an object."
+          required={true}
+          defaultValue={paste?.content ?? ''}
+        />
+        <Input
+          id="password"
+          label="Password"
+          type="password"
+          name="password"
+          placeholder="Secure your paste"
+          required={false}
+        />
+        <div className="flex justify-between flex-col md:flex-row">
+          <div className="flex gap-6 mb-6 md:mb-0">
+            <div className="w-1/2 md:w-auto">
+              <Select
+                id={'expiration'}
+                label={'Expiration'}
+                required={true}
+                defaultValue={'same'}
+                name={'expiration'}
+                options={[
+                  { key: 'same', value: 'No Changes' },
+                  { key: 'never', value: 'Never' },
+                  { key: 'year', value: '1 Year' },
+                  { key: 'month', value: '1 Month' },
+                  { key: 'week', value: '1 Week' },
+                  { key: 'day', value: '1 Day' },
+                  { key: 'hour', value: '1 Hour' },
+                  { key: '10m', value: '10 Minutes' },
+                ]}
+              />
             </div>
-
-            <div className="flex self-center md:self-end gap-5">
-              <Button
-                type="submit"
-                className="px-10"
-                disabled={mutation.isLoading}
-              >
-                Submit
-              </Button>
+            <div className="w-1/2 md:w-auto">
+              <Select
+                id={'style'}
+                label={'Style'}
+                required={false}
+                name={'style'}
+                defaultValue={paste?.style ?? DefaultLanguage.value}
+                options={Languages.map((lang) => ({
+                  key: lang,
+                  value: lang ? capitalize(lang) : DefaultLanguage.value,
+                }))}
+              />
             </div>
+          </div>
+
+          <div className="flex self-center md:self-end gap-6">
+            <Button
+              type="submit"
+              className="px-10"
+              disabled={mutation.isLoading}
+            >
+              Submit
+            </Button>
           </div>
         </div>
       </form>
