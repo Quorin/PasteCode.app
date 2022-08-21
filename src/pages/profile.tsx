@@ -108,7 +108,7 @@ const Profile = () => {
                           {p.tags.map((t, i) => (
                             <p
                               key={i}
-                              className="inline-flex items-center py-1 px-2 text-sm font-medium bg-gray-100 rounded text-zinc-200"
+                              className="inline-flex items-center py-1 px-2 text-sm font-medium bg-zinc-500 rounded text-zinc-200"
                             >
                               #{t.tag.name}
                             </p>
