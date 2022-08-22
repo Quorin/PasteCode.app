@@ -1,10 +1,12 @@
 import { NextPage } from 'next'
+import Link from 'next/link'
 import { FormProvider } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import Button from '../components/Button'
 import Checkbox from '../components/Checkbox'
 import FormTitle from '../components/FormTitle'
 import Input from '../components/Input'
+import { routes } from '../constants/routes'
 import { registerSchema } from '../server/router/schema'
 import { errorHandler } from '../utils/errorHandler'
 import { inferMutationInput, trpc, useZodForm } from '../utils/trpc'
@@ -91,9 +93,11 @@ const Register: NextPage = () => {
             label={
               <>
                 I agree with the{' '}
-                <a href="#" className="text-blue-500 hover:underline">
-                  terms and conditions
-                </a>
+                <div className="inline text-blue-500 hover:underline">
+                  <Link href={routes.TERMS_AND_CONDITIONS}>
+                    terms and conditions
+                  </Link>
+                </div>
                 .{' '}
               </>
             }

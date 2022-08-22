@@ -18,4 +18,6 @@ export const routes = {
     RAW: '/pastes/[id]/raw',
     EDIT: '/pastes/[id]/edit',
   },
+  PRIVACY_POLICY: '/privacy-policy',
+  TERMS_AND_CONDITIONS: '/terms-and-conditions',
 }
