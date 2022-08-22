@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import Image from 'next/image'
 import Router from 'next/router'
 import { FormProvider } from 'react-hook-form'
 import Button from '../../components/Button'
@@ -51,7 +52,17 @@ const ResetPasswordConfirmation = ({
 
   if (!result) {
     return (
-      <p className="text-red-500 text-center">Code is incorrect or expired.</p>
+      <div className="flex flex-col gap-10">
+        <Image
+          src="/images/alert.svg"
+          alt="Code is incorrect or expired"
+          width={500}
+          height={400}
+        />
+        <p className="text-xl font-light text-red-500 text-center">
+          Code is incorrect or expired.
+        </p>
+      </div>
     )
   }
 
