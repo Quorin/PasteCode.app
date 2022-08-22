@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { FormProvider } from 'react-hook-form'
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import Button from '../../components/Button'
 import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
@@ -88,7 +88,6 @@ const ChangePassword: NextPage = () => {
         >
           Submit
         </Button>
-        <Toaster />
       </form>
     </FormProvider>
   )

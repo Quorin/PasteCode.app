@@ -1,6 +1,6 @@
 import { NextPage } from 'next'
 import { FormProvider } from 'react-hook-form'
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import Button from '../components/Button'
 import Checkbox from '../components/Checkbox'
 import FormTitle from '../components/FormTitle'
@@ -108,7 +108,6 @@ const Register: NextPage = () => {
           >
             Submit
           </Button>
-          <Toaster />
         </form>
       </FormProvider>
     </div>

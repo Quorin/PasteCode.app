@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import Image from 'next/image'
 import { prisma } from '../../server/db/client'
 
 type Props = {
@@ -10,16 +11,32 @@ const ConfirmAccount = ({
   result,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-10">
       {result ? (
-        <p className="text-green-500 text-center">
-          Account has been confirmed.
-        </p>
+        <>
+          <Image
+            src="/images/confirmed.svg"
+            alt="Confirmed"
+            width={500}
+            height={400}
+          />
+          <p className="text-xl font-light text-blue-500 text-center">
+            Account has been confirmed.
+          </p>
+        </>
       ) : (
-        <p className="text-red-500 text-center">
-          Code is incorrect or your request expired. Please try to send
-          confirmation again.
-        </p>
+        <>
+          <Image
+            src="/images/alert.svg"
+            alt="Code is incorrect or expired"
+            width={500}
+            height={400}
+          />
+          <p className="text-xl font-light text-red-500 text-center">
+            Code is incorrect or your request expired. Please try to send
+            confirmation again.
+          </p>
+        </>
       )}
     </div>
   )
