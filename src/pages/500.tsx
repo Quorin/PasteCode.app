@@ -8,7 +8,12 @@ const InternalServerError = () => {
     <div className="flex flex-col justify-center items-center">
       <PageTitle title="Internal Server Error" />
 
-      <Image src="/images/500.svg" alt="Not found" width={500} height={400} />
+      <Image
+        src="/images/500.svg"
+        alt="Internal Server Error"
+        width={500}
+        height={400}
+      />
       <Link href={routes.HOME}>
         <div className="text-center mt-10">
           <p>Something went wrong, please try again later.</p>
