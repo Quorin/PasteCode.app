@@ -25,6 +25,7 @@ const Profile = () => {
     fetchNextPage,
     isLoading: isLoadingPastes,
   } = trpc.useInfiniteQuery(['paste.getUserPastes', { limit: 25 }], {
+    refetchOnWindowFocus: false,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   })
 
