@@ -50,14 +50,9 @@ const Register: NextPage = () => {
       <FormProvider {...methods}>
         <FormTitle title="Create an account" />
         <form
-          onSubmit={methods.handleSubmit(
-            async (v) => {
-              await handleRegister(v)
-            },
-            async (v) => {
-              console.log('error', v)
-            },
-          )}
+          onSubmit={methods.handleSubmit(async (v) => {
+            await handleRegister(v)
+          })}
           className="flex flex-col gap-6"
         >
           <Input
