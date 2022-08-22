@@ -176,7 +176,7 @@ const Home: NextPage = () => {
             </div>
           </div>
 
-          <div className="flex self-center md:self-end gap-6">
+          <div className="flex flex-col md:flex-row md:self-end gap-2 md:gap-6">
             <Button
               type="submit"
               className="px-10"

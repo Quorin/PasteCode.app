@@ -177,7 +177,7 @@ const Edit: NextPage = () => {
             </div>
           </div>
 
-          <div className="flex self-center md:self-end gap-6">
+          <div className="flex flex-col md:self-end gap-6">
             <Button
               type="submit"
               className="px-10"
