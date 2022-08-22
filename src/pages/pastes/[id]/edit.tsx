@@ -26,6 +26,7 @@ const Edit: NextPage = () => {
   const { isLoading: isAuthLoading, user } = useAuth()
   const router = useRouter()
   const mutation = trpc.useMutation(['paste.updatePaste'])
+  const utils = trpc.useContext()
 
   const methods = useZodForm({
     schema: updatePasteSchema.extend({ tag: z.string() }),
@@ -58,6 +59,7 @@ const Edit: NextPage = () => {
         errorHandler(methods.setError, error)
       },
       onSuccess: async () => {
+        await utils.refetchQueries(['paste.getPaste'])
         await router.push({
           pathname: routes.PASTES.INDEX,
           query: { id: values.id },
