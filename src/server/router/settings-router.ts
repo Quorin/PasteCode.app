@@ -130,5 +130,8 @@ export const settingsRouter = createProtectedRouter()
         where: { id: ctx.session.user.id },
         data: { name: input.name },
       })
+
+      ctx.session.user.name = input.name
+      await ctx.session.save()
     },
   })

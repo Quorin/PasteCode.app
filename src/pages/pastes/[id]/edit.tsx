@@ -16,11 +16,14 @@ import { errorHandler } from '../../../utils/errorHandler'
 import { getQueryArg } from '../../../utils/http'
 import { capitalize } from '../../../utils/strings'
 import { inferMutationInput, trpc, useZodForm } from '../../../utils/trpc'
+import useAuth from '../../../utils/useAuth'
+import Unauthorized from '../../401'
 import NotFound from '../../404'
 
 type FormValues = inferMutationInput<'paste.updatePaste'> & { tag: string }
 
 const Edit: NextPage = () => {
+  const { isLoading: isAuthLoading, user } = useAuth()
   const router = useRouter()
   const mutation = trpc.useMutation(['paste.updatePaste'])
 
@@ -63,12 +66,19 @@ const Edit: NextPage = () => {
     })
   }
 
-  if (isLoading || error) {
+  if (isLoading || isAuthLoading || error) {
     return (
       <div className="flex justify-center">
         <Spinner />
       </div>
     )
+  }
+
+  if (
+    !isAuthLoading &&
+    (!user?.id || user.id !== data?.paste?.userId || !data?.paste.userId)
+  ) {
+    return <Unauthorized />
   }
 
   const paste = data?.paste

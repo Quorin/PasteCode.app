@@ -3,20 +3,20 @@ import Link from 'next/link'
 import PageTitle from '../components/PageTitle'
 import { routes } from '../constants/routes'
 
-const InternalServerError = () => {
+const Unauthorized = () => {
   return (
     <div className="flex flex-col justify-center items-center">
-      <PageTitle title="Internal Server Error" />
+      <PageTitle title="Unauthorized" />
 
       <Image
-        src="/images/500.svg"
-        alt="Internal Server Error"
+        src="/images/401.svg"
+        alt="Unauthorized"
         width={500}
         height={400}
       />
       <Link href={routes.HOME}>
         <div className="text-center mt-10">
-          <p>Something went wrong, please try again later.</p>
+          <p>You are not authorized to access this page.</p>
           <h3 className="text-lg text-zinc-200 cursor-pointer bg-blue-500 hover:bg-blue-700 transition-colors px-10 py-2.5 mt-10 rounded-lg">
             Go home
           </h3>
@@ -26,4 +26,4 @@ const InternalServerError = () => {
   )
 }
 
-export default InternalServerError
+export default Unauthorized
