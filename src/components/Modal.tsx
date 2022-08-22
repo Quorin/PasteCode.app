@@ -1,11 +1,49 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationIcon } from '@heroicons/react/outline'
+import { cva } from 'class-variance-authority'
 import { Fragment, useRef } from 'react'
+
+const dialogPanel = cva(
+  [
+    'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 sm:mx-0 sm:h-10 sm:w-10',
+  ],
+  {
+    variants: {
+      color: {
+        warning: ['bg-red-100'],
+        info: ['bg-blue-100'],
+      },
+    },
+  },
+)
+
+const button = cva(
+  [
+    'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 focus:outline-none focus:ring-2 sm:ml-3 sm:w-auto sm:text-sm',
+  ],
+  {
+    variants: {
+      color: {
+        warning: ['bg-red-700 hover:bg-red-500 focus:ring-red-500'],
+        info: ['bg-blue-700 hover:bg-blue-500 focus:ring-blue-500'],
+      },
+    },
+  },
+)
+
+const icon = cva(['h-6 w-6'], {
+  variants: {
+    color: {
+      warning: ['text-red-600'],
+      info: ['text-blue-600'],
+    },
+  },
+})
 
 type Props = {
   title: string
   description: string
-  accentColor: string
+  accentColor: 'warning' | 'info' | null
   visible: boolean
   action: () => void
   actionTitle: string
@@ -57,11 +95,9 @@ const Modal = ({
               <Dialog.Panel className="relative bg-zinc-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full">
                 <div className="bg-zinc-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                   <div className="sm:flex sm:items-start">
-                    <div
-                      className={`mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-${accentColor}-100 sm:mx-0 sm:h-10 sm:w-10`}
-                    >
+                    <div className={dialogPanel({ color: accentColor })}>
                       <ExclamationIcon
-                        className={`h-6 w-6 text-${accentColor}-600`}
+                        className={icon({ color: accentColor })}
                         aria-hidden="true"
                       />
                     </div>
@@ -81,7 +117,7 @@ const Modal = ({
                 <div className="bg-zinc-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                   <button
                     type="button"
-                    className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-${accentColor}-600 text-base font-medium text-zinc-100 hover:bg-${accentColor}-700 focus:outline-none focus:ring-2 focus:ring-${accentColor}-500 sm:ml-3 sm:w-auto sm:text-sm`}
+                    className={button({ color: accentColor })}
                     onClick={action}
                   >
                     {actionTitle}

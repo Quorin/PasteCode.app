@@ -71,7 +71,7 @@ const Settings = () => {
           visible={isDeleteModalVisible}
           action={() => handleDelete()}
           close={() => setIsDeleteModalVisible(false)}
-          accentColor="red"
+          accentColor={'warning'}
           title="Remove account"
           actionTitle="Remove"
           description="Are you sure you want to deactivate your account? All of your data will be permanently removed. This action cannot be undone."

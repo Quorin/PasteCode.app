@@ -228,7 +228,7 @@ const Paste: NextPage = () => {
               visible={isDeleteModalVisible}
               action={() => handleDelete(data.paste?.id ?? '')}
               close={() => setIsDeleteModalVisible(false)}
-              accentColor="red"
+              accentColor="warning"
               title="Remove paste"
               actionTitle="Remove"
               description="Are you sure you want to remove this paste? It's cannot be undone."
