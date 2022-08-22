@@ -34,7 +34,7 @@ const Navbar = () => {
   const [menuCollapsed, setMenuCollapsed] = useState(true)
   const menuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const { user, isLoading, isLoggedIn } = useAuth()
+  const { user, isLoggedIn } = useAuth()
 
   const handleCollapse = () => {
     setMenuCollapsed(!menuCollapsed)
@@ -80,7 +80,7 @@ const Navbar = () => {
           className="hidden w-full md:block md:w-auto"
           id="navbar-default"
         >
-          <ul className="flex flex-col p-4 mt-4 rounded-lg border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 bg-zinc-800 md:bg-zinc-900 border-zinc-700">
+          <ul className="flex flex-col p-4 mt-4 rounded-lg border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 bg-zinc-800 md:bg-zinc-900 border-zinc-700 text-center">
             {isLoggedIn
               ? authorizedPaths(user!.name).map(({ path, name }) => (
                   <li
