@@ -9,11 +9,34 @@ import {
   changeEmailSchema,
   changeNameSchema,
   changePasswordSchema,
+  removeAccountSchema,
 } from './schema'
 
 export const settingsRouter = createProtectedRouter()
   .mutation('removeAccount', {
-    async resolve({ ctx }) {
+    input: removeAccountSchema,
+    async resolve({ ctx, input }) {
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: ctx.session.user.id },
+        select: { password: true },
+      })
+
+      if (
+        !user?.password ||
+        !(await argon2.verify(user.password, input.password))
+      ) {
+        throw new trpc.TRPCError({
+          code: 'BAD_REQUEST',
+          cause: new ZodError([
+            {
+              path: ['password'],
+              message: 'Password is incorrect',
+              code: 'custom',
+            },
+          ]),
+        })
+      }
+
       await ctx.prisma.user.delete({
         where: {
           id: ctx.session.user.id,

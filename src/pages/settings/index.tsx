@@ -1,30 +1,14 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
-import Modal from '../../components/Modal'
 import PageTitle from '../../components/PageTitle'
 import { routes } from '../../constants/routes'
 import { trpc } from '../../utils/trpc'
 import useAuth from '../../utils/useAuth'
 
 const Settings = () => {
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
-
   const router = useRouter()
   const logoutMutation = trpc.useMutation(['auth.logout'])
-  const removeAccountMutation = trpc.useMutation(['settings.removeAccount'])
   const { logout } = useAuth()
-
-  const handleDelete = async () => {
-    setIsDeleteModalVisible(false)
-
-    removeAccountMutation.mutate(undefined, {
-      async onSuccess() {
-        logout()
-        await router.replace(routes.HOME)
-      },
-    })
-  }
 
   const handleLogout = async () => {
     logoutMutation.mutate(undefined, {
@@ -61,21 +45,11 @@ const Settings = () => {
         >
           Logout
         </button>
-        <button
-          onClick={() => setIsDeleteModalVisible(true)}
-          className="mt-10 w-full md:w-1/2 bg-zinc-700 hover:bg-red-300 text-red-300 hover:text-zinc-700 transition-colors mx-auto px-10 py-3 rounded-lg"
-        >
-          Remove Account & Data
-        </button>
-        <Modal
-          visible={isDeleteModalVisible}
-          action={() => handleDelete()}
-          close={() => setIsDeleteModalVisible(false)}
-          accentColor={'warning'}
-          title="Remove account"
-          actionTitle="Remove"
-          description="Are you sure you want to deactivate your account? All of your data will be permanently removed. This action cannot be undone."
-        />
+        <Link href={routes.SETTINGS.REMOVE_ACCOUNT}>
+          <button className="mt-10 w-full md:w-1/2 bg-zinc-700 hover:bg-red-300 text-red-300 hover:text-zinc-700 transition-colors mx-auto px-10 py-3 rounded-lg">
+            Remove Account & Data
+          </button>
+        </Link>
       </div>
     </div>
   )
