@@ -56,7 +56,7 @@ const ResetPassword: NextPage = () => {
           required={true}
           placeholder={'hello@world.localhost'}
         />
-        <Button type="submit" className="px-20 self-start">
+        <Button type="submit" className="px-20 md:self-start">
           Submit
         </Button>
       </form>

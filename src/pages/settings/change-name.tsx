@@ -64,7 +64,7 @@ const ChangeName: NextPage = () => {
         />
         <Button
           type="submit"
-          className="px-20 self-start"
+          className="px-20 md:self-start"
           disabled={mutation.isLoading}
         >
           Submit
