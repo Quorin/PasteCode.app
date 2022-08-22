@@ -5,6 +5,10 @@ import { DefaultLanguage, Languages } from '../../components/Code'
  * Settings
  */
 
+export const removeAccountSchema = z.object({
+  password: z.string(),
+})
+
 export const changeEmailSchema = z
   .object({
     email: z.string().email('Email is not valid'),
