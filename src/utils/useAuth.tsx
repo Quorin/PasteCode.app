@@ -1,11 +1,4 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import { createContext, ReactNode, useContext, useState } from 'react'
 import { trpc } from './trpc'
 
 export type SessionUser = {
@@ -30,9 +23,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   const query = trpc.useQuery(['auth.checkSession'], {
-    enabled: false,
+    refetchOnWindowFocus: false,
+    enabled: true,
     onSuccess: (user) => {
-      if (user && user.id) {
+      if (user?.id) {
         setUser(user)
         setIsLoading(false)
         setIsLoggedIn(true)
@@ -45,10 +39,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     },
   })
 
-  useEffect(() => {
-    refresh()
-  }, [])
-
   const logout = () => {
     setUser(null)
     setIsLoading(false)
@@ -60,19 +50,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await query.refetch()
   }
 
-  const memoValue = useMemo(
-    () => ({
-      user,
-      isLoading,
-      isLoggedIn,
-      refresh,
-      logout,
-    }),
-    [user, isLoading, isLoggedIn],
-  )
-
   return (
-    <AuthContext.Provider value={memoValue}>{children}</AuthContext.Provider>
+    <AuthContext.Provider
+      value={{ user, isLoading, isLoggedIn, logout, refresh }}
+    >
+      {children}
+    </AuthContext.Provider>
   )
 }
 
