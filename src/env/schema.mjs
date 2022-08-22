@@ -7,6 +7,7 @@ import { z } from 'zod'
  */
 export const serverSchema = z.object({
   DATABASE_URL: z.string().url(),
+  URL: z.string().url().optional(),
   NODE_ENV: z.enum(['development', 'test', 'production']),
   SESSION_SECRET: z.string(),
   SENDGRID_API_KEY: z.string().startsWith('SG.'),

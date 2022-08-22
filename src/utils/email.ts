@@ -36,11 +36,25 @@ export const sendResetPasswordEmail = async (
   })
 }
 
+const getEmailUrl = () => {
+  if (process.env.NODE_ENV === 'production' && process.env.APP_URL) {
+    return process.env.APP_URL
+  }
+
+  if (process.env.VERCEL_URL) {
+    return process.env.VERCEL_URL
+  }
+
+  return 'PasteCode'
+}
+
 const getSubject = (emailType: EmailType): string => {
+  const url = `[${getEmailUrl()}]`
+
   switch (emailType) {
     case EmailType.ResetPassword:
-      return '[PasteCode.app] Reset password'
+      return `${url} Reset password`
     case EmailType.ConfirmAccount:
-      return '[PasteCode.app] Confirm account'
+      return `${url} Confirm account`
   }
 }
