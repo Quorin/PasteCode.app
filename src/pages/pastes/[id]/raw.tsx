@@ -25,7 +25,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       )
 
       if (valid) {
-        res.setHeader('Content-Type', 'text/plain')
+        res.setHeader('Content-Type', 'text/plain; charset="UTF-8"')
         res.write(new Cryptr(query?.password as string).decrypt(paste.content))
         res.end()
       } else {
@@ -33,7 +33,7 @@ export const getServerSideProps: GetServerSideProps = async ({
         res.end()
       }
     } else {
-      res.setHeader('Content-Type', 'text/plain')
+      res.setHeader('Content-Type', 'text/plain; charset="UTF-8"')
       res.write(paste?.content ?? 'nope')
       res.end()
     }
