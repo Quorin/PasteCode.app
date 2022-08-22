@@ -1,6 +1,6 @@
 import { NextPage } from 'next'
 import { FormProvider } from 'react-hook-form'
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import Button from '../../components/Button'
 import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
@@ -59,7 +59,6 @@ const ResetPassword: NextPage = () => {
         <Button type="submit" className="px-20 self-start">
           Submit
         </Button>
-        <Toaster />
       </form>
     </FormProvider>
   )

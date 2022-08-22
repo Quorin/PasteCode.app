@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Router from 'next/router'
 import { FormProvider } from 'react-hook-form'
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import { z } from 'zod'
 import Button from '../../components/Button'
 import FormTitle from '../../components/FormTitle'
@@ -136,7 +136,6 @@ const Login = () => {
               Send Confirmation
             </Button>
           </div>
-          <Toaster />
         </form>
       </FormProvider>
     </div>
