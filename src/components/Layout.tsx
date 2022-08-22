@@ -19,7 +19,7 @@ const Layout = ({ children }: Props) => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="flex flex-col justify-between min-h-screen bg-zinc-900">
+      <div className="flex flex-col justify-between min-h-screen bg-zinc-900 gap-6">
         <Navbar />
         <main className="container mx-auto px-10 text-zinc-400">
           {children}
