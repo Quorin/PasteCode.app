@@ -1,3 +1,15 @@
-# Create T3 App
+# PasteCode
 
-This is an app bootstrapped according to the [init.tips](https://init.tips) stack, also known as the T3-Stack.
+*Pastebin* alternative for sharing and saving text & code.
+
+`https://pastecode.app`
+
+## Built with
+- TypeScript
+- Next.js
+- tRPC
+- TailwindCSS
+- Prisma
+- PlanetScale
+- PrismJS
+- SendGrid
