@@ -1,6 +1,7 @@
 // src/pages/_app.tsx
 import { withTRPC } from '@trpc/next'
 import type { AppType } from 'next/dist/shared/lib/utils'
+import Head from 'next/head'
 import superjson from 'superjson'
 import Layout from '../components/Layout'
 import type { AppRouter } from '../server/router'
@@ -9,11 +10,22 @@ import { AuthProvider } from '../utils/useAuth'
 
 const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
   return (
-    <AuthProvider>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </AuthProvider>
+    <>
+      <Head>
+        <title>PasteCode.app</title>
+        <meta charSet="UTF-8" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <AuthProvider>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </AuthProvider>
+    </>
   )
 }
 
