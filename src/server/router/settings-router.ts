@@ -47,6 +47,9 @@ export const settingsRouter = createProtectedRouter()
           pastes: true,
         },
       })
+
+      ctx.session.destroy()
+
       return true
     },
   })
