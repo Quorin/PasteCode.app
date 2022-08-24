@@ -55,9 +55,7 @@ const ChangeEmail: NextPage = () => {
     <FormProvider {...methods}>
       <FormTitle title="Change Email" />
       <form
-        onSubmit={methods.handleSubmit(async (v) => {
-          await handleChangeEmail(v)
-        })}
+        onSubmit={methods.handleSubmit(handleChangeEmail)}
         className="flex flex-col gap-6"
       >
         <Input

@@ -43,9 +43,7 @@ const ResetPassword: NextPage = () => {
     <FormProvider {...methods}>
       <FormTitle title="Reset password" />
       <form
-        onSubmit={methods.handleSubmit(async (v) => {
-          await handleResetPassword(v)
-        })}
+        onSubmit={methods.handleSubmit(handleResetPassword)}
         className="flex flex-col gap-6"
       >
         <Input

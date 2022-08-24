@@ -93,9 +93,7 @@ const Edit: NextPage = () => {
     <FormProvider {...methods}>
       <FormTitle title="Edit paste" />
       <form
-        onSubmit={methods.handleSubmit(async (v) => {
-          await updatePaste(v)
-        })}
+        onSubmit={methods.handleSubmit(updatePaste)}
         className="flex flex-col gap-6"
       >
         <Input

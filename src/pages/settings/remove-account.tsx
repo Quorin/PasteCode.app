@@ -54,7 +54,7 @@ const RemoveAccount: NextPage = () => {
     <FormProvider {...methods}>
       <FormTitle title="Remove Account & Data" />
       <form
-        onSubmit={methods.handleSubmit(async (v) => handleRemoveAccount(v))}
+        onSubmit={methods.handleSubmit(handleRemoveAccount)}
         className="flex flex-col gap-6"
       >
         <p>

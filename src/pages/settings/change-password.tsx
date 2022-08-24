@@ -54,7 +54,7 @@ const ChangePassword: NextPage = () => {
     <FormProvider {...methods}>
       <FormTitle title="Change password" />
       <form
-        onSubmit={methods.handleSubmit(async (v) => handleChangePassword(v))}
+        onSubmit={methods.handleSubmit(handleChangePassword)}
         className="flex flex-col gap-6"
       >
         <Input

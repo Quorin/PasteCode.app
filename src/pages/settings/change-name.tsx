@@ -52,7 +52,7 @@ const ChangeName: NextPage = () => {
     <FormProvider {...methods}>
       <FormTitle title="Change Name" />
       <form
-        onSubmit={methods.handleSubmit(async (v) => handleChangeName(v))}
+        onSubmit={methods.handleSubmit(handleChangeName)}
         className="flex flex-col gap-6"
       >
         <Input

@@ -91,9 +91,7 @@ const Login = () => {
 
       <FormProvider {...methods}>
         <form
-          onSubmit={methods.handleSubmit(async (v) => {
-            await handleLogin(v)
-          })}
+          onSubmit={methods.handleSubmit(handleLogin)}
           className="flex flex-col gap-6"
         >
           <Input

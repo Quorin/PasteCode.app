@@ -70,9 +70,7 @@ const ResetPasswordConfirmation = ({
     <FormProvider {...methods}>
       <FormTitle title="Create new password" />
       <form
-        onSubmit={methods.handleSubmit(async (v) => {
-          await handleResetPasswordConfirmation(v)
-        })}
+        onSubmit={methods.handleSubmit(handleResetPasswordConfirmation)}
         className="flex flex-col gap-6"
       >
         <Input

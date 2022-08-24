@@ -91,11 +91,7 @@ const Paste: NextPage = () => {
         </h3>
         <div className="flex flex-col gap-6 mt-6">
           <FormProvider {...unlockPasteMethods}>
-            <form
-              onSubmit={unlockPasteMethods.handleSubmit(async (v) => {
-                await handleUnlockPaste(v)
-              })}
-            >
+            <form onSubmit={unlockPasteMethods.handleSubmit(handleUnlockPaste)}>
               <div className="mb-6">
                 {' '}
                 <Input

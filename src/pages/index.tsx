@@ -98,9 +98,7 @@ const Home: NextPage = () => {
     <FormProvider {...methods}>
       <FormTitle title="Create new paste" />
       <form
-        onSubmit={methods.handleSubmit(async (v) => {
-          await createPaste(v)
-        })}
+        onSubmit={methods.handleSubmit(createPaste)}
         className="flex flex-col gap-6"
       >
         <Input
