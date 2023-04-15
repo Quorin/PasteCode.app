@@ -1,9 +1,9 @@
 import { cva } from 'class-variance-authority'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useRef, useState } from 'react'
 import { routes } from '../constants/routes'
 import useAuth from '../utils/useAuth'
+import Link from 'next/link'
 
 const unauthorizedPaths = [
   { path: routes.HOME, name: 'Home' },
@@ -34,7 +34,7 @@ const Navbar = () => {
   const [menuCollapsed, setMenuCollapsed] = useState(true)
   const menuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const { user, isLoggedIn } = useAuth()
+  const { user, isLoggedIn, isLoading } = useAuth()
 
   const handleCollapse = () => {
     setMenuCollapsed(!menuCollapsed)
@@ -81,23 +81,30 @@ const Navbar = () => {
           id="navbar-default"
         >
           <ul className="flex flex-col p-4 mt-4 rounded-lg border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 bg-zinc-800 md:bg-zinc-900 border-zinc-700 text-center">
-            {isLoggedIn
-              ? authorizedPaths(user!.name).map(({ path, name }) => (
-                  <li
-                    key={path}
-                    className={link({ active: router.pathname === path })}
-                  >
-                    <Link href={path}>{name}</Link>
-                  </li>
-                ))
-              : unauthorizedPaths.map(({ path, name }) => (
-                  <li
-                    key={path}
-                    className={link({ active: router.pathname === path })}
-                  >
-                    <Link href={path}>{name}</Link>
-                  </li>
-                ))}
+            {isLoading && (
+              <div className="cursor-none select-none py-2.5"></div>
+            )}
+            {!isLoading && (
+              <>
+                {isLoggedIn
+                  ? authorizedPaths(user!.name).map(({ path, name }) => (
+                      <li
+                        key={path}
+                        className={link({ active: router.pathname === path })}
+                      >
+                        <Link href={path}>{name}</Link>
+                      </li>
+                    ))
+                  : unauthorizedPaths.map(({ path, name }) => (
+                      <li
+                        key={path}
+                        className={link({ active: router.pathname === path })}
+                      >
+                        <Link href={path}>{name}</Link>
+                      </li>
+                    ))}
+              </>
+            )}
           </ul>
         </div>
       </div>

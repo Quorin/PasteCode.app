@@ -7,7 +7,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import PageTitle from '../components/PageTitle'
 import Spinner from '../components/Spinner'
 import { routes } from '../constants/routes'
-import { trpc } from '../utils/trpc'
+import { api } from '../utils/trpc'
 import useAuth from '../utils/useAuth'
 
 dayjs.extend(relativeTime)
@@ -24,10 +24,13 @@ const Profile = () => {
     hasNextPage,
     fetchNextPage,
     isLoading: isLoadingPastes,
-  } = trpc.useInfiniteQuery(['paste.getUserPastes', { limit: 25 }], {
-    refetchOnWindowFocus: false,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-  })
+  } = api.paste.getUserPastes.useInfiniteQuery(
+    { limit: 25 },
+    {
+      refetchOnWindowFocus: false,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  )
 
   const next = () => {
     !isLoadingPastes && fetchNextPage()
@@ -80,6 +83,7 @@ const Profile = () => {
                 alt="No images"
                 width={300}
                 height={400}
+                className="py-10"
               />
             </div>
           }

@@ -1,6 +1,6 @@
 import { NextPage } from 'next'
 import Link from 'next/link'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import Button from '../components/Button'
 import Checkbox from '../components/Checkbox'
@@ -9,16 +9,16 @@ import Input from '../components/Input'
 import { routes } from '../constants/routes'
 import { registerSchema } from '../server/router/schema'
 import { errorHandler } from '../utils/errorHandler'
-import { inferMutationInput, trpc, useZodForm } from '../utils/trpc'
+import { api } from '../utils/trpc'
+import { z } from 'zod'
 
-type FormValues = inferMutationInput<'user.register'>
+type FormValues = z.infer<typeof registerSchema>
 
 const Register: NextPage = () => {
-  const mutation = trpc.useMutation(['user.register'])
+  const mutation = api.user.register.useMutation()
 
-  const methods = useZodForm({
+  const methods = useForm<FormValues>({
     mode: 'onBlur',
-    schema: registerSchema,
     defaultValues: {
       email: '',
       password: '',

@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import Button from '../components/Button'
 import { DefaultLanguage, Languages } from '../components/Code'
@@ -15,16 +15,15 @@ import { createPasteSchema } from '../server/router/schema'
 import { errorHandler } from '../utils/errorHandler'
 import { getQueryArg } from '../utils/http'
 import { capitalize } from '../utils/strings'
-import { inferMutationInput, trpc, useZodForm } from '../utils/trpc'
+import { api } from '../utils/trpc'
 
-type FormValues = inferMutationInput<'paste.createPaste'> & { tag: string }
+type FormValues = z.infer<typeof createPasteSchema> & { tag: string }
 
 const Home: NextPage = () => {
-  const mutation = trpc.useMutation(['paste.createPaste'])
+  const mutation = api.paste.create.useMutation()
   const router = useRouter()
 
-  const methods = useZodForm({
-    schema: createPasteSchema.extend({ tag: z.string() }),
+  const methods = useForm<FormValues>({
     defaultValues: {
       title: '',
       description: '',
@@ -41,8 +40,8 @@ const Home: NextPage = () => {
   const forkId = getQueryArg(router.query.fork)
   const forkPassword = getQueryArg(router.query.password)
 
-  const forkQuery = trpc.useQuery(
-    ['paste.getPaste', { id: forkId ?? '', password: forkPassword ?? null }],
+  const forkQuery = api.paste.get.useQuery(
+    { id: forkId ?? '', password: forkPassword ?? null },
     {
       refetchOnWindowFocus: false,
       enabled: !!forkId,

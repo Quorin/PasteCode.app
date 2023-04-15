@@ -1,6 +1,10 @@
 import { z } from 'zod'
 import * as trpc from '@trpc/server'
-import { createRouter } from './context'
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from './context'
 import * as argon2 from 'argon2'
 import Cryptr from 'cryptr'
 import { getExpirationDate, upsertTags } from '../../utils/paste'
@@ -11,17 +15,10 @@ import {
   updatePasteSchema,
 } from './schema'
 
-export const pasteRouter = createRouter()
-  .mutation('removePaste', {
-    input: removePasteSchema,
-    async resolve({ input, ctx }) {
-      if (!ctx.session?.user) {
-        throw new trpc.TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'You are not authorized to remove this paste',
-        })
-      }
-
+export const pasteRouter = createTRPCRouter({
+  remove: protectedProcedure
+    .input(removePasteSchema)
+    .mutation(async ({ input, ctx }) => {
       const paste = await ctx.prisma.paste.findFirst({
         where: {
           id: input.id,
@@ -70,11 +67,10 @@ export const pasteRouter = createRouter()
         },
         select: null,
       })
-    },
-  })
-  .mutation('updatePaste', {
-    input: updatePasteSchema,
-    async resolve({ input, ctx }) {
+    }),
+  update: protectedProcedure
+    .input(updatePasteSchema)
+    .mutation(async ({ input, ctx }) => {
       const paste = await ctx.prisma.paste.findFirst({
         where: {
           id: input.id,
@@ -135,11 +131,10 @@ export const pasteRouter = createRouter()
       })
 
       await upsertTags(ctx.prisma, input.tags, input.id)
-    },
-  })
-  .mutation('createPaste', {
-    input: createPasteSchema,
-    async resolve({ input, ctx }) {
+    }),
+  create: publicProcedure
+    .input(createPasteSchema)
+    .mutation(async ({ input, ctx }) => {
       const paste = await ctx.prisma.paste.create({
         data: {
           title: input.title,
@@ -163,94 +158,84 @@ export const pasteRouter = createRouter()
       await upsertTags(ctx.prisma, input.tags, paste.id)
 
       return paste.id
-    },
-  })
-  .query('getPaste', {
-    input: getPasteSchema,
-    async resolve({ input, ctx }) {
-      const now = new Date()
+    }),
+  get: publicProcedure.input(getPasteSchema).query(async ({ input, ctx }) => {
+    const now = new Date()
 
-      const paste = await ctx.prisma.paste.findFirst({
-        where: {
-          id: input.id,
-          OR: [
-            {
-              expiresAt: null,
+    const paste = await ctx.prisma.paste.findFirst({
+      where: {
+        id: input.id,
+        OR: [
+          {
+            expiresAt: null,
+          },
+          {
+            expiresAt: {
+              gt: now,
             },
-            {
-              expiresAt: {
-                gt: now,
-              },
-            },
-          ],
-        },
-        select: {
-          id: true,
-          content: true,
-          password: true,
-          tags: {
-            select: {
-              tag: {
-                select: {
-                  name: true,
-                },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        content: true,
+        password: true,
+        tags: {
+          select: {
+            tag: {
+              select: {
+                name: true,
               },
             },
           },
-          title: true,
-          style: true,
-          description: true,
-          createdAt: true,
-          expiresAt: true,
-          userId: true,
         },
-      })
+        title: true,
+        style: true,
+        description: true,
+        createdAt: true,
+        expiresAt: true,
+        userId: true,
+      },
+    })
 
-      if (paste && paste.password) {
-        if (input.password) {
-          const valid = await argon2.verify(paste.password, input.password)
+    if (paste && paste.password) {
+      if (input.password) {
+        const valid = await argon2.verify(paste.password, input.password)
 
-          if (valid) {
-            return {
-              paste: {
-                ...paste,
-                content: new Cryptr(input.password).decrypt(paste.content),
-              },
-              secure: false,
-            }
+        if (valid) {
+          return {
+            paste: {
+              ...paste,
+              content: new Cryptr(input.password).decrypt(paste.content),
+            },
+            secure: false,
           }
         }
-
-        paste.content = ''
-        paste.password = ''
-
-        return { paste, secure: true }
       }
 
-      return { paste, secure: false }
-    },
-  })
-  .query('getUserPastes', {
-    input: z.object({
-      limit: z.number().min(1).max(100).nullish(),
-      cursor: z.string().nullish(),
-    }),
-    async resolve({ ctx, input }) {
-      const userId = ctx.session?.user?.id
+      paste.content = ''
+      paste.password = ''
 
-      if (!userId) {
-        throw new trpc.TRPCError({
-          code: 'UNAUTHORIZED',
-        })
-      }
+      return { paste, secure: true }
+    }
 
+    return { paste, secure: false }
+  }),
+  getUserPastes: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 50
 
       const now = new Date()
 
       const pastes = await ctx.prisma.paste.findMany({
         where: {
-          userId,
+          userId: ctx.session.user.id,
           OR: [
             {
               expiresAt: null,
@@ -295,5 +280,5 @@ export const pasteRouter = createRouter()
       }
 
       return { pastes, nextCursor }
-    },
-  })
+    }),
+})

@@ -1,6 +1,6 @@
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import Button from '../../../components/Button'
 import { DefaultLanguage, Languages } from '../../../components/Code'
@@ -15,32 +15,30 @@ import { updatePasteSchema } from '../../../server/router/schema'
 import { errorHandler } from '../../../utils/errorHandler'
 import { getQueryArg } from '../../../utils/http'
 import { capitalize } from '../../../utils/strings'
-import { inferMutationInput, trpc, useZodForm } from '../../../utils/trpc'
+import { api } from '../../../utils/trpc'
 import useAuth from '../../../utils/useAuth'
 import Unauthorized from '../../401'
 import NotFound from '../../404'
 
-type FormValues = inferMutationInput<'paste.updatePaste'> & { tag: string }
+type FormValues = z.infer<typeof updatePasteSchema> & { tag: string }
 
 const Edit: NextPage = () => {
   const { isLoading: isAuthLoading, user } = useAuth()
   const router = useRouter()
-  const mutation = trpc.useMutation(['paste.updatePaste'])
-  const utils = trpc.useContext()
+  const mutation = api.paste.update.useMutation()
+  const utils = api.useContext()
 
-  const methods = useZodForm({
-    schema: updatePasteSchema.extend({ tag: z.string() }),
+  const methods = useForm<FormValues>({
+    defaultValues: {},
     mode: 'onBlur',
   })
 
-  const { isLoading, data, error } = trpc.useQuery(
-    [
-      'paste.getPaste',
-      {
-        id: getQueryArg(router.query.id) ?? '',
-        password: getQueryArg(router.query.password) ?? null,
-      },
-    ],
+  const { isLoading, data, error } = api.paste.get.useQuery(
+    {
+      id: getQueryArg(router.query.id) ?? '',
+      password: getQueryArg(router.query.password) ?? null,
+    },
+
     {
       refetchOnWindowFocus: false,
       onSuccess: ({ paste }) => {
@@ -59,7 +57,7 @@ const Edit: NextPage = () => {
         errorHandler(methods.setError, error)
       },
       onSuccess: async () => {
-        await utils.refetchQueries(['paste.getPaste'])
+        await utils.paste.get.invalidate({ id: values.id })
         await router.push({
           pathname: routes.PASTES.INDEX,
           query: { id: values.id },

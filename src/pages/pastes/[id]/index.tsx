@@ -11,7 +11,7 @@ import { NextPage } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import Button from '../../../components/Button'
 import Code from '../../../components/Code'
 import FormTitle from '../../../components/FormTitle'
@@ -21,21 +21,21 @@ import Spinner from '../../../components/Spinner'
 import { routes } from '../../../constants/routes'
 import { getPasteSchema } from '../../../server/router/schema'
 import { getQueryArg } from '../../../utils/http'
-import { inferQueryInput, trpc, useZodForm } from '../../../utils/trpc'
+import { api } from '../../../utils/trpc'
 import useAuth from '../../../utils/useAuth'
 import NotFound from '../../404'
+import { z } from 'zod'
 
 dayjs.extend(relativeTime)
 
-type FormValues = inferQueryInput<'paste.getPaste'>
+type FormValues = z.infer<typeof getPasteSchema>
 
 const Paste: NextPage = () => {
   const router = useRouter()
   const { isLoggedIn, isLoading: isAuthLoading, user } = useAuth()
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
 
-  const unlockPasteMethods = useZodForm({
-    schema: getPasteSchema,
+  const unlockPasteMethods = useForm<FormValues>({
     mode: 'onBlur',
     defaultValues: {
       id: getQueryArg(router.query.id) ?? '',
@@ -49,18 +49,16 @@ const Paste: NextPage = () => {
     })
   }
 
-  const { data, isLoading, error } = trpc.useQuery(
-    [
-      'paste.getPaste',
-      {
-        id: getQueryArg(router.query.id) ?? '',
-        password: getQueryArg(router.query.password) ?? null,
-      },
-    ],
+  const { data, isLoading, error } = api.paste.get.useQuery(
+    {
+      id: getQueryArg(router.query.id) ?? '',
+      password: getQueryArg(router.query.password) ?? null,
+    },
+
     { refetchOnWindowFocus: false },
   )
 
-  const mutation = trpc.useMutation(['paste.removePaste'])
+  const mutation = api.paste.remove.useMutation()
 
   const handleDelete = async (id: string) => {
     setIsDeleteModalVisible(false)

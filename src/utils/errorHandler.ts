@@ -1,8 +1,8 @@
-import { TRPCClientErrorLike } from '@trpc/react'
-import { Path, UseFormSetError } from 'react-hook-form'
+import { TRPCClientErrorLike } from '@trpc/react-query'
+import { FieldValues, Path, UseFormSetError } from 'react-hook-form'
 import { AppRouter } from '../server/router'
 
-export function errorHandler<T>(
+export function errorHandler<T extends FieldValues>(
   setter: UseFormSetError<T>,
   errors: TRPCClientErrorLike<AppRouter>,
 ) {
