@@ -1,5 +1,5 @@
 import { z, ZodError, ZodIssue } from 'zod'
-import { createRouter } from './context'
+import { createTRPCRouter, publicProcedure } from './context'
 import * as argon2 from 'argon2'
 import * as trpc from '@trpc/server'
 import dayjs from 'dayjs'
@@ -14,12 +14,14 @@ import {
   resetPasswordSchema,
 } from './schema'
 
-export const userRouter = createRouter()
-  .mutation('resendConfirmationCode', {
-    input: z.object({
-      email: z.string().email('Invalid email'),
-    }),
-    async resolve({ ctx, input }) {
+export const userRouter = createTRPCRouter({
+  resendConfirmationCode: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email('Invalid email'),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma.user.findFirst({
         where: { email: input.email },
         select: { id: true, confirmed: true },
@@ -97,11 +99,10 @@ export const userRouter = createRouter()
       })
 
       await sendConfirmationEmail(input.email, confirmation.id, code)
-    },
-  })
-  .mutation('resetPasswordConfirmation', {
-    input: resetPasswordConfirmationSchema,
-    async resolve({ ctx, input }) {
+    }),
+  resetPasswordConfirmation: publicProcedure
+    .input(resetPasswordConfirmationSchema)
+    .mutation(async ({ ctx, input }) => {
       const rp = await ctx.prisma.resetPassword.findFirst({
         where: { id: input.id, code: input.code },
         include: { user: true },
@@ -132,11 +133,10 @@ export const userRouter = createRouter()
         }),
         ctx.prisma.resetPassword.delete({ where: { id: rp.id } }),
       ])
-    },
-  })
-  .mutation('resetPassword', {
-    input: resetPasswordSchema,
-    async resolve({ input, ctx }) {
+    }),
+  resetPassword: publicProcedure
+    .input(resetPasswordSchema)
+    .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma.user.findFirst({
         where: { email: input.email },
         include: { resetPassword: true },
@@ -183,13 +183,10 @@ export const userRouter = createRouter()
       })
 
       await sendResetPasswordEmail(input.email, rp.id, code)
-
-      return
-    },
-  })
-  .mutation('register', {
-    input: registerSchema,
-    async resolve({ input, ctx }) {
+    }),
+  register: publicProcedure
+    .input(registerSchema)
+    .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma.user.findFirst({
         where: { OR: [{ email: input.email }, { name: input.name }] },
       })
@@ -251,5 +248,5 @@ export const userRouter = createRouter()
       )
 
       return true
-    },
-  })
+    }),
+})

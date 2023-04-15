@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import Button from '../../components/Button'
 import FormTitle from '../../components/FormTitle'
@@ -8,18 +8,18 @@ import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { changeEmailSchema } from '../../server/router/schema'
 import { errorHandler } from '../../utils/errorHandler'
-import { inferMutationInput, trpc, useZodForm } from '../../utils/trpc'
+import { api } from '../../utils/trpc'
 import useAuth from '../../utils/useAuth'
+import { z } from 'zod'
 
-type FormValues = inferMutationInput<'settings.changeEmail'>
+type FormValues = z.infer<typeof changeEmailSchema>
 
 const ChangeEmail: NextPage = () => {
   const { isLoading, isLoggedIn, logout } = useAuth()
   const router = useRouter()
-  const mutation = trpc.useMutation(['settings.changeEmail'])
+  const mutation = api.settings.changeEmail.useMutation()
 
-  const methods = useZodForm({
-    schema: changeEmailSchema,
+  const methods = useForm<FormValues>({
     mode: 'onBlur',
     defaultValues: {
       email: '',
@@ -38,7 +38,7 @@ const ChangeEmail: NextPage = () => {
       },
       async onSuccess() {
         toast.custom(
-          (t) => (
+          () => (
             <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
               <p>Email has been changed</p>
             </div>

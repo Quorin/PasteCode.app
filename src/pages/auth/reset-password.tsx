@@ -1,20 +1,20 @@
 import { NextPage } from 'next'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import Button from '../../components/Button'
 import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
 import { resetPasswordSchema } from '../../server/router/schema'
 import { errorHandler } from '../../utils/errorHandler'
-import { inferMutationInput, trpc, useZodForm } from '../../utils/trpc'
+import { api } from '../../utils/trpc'
+import { z } from 'zod'
 
-type ResetPasswordFields = inferMutationInput<'user.resetPassword'>
+type ResetPasswordFields = z.infer<typeof resetPasswordSchema>
 
 const ResetPassword: NextPage = () => {
-  const mutation = trpc.useMutation(['user.resetPassword'])
+  const mutation = api.user.resetPassword.useMutation()
 
-  const methods = useZodForm({
-    schema: resetPasswordSchema,
+  const methods = useForm<ResetPasswordFields>({
     mode: 'onBlur',
     defaultValues: {
       email: '',
@@ -28,7 +28,7 @@ const ResetPassword: NextPage = () => {
       },
       onSuccess: () => {
         toast.custom(
-          (t) => (
+          () => (
             <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
               <p>Email has been sent if we found your account</p>
             </div>

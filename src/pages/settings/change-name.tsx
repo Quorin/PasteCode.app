@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import Button from '../../components/Button'
 import FormTitle from '../../components/FormTitle'
@@ -8,17 +8,17 @@ import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { changeNameSchema } from '../../server/router/schema'
 import { errorHandler } from '../../utils/errorHandler'
-import { inferMutationInput, trpc, useZodForm } from '../../utils/trpc'
+import { api } from '../../utils/trpc'
 import useAuth from '../../utils/useAuth'
+import { z } from 'zod'
 
-type FormValues = inferMutationInput<'settings.changeName'>
+type FormValues = z.infer<typeof changeNameSchema>
 
 const ChangeName: NextPage = () => {
   const { isLoggedIn, isLoading, refresh } = useAuth()
   const router = useRouter()
-  const mutation = trpc.useMutation(['settings.changeName'])
-  const methods = useZodForm({
-    schema: changeNameSchema,
+  const mutation = api.settings.changeName.useMutation()
+  const methods = useForm<FormValues>({
     mode: 'onBlur',
     defaultValues: {
       name: '',

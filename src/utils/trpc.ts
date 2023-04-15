@@ -1,43 +1,38 @@
 // src/utils/trpc.ts
 import type { AppRouter } from '../server/router'
-import { createReactQueryHooks } from '@trpc/react'
-import type { inferProcedureInput, inferProcedureOutput } from '@trpc/server'
-import { useForm, UseFormProps } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { UseFormSetError } from 'react-hook-form/dist/types/form'
+import { createTRPCNext } from '@trpc/next'
+import superjson from 'superjson'
+import { httpBatchLink, loggerLink } from '@trpc/client'
+import { getBaseUrl } from '../pages/_app'
+import { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 
-export const trpc = createReactQueryHooks<AppRouter>()
+export const api = createTRPCNext<AppRouter>({
+  config() {
+    return {
+      transformer: superjson,
+      links: [
+        loggerLink({
+          enabled: (opts) =>
+            process.env.NODE_ENV === 'development' ||
+            (opts.direction === 'down' && opts.result instanceof Error),
+        }),
+        httpBatchLink({
+          url: `${getBaseUrl()}/api/trpc`,
+        }),
+      ],
+    }
+  },
+  ssr: false,
+})
 
 /**
- * This is a helper method to infer the output of a query resolver
- * @example type HelloOutput = inferQueryOutput<'hello'>
- */
-export type inferQueryOutput<
-  TRouteKey extends keyof AppRouter['_def']['queries'],
-> = inferProcedureOutput<AppRouter['_def']['queries'][TRouteKey]>
+ * Inference helpers for input types
+ * @example type HelloInput = RouterInputs['example']['hello']
+ **/
+export type RouterInputs = inferRouterInputs<AppRouter>
 
-export type inferQueryInput<
-  TRouteKey extends keyof AppRouter['_def']['queries'],
-> = inferProcedureInput<AppRouter['_def']['queries'][TRouteKey]>
-
-export type inferMutationOutput<
-  TRouteKey extends keyof AppRouter['_def']['mutations'],
-> = inferProcedureOutput<AppRouter['_def']['mutations'][TRouteKey]>
-
-export type inferMutationInput<
-  TRouteKey extends keyof AppRouter['_def']['mutations'],
-> = inferProcedureInput<AppRouter['_def']['mutations'][TRouteKey]>
-
-export function useZodForm<TSchema extends z.ZodType>(
-  props: Omit<UseFormProps<TSchema['_input']>, 'resolver'> & {
-    schema: TSchema
-  },
-) {
-  return useForm<TSchema['_input']>({
-    ...props,
-    resolver: zodResolver(props.schema, undefined, {
-      rawValues: true,
-    }),
-  })
-}
+/**
+ * Inference helpers for output types
+ * @example type HelloOutput = RouterOutputs['example']['hello']
+ **/
+export type RouterOutputs = inferRouterOutputs<AppRouter>

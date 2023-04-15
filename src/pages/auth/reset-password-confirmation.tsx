@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Image from 'next/image'
 import Router from 'next/router'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import Button from '../../components/Button'
 import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
@@ -10,7 +10,8 @@ import { routes } from '../../constants/routes'
 import { prisma } from '../../server/db/client'
 import { resetPasswordConfirmationSchema } from '../../server/router/schema'
 import { errorHandler } from '../../utils/errorHandler'
-import { inferMutationInput, trpc, useZodForm } from '../../utils/trpc'
+import { api } from '../../utils/trpc'
+import { z } from 'zod'
 
 type Props = {
   result: boolean
@@ -18,16 +19,15 @@ type Props = {
   code: string
 }
 
-type ResetPasswordFields = inferMutationInput<'user.resetPasswordConfirmation'>
+type ResetPasswordFields = z.infer<typeof resetPasswordConfirmationSchema>
 
 const ResetPasswordConfirmation = ({
   result,
   id,
   code,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const mutation = trpc.useMutation(['user.resetPasswordConfirmation'])
-  const methods = useZodForm({
-    schema: resetPasswordConfirmationSchema,
+  const mutation = api.user.resetPasswordConfirmation.useMutation()
+  const methods = useForm<ResetPasswordFields>({
     mode: 'onBlur',
     defaultValues: {
       id,

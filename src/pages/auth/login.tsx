@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Router from 'next/router'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { z } from 'zod'
 import Button from '../../components/Button'
@@ -9,18 +9,17 @@ import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { loginSchema } from '../../server/router/schema'
 import { errorHandler } from '../../utils/errorHandler'
-import { inferMutationInput, trpc, useZodForm } from '../../utils/trpc'
+import { api } from '../../utils/trpc'
 import useAuth from '../../utils/useAuth'
 
-type LoginFields = inferMutationInput<'auth.login'>
+type LoginFields = z.infer<typeof loginSchema>
 
 const Login = () => {
   const { refresh } = useAuth()
-  const resendMutation = trpc.useMutation(['user.resendConfirmationCode'])
-  const loginMutation = trpc.useMutation(['auth.login'])
+  const resendMutation = api.user.resendConfirmationCode.useMutation()
+  const loginMutation = api.auth.login.useMutation()
 
-  const methods = useZodForm({
-    schema: loginSchema,
+  const methods = useForm<LoginFields>({
     mode: 'onBlur',
     defaultValues: {
       email: '',
@@ -60,7 +59,7 @@ const Login = () => {
       {
         onSuccess() {
           toast.custom(
-            (t) => (
+            () => (
               <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
                 <p>Confirmation code has been sent to your email.</p>
               </div>
@@ -70,7 +69,7 @@ const Login = () => {
         },
         onError(error) {
           toast.custom(
-            (t) => (
+            () => (
               <div className="text-white bg-red-500 px-5 py-2.5 rounded-lg">
                 <p>
                   {error.data?.zodError?.fieldErrors.email ??

@@ -1,6 +1,6 @@
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import Button from '../../components/Button'
 import FormTitle from '../../components/FormTitle'
@@ -8,18 +8,18 @@ import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
 import { removeAccountSchema } from '../../server/router/schema'
 import { errorHandler } from '../../utils/errorHandler'
-import { inferMutationInput, trpc, useZodForm } from '../../utils/trpc'
+import { api } from '../../utils/trpc'
 import useAuth from '../../utils/useAuth'
+import { z } from 'zod'
 
-type FormValues = inferMutationInput<'settings.removeAccount'>
+type FormValues = z.infer<typeof removeAccountSchema>
 
 const RemoveAccount: NextPage = () => {
   const { isLoggedIn, isLoading, logout } = useAuth()
   const router = useRouter()
 
-  const mutation = trpc.useMutation(['settings.removeAccount'])
-  const methods = useZodForm({
-    schema: removeAccountSchema,
+  const mutation = api.settings.removeAccount.useMutation()
+  const methods = useForm<FormValues>({
     mode: 'onBlur',
     defaultValues: {
       password: '',

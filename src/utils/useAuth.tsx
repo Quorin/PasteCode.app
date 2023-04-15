@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from 'react'
-import { trpc } from './trpc'
+import { api } from './trpc'
 
 export type SessionUser = {
   id: string
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const query = trpc.useQuery(['auth.checkSession'], {
+  const query = api.auth.checkSession.useQuery(undefined, {
     refetchOnWindowFocus: false,
     enabled: true,
     onSuccess: (user) => {

@@ -1,9 +1,9 @@
 import { cva } from 'class-variance-authority'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useRef, useState } from 'react'
 import { routes } from '../constants/routes'
 import useAuth from '../utils/useAuth'
+import Link from 'next/link'
 
 const unauthorizedPaths = [
   { path: routes.HOME, name: 'Home' },

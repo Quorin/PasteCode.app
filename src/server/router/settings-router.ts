@@ -1,5 +1,4 @@
-import { z, ZodError } from 'zod'
-import { createProtectedRouter } from './protected-router'
+import { ZodError } from 'zod'
 import * as trpc from '@trpc/server'
 import { generateRandomString } from '../../utils/random'
 import { sendConfirmationEmail } from '../../utils/email'
@@ -11,11 +10,12 @@ import {
   changePasswordSchema,
   removeAccountSchema,
 } from './schema'
+import { createTRPCRouter, protectedProcedure } from './context'
 
-export const settingsRouter = createProtectedRouter()
-  .mutation('removeAccount', {
-    input: removeAccountSchema,
-    async resolve({ ctx, input }) {
+export const settingsRouter = createTRPCRouter({
+  removeAccount: protectedProcedure
+    .input(removeAccountSchema)
+    .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma.user.findFirst({
         where: { id: ctx.session.user.id },
         select: { password: true },
@@ -51,11 +51,10 @@ export const settingsRouter = createProtectedRouter()
       ctx.session.destroy()
 
       return true
-    },
-  })
-  .mutation('changePassword', {
-    input: changePasswordSchema,
-    async resolve({ input, ctx }) {
+    }),
+  changePassword: protectedProcedure
+    .input(changePasswordSchema)
+    .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma.user.findFirst({
         where: { id: ctx.session.user.id! },
         select: { password: true },
@@ -88,11 +87,10 @@ export const settingsRouter = createProtectedRouter()
           credentialsUpdatedAt: new Date(),
         },
       })
-    },
-  })
-  .mutation('changeEmail', {
-    input: changeEmailSchema,
-    async resolve({ ctx, input }) {
+    }),
+  changeEmail: protectedProcedure
+    .input(changeEmailSchema)
+    .mutation(async ({ ctx, input }) => {
       const code = generateRandomString(36)
 
       const user = await ctx.prisma.user.update({
@@ -129,11 +127,10 @@ export const settingsRouter = createProtectedRouter()
         user.confirmationCode?.id ?? '',
         code,
       )
-    },
-  })
-  .mutation('changeName', {
-    input: changeNameSchema,
-    async resolve({ input, ctx }) {
+    }),
+  changeName: protectedProcedure
+    .input(changeNameSchema)
+    .mutation(async ({ ctx, input }) => {
       const exists = await ctx.prisma.user.findFirst({
         where: { id: input.name },
         select: { id: true },
@@ -159,5 +156,5 @@ export const settingsRouter = createProtectedRouter()
 
       ctx.session.user.name = input.name
       await ctx.session.save()
-    },
-  })
+    }),
+})
