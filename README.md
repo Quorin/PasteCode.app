@@ -1,10 +1,11 @@
 # PasteCode
 
-*Pastebin* alternative for sharing and saving text & code.
+_Pastebin_ alternative for sharing and saving text & code.
 
-`https://pastecode.app`
+`https://pastecodeapp.vercel.app`
 
 ## Built with
+
 - TypeScript
 - Next.js
 - tRPC

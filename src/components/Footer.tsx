@@ -21,17 +21,16 @@ const Footer = () => {
             <Link href={routes.TERMS_AND_CONDITIONS}>Terms & Conditions</Link>
           </li>
           <li>
-            <a href="mailto:contact@pastecode.app" className="hover:underline">
+            <a href="mailto:xquoris@gmail.com" className="hover:underline">
               Contact
             </a>
           </li>
         </ul>
         <p className="text-center text-sm text-zinc-400 my-3">
-          © 2022{' '}
+          © {new Date().getFullYear()}{' '}
           <span className="hover:underline cursor-pointer text-zinc-200">
             <span className="font-bold">Paste</span>Code
           </span>
-          .app
         </p>
       </footer>
     </div>

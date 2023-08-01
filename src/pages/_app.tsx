@@ -13,7 +13,7 @@ const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
   return (
     <>
       <Head>
-        <title>PasteCode.app</title>
+        <title>PasteCode</title>
         <meta charSet="UTF-8" />
         <meta
           name="viewport"
