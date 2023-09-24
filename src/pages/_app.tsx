@@ -6,7 +6,7 @@ import '../styles/globals.css'
 import { AuthProvider } from '../utils/useAuth'
 import { api } from '../utils/trpc'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-
+import { Analytics } from '@vercel/analytics/react'
 const queryClient = new QueryClient()
 
 const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
@@ -28,6 +28,7 @@ const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
           </Layout>
         </AuthProvider>
       </QueryClientProvider>
+      <Analytics />
     </>
   )
 }
