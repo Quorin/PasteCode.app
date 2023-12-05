@@ -3,7 +3,6 @@ import { useRouter } from 'next/router'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import Button from '../components/Button'
-import { DefaultLanguage, Languages } from '../components/Code'
 import FormTitle from '../components/FormTitle'
 import Input from '../components/Input'
 import Select from '../components/Select'
@@ -14,8 +13,8 @@ import { routes } from '../constants/routes'
 import { createPasteSchema } from '../server/router/schema'
 import { errorHandler } from '../utils/errorHandler'
 import { getQueryArg } from '../utils/http'
-import { capitalize } from '../utils/strings'
 import { api } from '../utils/trpc'
+import { defaultLanguage, languageOptions } from '../utils/lang'
 
 type FormValues = z.infer<typeof createPasteSchema> & { tag: string }
 
@@ -29,7 +28,7 @@ const Home: NextPage = () => {
       description: '',
       content: '',
       expiration: 'never',
-      style: DefaultLanguage.key,
+      style: defaultLanguage,
       tag: '',
       tags: [],
       password: '',
@@ -53,7 +52,7 @@ const Home: NextPage = () => {
         methods.setValue('title', paste.title)
         methods.setValue('description', paste.description ?? '')
         methods.setValue('content', paste.content)
-        methods.setValue('style', paste.style ?? DefaultLanguage.key)
+        methods.setValue('style', paste.style ?? '')
         methods.setValue('tags', paste.tags.map((tag) => tag.tag.name) ?? [])
         methods.resetField('tag')
       },
@@ -164,15 +163,11 @@ const Home: NextPage = () => {
                 id={'style'}
                 label={'Style'}
                 name={'style'}
-                required={false}
-                options={Languages.map((lang) => ({
-                  key: lang,
-                  value: lang ? capitalize(lang) : DefaultLanguage.value,
-                }))}
+                required={true}
+                options={languageOptions}
               />
             </div>
           </div>
-
           <div className="flex flex-col md:flex-row md:self-end gap-2 md:gap-6">
             <Button
               type="submit"

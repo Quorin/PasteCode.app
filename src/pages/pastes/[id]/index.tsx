@@ -7,30 +7,62 @@ import {
 } from '@heroicons/react/outline'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { NextPage } from 'next'
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import Button from '../../../components/Button'
-import Code from '../../../components/Code'
 import FormTitle from '../../../components/FormTitle'
 import Input from '../../../components/Input'
 import Modal from '../../../components/Modal'
-import Spinner from '../../../components/Spinner'
 import { routes } from '../../../constants/routes'
 import { getPasteSchema } from '../../../server/router/schema'
 import { getQueryArg } from '../../../utils/http'
-import { api } from '../../../utils/trpc'
+import { RouterOutputs, api } from '../../../utils/trpc'
 import useAuth from '../../../utils/useAuth'
 import NotFound from '../../404'
 import { z } from 'zod'
-
+import { getHighlighter } from 'shikiji/index.mjs'
+import { bundledLanguages } from 'shikiji/langs.mjs'
+import { ssrHelper } from '../../../utils/ssr'
+import Code from '../../../components/Code'
 dayjs.extend(relativeTime)
 
 type FormValues = z.infer<typeof getPasteSchema>
 
-const Paste: NextPage = () => {
+export const getServerSideProps: GetServerSideProps<
+  {
+    code: string
+  } & RouterOutputs['paste']['get']
+> = async (context) => {
+  const shiki = await getHighlighter({
+    themes: ['material-theme-darker'],
+    langs: Object.keys(bundledLanguages),
+  })
+  const { id } = context.query
+
+  const { paste, secure } = await (
+    await ssrHelper()
+  ).paste.get.fetch({ id: id as string, password: null })
+
+  return {
+    props: {
+      code: shiki.codeToHtml(paste?.content ?? '', {
+        lang: paste?.style ?? 'txt',
+        theme: 'material-theme-darker',
+      }),
+      paste: JSON.parse(JSON.stringify(paste)),
+      secure,
+    },
+  }
+}
+
+const Paste = ({
+  code,
+  paste,
+  secure,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter()
   const { isLoggedIn, isLoading: isAuthLoading, user } = useAuth()
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
@@ -49,15 +81,6 @@ const Paste: NextPage = () => {
     })
   }
 
-  const { data, isLoading, error } = api.paste.get.useQuery(
-    {
-      id: getQueryArg(router.query.id) ?? '',
-      password: getQueryArg(router.query.password) ?? null,
-    },
-
-    { refetchOnWindowFocus: false },
-  )
-
   const mutation = api.paste.remove.useMutation()
 
   const handleDelete = async (id: string) => {
@@ -72,10 +95,9 @@ const Paste: NextPage = () => {
     )
   }
 
-  const canEdit =
-    !isAuthLoading && isLoggedIn && user?.id === data?.paste?.userId
+  const canEdit = !isAuthLoading && isLoggedIn && user?.id === paste?.userId
 
-  if (data?.secure) {
+  if (secure) {
     return (
       <div className="flex flex-col justify-center items-center">
         <Image
@@ -113,20 +135,16 @@ const Paste: NextPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      {isLoading || error ? (
-        <div className="flex justify-center">
-          <Spinner />
-        </div>
-      ) : !data?.paste ? (
+      {!paste ? (
         <h2 className="text-2xl text-zinc-100 text-bold text-center">
           <NotFound />
         </h2>
       ) : (
         <div>
-          <FormTitle title={data.paste.title} />
-          {data.paste.tags.length > 0 && (
+          <FormTitle title={paste.title} />
+          {paste.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 my-5">
-              {data.paste.tags.map((tag) => (
+              {paste.tags.map((tag) => (
                 <p
                   key={tag.tag.name}
                   className="inline-flex items-center py-1 px-2 text-sm font-medium  rounded bg-zinc-500 text-zinc-200"
@@ -136,9 +154,9 @@ const Paste: NextPage = () => {
               ))}
             </div>
           )}
-          {data.paste.description && (
+          {paste.description && (
             <h3 className="text-sm text-zinc-400 mb-10 font-light italic break-all">
-              {data.paste.description}
+              {paste.description}
             </h3>
           )}
 
@@ -146,9 +164,7 @@ const Paste: NextPage = () => {
             <button
               className="bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
               type="button"
-              onClick={() =>
-                navigator.clipboard.writeText(data?.paste?.content ?? '')
-              }
+              onClick={() => navigator.clipboard.writeText(paste.content)}
             >
               <div className="flex items-center gap-2 justify-center">
                 <ClipboardCopyIcon className="w-6" />
@@ -195,7 +211,7 @@ const Paste: NextPage = () => {
                 router.push({
                   pathname: routes.HOME,
                   query: {
-                    fork: data.paste?.id,
+                    fork: paste?.id,
                     password: router.query.password ?? null,
                   },
                 })
@@ -220,7 +236,7 @@ const Paste: NextPage = () => {
             )}
             <Modal
               visible={isDeleteModalVisible}
-              action={() => handleDelete(data.paste?.id ?? '')}
+              action={() => handleDelete(paste.id)}
               close={() => setIsDeleteModalVisible(false)}
               accentColor="warning"
               title="Remove paste"
@@ -229,23 +245,18 @@ const Paste: NextPage = () => {
             />
           </div>
           <div className="mb-10">
-            <Code
-              code={data.paste.content}
-              language={data.paste.style ?? 'txt'}
-            />
+            <Code code={code} />
           </div>
           <p className="text-zinc-300 text-sm">
             Created at:{' '}
             <span className="font-bold">
-              {dayjs(data.paste.createdAt).format('YYYY/MM/DD')}
+              {dayjs(paste.createdAt).format('YYYY/MM/DD')}
             </span>
           </p>
           <p className="text-zinc-300 text-sm">
             Expires:{' '}
             <span className="font-bold">
-              {data.paste.expiresAt
-                ? dayjs(data.paste.expiresAt).fromNow()
-                : 'Never'}
+              {paste.expiresAt ? dayjs(paste.expiresAt).fromNow() : 'Never'}
             </span>
           </p>
         </div>

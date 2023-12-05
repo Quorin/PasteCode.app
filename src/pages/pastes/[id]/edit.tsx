@@ -3,7 +3,6 @@ import { useRouter } from 'next/router'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import Button from '../../../components/Button'
-import { DefaultLanguage, Languages } from '../../../components/Code'
 import FormTitle from '../../../components/FormTitle'
 import Input from '../../../components/Input'
 import Select from '../../../components/Select'
@@ -14,11 +13,11 @@ import { routes } from '../../../constants/routes'
 import { updatePasteSchema } from '../../../server/router/schema'
 import { errorHandler } from '../../../utils/errorHandler'
 import { getQueryArg } from '../../../utils/http'
-import { capitalize } from '../../../utils/strings'
 import { api } from '../../../utils/trpc'
 import useAuth from '../../../utils/useAuth'
 import Unauthorized from '../../401'
 import NotFound from '../../404'
+import { defaultLanguage, languageOptions } from '../../../utils/lang'
 
 type FormValues = z.infer<typeof updatePasteSchema> & { tag: string }
 
@@ -26,7 +25,7 @@ const Edit: NextPage = () => {
   const { isLoading: isAuthLoading, user } = useAuth()
   const router = useRouter()
   const mutation = api.paste.update.useMutation()
-  const utils = api.useContext()
+  const utils = api.useUtils()
 
   const methods = useForm<FormValues>({
     defaultValues: {},
@@ -164,11 +163,8 @@ const Edit: NextPage = () => {
                 label={'Style'}
                 required={false}
                 name={'style'}
-                defaultValue={paste.style ?? DefaultLanguage.value}
-                options={Languages.map((lang) => ({
-                  key: lang,
-                  value: lang ? capitalize(lang) : DefaultLanguage.value,
-                }))}
+                defaultValue={paste.style ?? defaultLanguage}
+                options={languageOptions}
               />
             </div>
           </div>

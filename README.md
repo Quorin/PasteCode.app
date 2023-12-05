@@ -12,5 +12,5 @@ _Pastebin_ alternative for sharing and saving text & code.
 - TailwindCSS
 - Prisma
 - PlanetScale
-- PrismJS
+- Shikiji
 - SendGrid

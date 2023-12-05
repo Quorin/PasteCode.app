@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { DefaultLanguage, Languages } from '../../components/Code'
+import { isValidLanguage } from '../../utils/lang'
 
 /**
  * Settings
@@ -118,10 +118,7 @@ export const removePasteSchema = z.object({
 export const createPasteSchema = z.object({
   title: z.string().max(150, 'Title is too long'),
   content: z.string().max(10000000, 'Content is too long'),
-  style: z
-    .string()
-    .default(DefaultLanguage.key)
-    .refine((s) => Languages.includes(s), 'Invalid style'),
+  style: z.string().refine(isValidLanguage, 'Invalid style'),
   description: z.string().max(300, 'Description is too long'),
   tags: z
     .array(z.string().max(15, 'Too long name'))
@@ -137,10 +134,7 @@ export const updatePasteSchema = z.object({
   id: z.string(),
   title: z.string().max(150, 'Title is too long'),
   content: z.string().max(10000000, 'Content is too long'),
-  style: z
-    .string()
-    .default(DefaultLanguage.key)
-    .refine((s) => Languages.includes(s), 'Invalid style'),
+  style: z.string().refine(isValidLanguage, 'Invalid style'),
   description: z.string().max(300, 'Description is too long'),
   tags: z
     .array(z.string().max(15, 'Too long name'))

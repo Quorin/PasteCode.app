@@ -6,4 +6,11 @@
   body {
     @apply bg-zinc-900;
   }
+
+  .shiki {
+    @apply bg-zinc-800 opacity-90 !important;
+    @apply p-4;
+    @apply rounded-lg;
+    @apply overflow-x-auto;
+  }
 }
