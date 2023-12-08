@@ -1,6 +1,6 @@
 import { z, ZodError, ZodIssue } from 'zod'
 import { createTRPCRouter, publicProcedure } from './context'
-import * as argon2 from 'argon2'
+import { verify, hash } from 'argon2'
 import * as trpc from '@trpc/server'
 import dayjs from 'dayjs'
 import { generateRandomString } from '../../utils/random'
@@ -127,7 +127,7 @@ export const userRouter = createTRPCRouter({
             id: rp.user.id,
           },
           data: {
-            password: await argon2.hash(input.password),
+            password: await hash(input.password),
             credentialsUpdatedAt: new Date(),
           },
         }),
@@ -222,7 +222,7 @@ export const userRouter = createTRPCRouter({
         data: {
           email: input.email,
           name: input.name,
-          password: await argon2.hash(input.password),
+          password: await hash(input.password),
           acceptTerms: true,
           confirmed: false,
           confirmationCode: {

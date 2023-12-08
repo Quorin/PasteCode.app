@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react'
-import { ExclamationIcon } from '@heroicons/react/outline'
+import ExclamationTriangleIcon from '@heroicons/react/24/outline/ExclamationTriangleIcon'
 import { cva } from 'class-variance-authority'
 import { Fragment, useRef } from 'react'
 
@@ -96,7 +96,7 @@ const Modal = ({
                 <div className="bg-zinc-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                   <div className="sm:flex sm:items-start">
                     <div className={dialogPanel({ color: accentColor })}>
-                      <ExclamationIcon
+                      <ExclamationTriangleIcon
                         className={icon({ color: accentColor })}
                         aria-hidden="true"
                       />

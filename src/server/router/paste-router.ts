@@ -5,7 +5,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from './context'
-import * as argon2 from 'argon2'
+import { verify, hash } from 'argon2'
 import Cryptr from 'cryptr'
 import { getExpirationDate, upsertTags } from '../../utils/paste'
 import {
@@ -46,7 +46,7 @@ export const pasteRouter = createTRPCRouter({
 
       if (paste.password) {
         if (input.password) {
-          const valid = await argon2.verify(paste.password, input.password)
+          const valid = await verify(paste.password, input.password)
           if (!valid) {
             throw new trpc.TRPCError({
               code: 'BAD_REQUEST',
@@ -96,10 +96,7 @@ export const pasteRouter = createTRPCRouter({
 
       if (paste.password) {
         if (input.currentPassword) {
-          const valid = await argon2.verify(
-            paste.password,
-            input.currentPassword,
-          )
+          const valid = await verify(paste.password, input.currentPassword)
           if (!valid) {
             throw new trpc.TRPCError({
               code: 'BAD_REQUEST',
@@ -126,7 +123,7 @@ export const pasteRouter = createTRPCRouter({
           style: input.style,
           description: input.description,
           expiresAt: getExpirationDate(input.expiration, paste.expiresAt),
-          password: input.password ? await argon2.hash(input.password) : null,
+          password: input.password ? await hash(input.password) : null,
         },
       })
 
@@ -144,7 +141,7 @@ export const pasteRouter = createTRPCRouter({
           style: input.style,
           description: input.description,
           expiresAt: getExpirationDate(input.expiration),
-          password: input.password ? await argon2.hash(input.password) : null,
+          password: input.password ? await hash(input.password) : null,
           user: ctx.session?.user?.id
             ? {
                 connect: {
@@ -200,7 +197,7 @@ export const pasteRouter = createTRPCRouter({
 
     if (paste && paste.password) {
       if (input.password) {
-        const valid = await argon2.verify(paste.password, input.password)
+        const valid = await verify(paste.password, input.password)
 
         if (valid) {
           return {

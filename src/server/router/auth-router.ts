@@ -1,11 +1,11 @@
 import dayjs from 'dayjs'
-import { z, ZodError } from 'zod'
+import { ZodError } from 'zod'
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from './context'
-import * as argon2 from 'argon2'
+import { verify } from 'argon2'
 import * as trpc from '@trpc/server'
 import { loginSchema } from './schema'
 
@@ -46,7 +46,7 @@ export const authRouter = createTRPCRouter({
       })
     }
 
-    if (!(await argon2.verify(user.password ?? '', input.password))) {
+    if (!(await verify(user.password ?? '', input.password))) {
       throw new trpc.TRPCError({
         code: 'BAD_REQUEST',
         cause: new ZodError([

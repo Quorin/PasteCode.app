@@ -1,4 +1,4 @@
-import * as argon2 from 'argon2'
+import { verify } from 'argon2'
 import Cryptr from 'cryptr'
 import { GetServerSideProps } from 'next'
 import { prisma } from '../../../server/db/client'
@@ -19,7 +19,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     })
 
     if (paste?.password) {
-      const valid = await argon2.verify(
+      const valid = await verify(
         paste.password,
         (query?.password as string) ?? '',
       )

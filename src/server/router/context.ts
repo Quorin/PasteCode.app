@@ -9,6 +9,7 @@ import { prisma } from '../db/client'
 import { ZodError } from 'zod'
 import { initTRPC } from '@trpc/server'
 import { TRPCPanelMeta } from 'trpc-panel'
+import { SessionUser } from '../../utils/useAuth'
 
 export const createContext = async (
   opts?: trpcNext.CreateNextContextOptions,
@@ -16,7 +17,10 @@ export const createContext = async (
   const req = opts?.req
   const res = opts?.res
 
-  const session = req && res && (await getIronSession(req, res, sessionOptions))
+  const session =
+    req &&
+    res &&
+    (await getIronSession<{ user: SessionUser }>(req, res, sessionOptions))
 
   return {
     req,

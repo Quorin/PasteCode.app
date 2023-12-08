@@ -1,10 +1,10 @@
 import {
-  ClipboardCopyIcon,
+  ClipboardIcon,
   DocumentTextIcon,
-  DuplicateIcon,
+  DocumentDuplicateIcon,
   PencilIcon,
   TrashIcon,
-} from '@heroicons/react/outline'
+} from '@heroicons/react/24/outline'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
@@ -167,7 +167,7 @@ const Paste = ({
               onClick={() => navigator.clipboard.writeText(paste.content)}
             >
               <div className="flex items-center gap-2 justify-center">
-                <ClipboardCopyIcon className="w-6" />
+                <ClipboardIcon className="w-6" />
                 Copy
               </div>
             </button>
@@ -218,7 +218,7 @@ const Paste = ({
               }
             >
               <div className="flex items-center gap-2 justify-center">
-                <DuplicateIcon className="w-6" />
+                <DocumentDuplicateIcon className="w-6" />
                 Duplicate
               </div>
             </button>

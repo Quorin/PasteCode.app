@@ -3,7 +3,7 @@ import * as trpc from '@trpc/server'
 import { generateRandomString } from '../../utils/random'
 import { sendConfirmationEmail } from '../../utils/email'
 import dayjs from 'dayjs'
-import * as argon2 from 'argon2'
+import { verify, hash } from 'argon2'
 import {
   changeEmailSchema,
   changeNameSchema,
@@ -21,10 +21,7 @@ export const settingsRouter = createTRPCRouter({
         select: { password: true },
       })
 
-      if (
-        !user?.password ||
-        !(await argon2.verify(user.password, input.password))
-      ) {
+      if (!user?.password || !(await verify(user.password, input.password))) {
         throw new trpc.TRPCError({
           code: 'BAD_REQUEST',
           cause: new ZodError([
@@ -67,7 +64,7 @@ export const settingsRouter = createTRPCRouter({
         })
       }
 
-      if (!(await argon2.verify(user.password, input.currentPassword))) {
+      if (!(await verify(user.password, input.currentPassword))) {
         throw new trpc.TRPCError({
           code: 'BAD_REQUEST',
           cause: new ZodError([
@@ -83,7 +80,7 @@ export const settingsRouter = createTRPCRouter({
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id! },
         data: {
-          password: await argon2.hash(input.password),
+          password: await hash(input.password),
           credentialsUpdatedAt: new Date(),
         },
       })
