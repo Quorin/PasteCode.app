@@ -13,6 +13,13 @@ import {
   resetPasswordConfirmationSchema,
   resetPasswordSchema,
 } from './schema'
+import {
+  confirmationCodeLength,
+  confirmationCodesTable,
+  resetPasswordsTable,
+  usersTable,
+} from '../../../db/schema'
+import { and, eq, or, sql } from 'drizzle-orm'
 
 export const userRouter = createTRPCRouter({
   resendConfirmationCode: publicProcedure
@@ -22,10 +29,16 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.prisma.user.findFirst({
-        where: { email: input.email },
-        select: { id: true, confirmed: true },
-      })
+      const [user] = await ctx.db
+        .select({
+          id: usersTable.id,
+          email: usersTable.email,
+          confirmed: usersTable.confirmed,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.email, input.email))
+        .limit(1)
+        .execute()
 
       if (!user) {
         throw new trpc.TRPCError({
@@ -54,13 +67,18 @@ export const userRouter = createTRPCRouter({
         })
       }
 
-      const code = generateRandomString(36)
+      const code = generateRandomString(confirmationCodeLength)
 
-      let confirmation = await ctx.prisma.confirmationCode.findFirst({
-        where: {
-          userId: user.id,
-        },
-      })
+      const [confirmation] = await ctx.db
+        .select({
+          id: confirmationCodesTable.id,
+          userId: confirmationCodesTable.userId,
+          createdAt: confirmationCodesTable.createdAt,
+        })
+        .from(confirmationCodesTable)
+        .where(eq(confirmationCodesTable.userId, user.id))
+        .limit(1)
+        .execute()
 
       if (
         confirmation &&
@@ -79,34 +97,51 @@ export const userRouter = createTRPCRouter({
         })
       }
 
-      confirmation = await ctx.prisma.confirmationCode.upsert({
-        where: {
+      const [newConfirmation] = await ctx.db
+        .insert(confirmationCodesTable)
+        .values({
+          code,
           userId: user.id,
-        },
-        update: {
-          code,
+          createdAt: new Date(),
           expiresAt: dayjs().add(48, 'hours').toDate(),
-        },
-        create: {
-          code,
-          expiresAt: dayjs().add(48, 'hours').toDate(),
-          user: {
-            connect: {
-              email: input.email,
-            },
+        })
+        .onConflictDoUpdate({
+          set: {
+            code: sql`code`,
+            expiresAt: sql`expires_at`,
           },
-        },
-      })
+          target: confirmationCodesTable.id,
+        })
+        .returning({
+          id: confirmationCodesTable.id,
+        })
+        .execute()
 
-      await sendConfirmationEmail(input.email, confirmation.id, code)
+      await sendConfirmationEmail(input.email, newConfirmation!.id, code)
     }),
   resetPasswordConfirmation: publicProcedure
     .input(resetPasswordConfirmationSchema)
     .mutation(async ({ ctx, input }) => {
-      const rp = await ctx.prisma.resetPassword.findFirst({
-        where: { id: input.id, code: input.code },
-        include: { user: true },
-      })
+      const [rp] = await ctx.db
+        .select({
+          id: resetPasswordsTable.id,
+          userId: resetPasswordsTable.userId,
+          code: resetPasswordsTable.code,
+          expiresAt: resetPasswordsTable.expiresAt,
+          user: {
+            id: usersTable.id,
+          },
+        })
+        .from(resetPasswordsTable)
+        .innerJoin(usersTable, eq(usersTable.id, resetPasswordsTable.userId))
+        .where(
+          and(
+            eq(resetPasswordsTable.id, input.id),
+            eq(resetPasswordsTable.code, input.code),
+          ),
+        )
+        .limit(1)
+        .execute()
 
       if (!rp || dayjs().isAfter(rp.expiresAt)) {
         throw new trpc.TRPCError({
@@ -121,26 +156,41 @@ export const userRouter = createTRPCRouter({
         })
       }
 
-      await ctx.prisma.$transaction([
-        ctx.prisma.user.update({
-          where: {
-            id: rp.user.id,
-          },
-          data: {
-            password: await hash(input.password),
-            credentialsUpdatedAt: new Date(),
-          },
-        }),
-        ctx.prisma.resetPassword.delete({ where: { id: rp.id } }),
-      ])
+      await ctx.db
+        .update(usersTable)
+        .set({
+          password: await hash(input.password),
+          credentialsUpdatedAt: new Date(),
+        })
+        .where(eq(usersTable.id, rp.userId))
+        .execute()
+
+      await ctx.db
+        .delete(resetPasswordsTable)
+        .where(eq(resetPasswordsTable.id, rp.id))
+        .execute()
     }),
   resetPassword: publicProcedure
     .input(resetPasswordSchema)
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.prisma.user.findFirst({
-        where: { email: input.email },
-        include: { resetPassword: true },
-      })
+      const [user] = await ctx.db
+        .select({
+          id: usersTable.id,
+          email: usersTable.email,
+          resetPassword: {
+            id: resetPasswordsTable.id,
+            code: resetPasswordsTable.code,
+            expiresAt: resetPasswordsTable.expiresAt,
+          },
+        })
+        .from(usersTable)
+        .leftJoin(
+          resetPasswordsTable,
+          eq(resetPasswordsTable.userId, usersTable.id),
+        )
+        .where(eq(usersTable.email, input.email))
+        .limit(1)
+        .execute()
 
       if (!user) {
         return
@@ -161,35 +211,48 @@ export const userRouter = createTRPCRouter({
         }
       }
 
-      const code = generateRandomString(36)
+      const code = generateRandomString(confirmationCodeLength)
       const expiresAt = dayjs().add(10, 'minute').toDate()
 
-      const rp = await ctx.prisma.resetPassword.upsert({
-        where: { id: user.resetPassword?.id ?? '' },
-        create: {
+      const [rp] = await ctx.db
+        .insert(resetPasswordsTable)
+        .values({
           code,
           expiresAt,
-          user: {
-            connect: { id: user.id },
+          userId: user.id,
+        })
+        .onConflictDoUpdate({
+          set: {
+            code,
+            expiresAt,
           },
-        },
-        update: {
-          code,
-          expiresAt,
-        },
-        select: {
-          id: true,
-        },
-      })
+          target: resetPasswordsTable.id,
+        })
+        .returning({
+          id: resetPasswordsTable.id,
+        })
+        .execute()
 
-      await sendResetPasswordEmail(input.email, rp.id, code)
+      await sendResetPasswordEmail(input.email, rp!.id, code)
     }),
   register: publicProcedure
     .input(registerSchema)
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.prisma.user.findFirst({
-        where: { OR: [{ email: input.email }, { name: input.name }] },
-      })
+      const [user] = await ctx.db
+        .select({
+          id: usersTable.id,
+          email: usersTable.email,
+          name: usersTable.name,
+        })
+        .from(usersTable)
+        .where(
+          or(
+            eq(usersTable.email, input.email),
+            eq(usersTable.name, input.name),
+          ),
+        )
+        .limit(1)
+        .execute()
 
       if (user) {
         let errors: ZodIssue[] = []
@@ -216,36 +279,36 @@ export const userRouter = createTRPCRouter({
         })
       }
 
-      const code = generateRandomString(36)
+      const code = generateRandomString(confirmationCodeLength)
 
-      const createdUser = await ctx.prisma.user.create({
-        data: {
+      const [createdUser] = await ctx.db
+        .insert(usersTable)
+        .values({
           email: input.email,
           name: input.name,
           password: await hash(input.password),
           acceptTerms: true,
           confirmed: false,
-          confirmationCode: {
-            create: {
-              code,
-              expiresAt: dayjs().add(48, 'hours').toDate(),
-            },
-          },
-        },
-        include: {
-          confirmationCode: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      })
+        })
+        .returning({
+          id: usersTable.id,
+        })
+        .execute()
 
-      await sendConfirmationEmail(
-        input.email,
-        createdUser.confirmationCode!.id,
-        code,
-      )
+      const [confirmationCode] = await ctx.db
+        .insert(confirmationCodesTable)
+        .values({
+          code,
+          userId: createdUser!.id,
+          createdAt: new Date(),
+          expiresAt: dayjs().add(48, 'hours').toDate(),
+        })
+        .returning({
+          id: confirmationCodesTable.id,
+        })
+        .execute()
+
+      await sendConfirmationEmail(input.email, confirmationCode!.id, code)
 
       return true
     }),

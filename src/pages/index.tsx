@@ -53,7 +53,7 @@ const Home: NextPage = () => {
         methods.setValue('description', paste.description ?? '')
         methods.setValue('content', paste.content)
         methods.setValue('style', paste.style ?? '')
-        methods.setValue('tags', paste.tags.map((tag) => tag.tag.name) ?? [])
+        methods.setValue('tags', paste.tags)
         methods.resetField('tag')
       },
     },

@@ -11,15 +11,25 @@ import {
   removeAccountSchema,
 } from './schema'
 import { createTRPCRouter, protectedProcedure } from './context'
+import {
+  confirmationCodeLength,
+  confirmationCodesTable,
+  usersTable,
+} from '../../../db/schema'
+import { eq } from 'drizzle-orm'
 
 export const settingsRouter = createTRPCRouter({
   removeAccount: protectedProcedure
     .input(removeAccountSchema)
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.prisma.user.findFirst({
-        where: { id: ctx.session.user.id },
-        select: { password: true },
-      })
+      const [user] = await ctx.db
+        .select({
+          password: usersTable.password,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.id, ctx.session.user.id))
+        .limit(1)
+        .execute()
 
       if (!user?.password || !(await verify(user.password, input.password))) {
         throw new trpc.TRPCError({
@@ -34,16 +44,10 @@ export const settingsRouter = createTRPCRouter({
         })
       }
 
-      await ctx.prisma.user.delete({
-        where: {
-          id: ctx.session.user.id,
-        },
-        include: {
-          confirmationCode: true,
-          resetPassword: true,
-          pastes: true,
-        },
-      })
+      await ctx.db
+        .delete(usersTable)
+        .where(eq(usersTable.id, ctx.session.user.id))
+        .execute()
 
       ctx.session.destroy()
 
@@ -52,10 +56,14 @@ export const settingsRouter = createTRPCRouter({
   changePassword: protectedProcedure
     .input(changePasswordSchema)
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.prisma.user.findFirst({
-        where: { id: ctx.session.user.id! },
-        select: { password: true },
-      })
+      const [user] = await ctx.db
+        .select({
+          password: usersTable.password,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.id, ctx.session.user.id))
+        .limit(1)
+        .execute()
 
       if (!user) {
         throw new trpc.TRPCError({
@@ -77,61 +85,62 @@ export const settingsRouter = createTRPCRouter({
         })
       }
 
-      await ctx.prisma.user.update({
-        where: { id: ctx.session.user.id! },
-        data: {
+      await ctx.db
+        .update(usersTable)
+        .set({
           password: await hash(input.password),
           credentialsUpdatedAt: new Date(),
-        },
-      })
+        })
+        .where(eq(usersTable.id, ctx.session.user.id))
+        .execute()
     }),
   changeEmail: protectedProcedure
     .input(changeEmailSchema)
     .mutation(async ({ ctx, input }) => {
-      const code = generateRandomString(36)
+      const code = generateRandomString(confirmationCodeLength)
 
-      const user = await ctx.prisma.user.update({
-        where: { id: ctx.session.user.id },
-        data: {
+      await ctx.db
+        .update(usersTable)
+        .set({
           email: input.email,
           confirmed: false,
           credentialsUpdatedAt: new Date(),
-          confirmationCode: {
-            upsert: {
-              update: {
-                code,
-                expiresAt: dayjs().add(48, 'hours').toDate(),
-              },
-              create: {
-                code,
-                expiresAt: dayjs().add(48, 'hours').toDate(),
-              },
-            },
-          },
-        },
-        select: {
-          id: true,
-          confirmationCode: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      })
+        })
+        .where(eq(usersTable.id, ctx.session.user.id))
+        .execute()
 
-      await sendConfirmationEmail(
-        input.email,
-        user.confirmationCode?.id ?? '',
-        code,
-      )
+      const [confirmationCode] = await ctx.db
+        .insert(confirmationCodesTable)
+        .values({
+          code,
+          expiresAt: dayjs().add(48, 'hours').toDate(),
+          userId: ctx.session.user.id,
+        })
+        .onConflictDoUpdate({
+          set: {
+            code,
+            expiresAt: dayjs().add(48, 'hours').toDate(),
+          },
+          target: confirmationCodesTable.id,
+        })
+        .returning({
+          id: confirmationCodesTable.id,
+        })
+        .execute()
+
+      await sendConfirmationEmail(input.email, confirmationCode!.id, code)
     }),
   changeName: protectedProcedure
     .input(changeNameSchema)
     .mutation(async ({ ctx, input }) => {
-      const exists = await ctx.prisma.user.findFirst({
-        where: { id: input.name },
-        select: { id: true },
-      })
+      const [exists] = await ctx.db
+        .select({
+          id: usersTable.id,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.name, input.name))
+        .limit(1)
+        .execute()
 
       if (exists) {
         throw new trpc.TRPCError({
@@ -146,12 +155,20 @@ export const settingsRouter = createTRPCRouter({
         })
       }
 
-      await ctx.prisma.user.update({
-        where: { id: ctx.session.user.id },
-        data: { name: input.name },
-      })
+      const credentialsUpdatedAt = new Date()
+
+      await ctx.db
+        .update(usersTable)
+        .set({
+          name: input.name,
+          credentialsUpdatedAt,
+        })
+        .where(eq(usersTable.id, ctx.session.user.id))
+        .execute()
 
       ctx.session.user.name = input.name
+      ctx.session.user.credentialsUpdatedAt = credentialsUpdatedAt
+
       await ctx.session.save()
     }),
 })

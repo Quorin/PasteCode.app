@@ -1,6 +1,8 @@
 import { Maybe } from '@trpc/server'
 import dayjs from 'dayjs'
-import { PrismaClient } from '@prisma/client'
+import { tagsTable, tagsOnPastesTable } from '../../db/schema'
+import { eq, sql } from 'drizzle-orm'
+import { NeonHttpDatabase } from 'drizzle-orm/neon-http'
 
 type Expiration =
   | 'same'
@@ -36,29 +38,42 @@ export const getExpirationDate = (
   }
 }
 
-export const upsertTags = async (
-  prisma: PrismaClient,
+export const upsertTagsOnPaste = async (
+  db: NeonHttpDatabase<any>,
   inputTags: string[] | undefined,
   pasteId: string,
 ) => {
   if (inputTags && inputTags.length > 0) {
-    await prisma.tag.createMany({
-      data:
-        inputTags?.map((tag) => ({
-          name: tag.toLowerCase(),
-        })) || [],
-      skipDuplicates: true,
-    })
+    inputTags = inputTags.map((tag) => tag.toLowerCase())
 
-    const tags = await prisma.tag.findMany({
-      where: {
-        name: { in: inputTags.map((t) => t.toLowerCase()) || [] },
-      },
-    })
+    await db
+      .insert(tagsTable)
+      .values(inputTags.map((tag) => ({ name: tag })))
+      .onConflictDoNothing()
+      .execute()
 
-    await prisma.tagsOnPastes.createMany({
-      skipDuplicates: true,
-      data: tags.map((tag) => ({ pasteId: pasteId, tagId: tag.id })),
-    })
+    const tags = await db
+      .select({
+        id: tagsTable.id,
+      })
+      .from(tagsTable)
+      .where(sql`name in ${inputTags}`)
+      .execute()
+
+    await db
+      .delete(tagsOnPastesTable)
+      .where(eq(tagsOnPastesTable.pasteId, pasteId))
+      .execute()
+
+    await db
+      .insert(tagsOnPastesTable)
+      .values(
+        tags.map((tag) => ({
+          pasteId: pasteId,
+          tagId: tag.id,
+        })),
+      )
+      .onConflictDoNothing()
+      .execute()
   }
 }

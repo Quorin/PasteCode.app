@@ -7,11 +7,13 @@ import Button from '../../components/Button'
 import FormTitle from '../../components/FormTitle'
 import Input from '../../components/Input'
 import { routes } from '../../constants/routes'
-import { prisma } from '../../server/db/client'
 import { resetPasswordConfirmationSchema } from '../../server/router/schema'
 import { errorHandler } from '../../utils/errorHandler'
 import { api } from '../../utils/trpc'
 import { z } from 'zod'
+import { db } from '../../../db/db'
+import { resetPasswordsTable } from '../../../db/schema'
+import { and, eq } from 'drizzle-orm'
 
 type Props = {
   result: boolean
@@ -118,10 +120,20 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
       },
     }
   }
-
-  const rp = await prisma.resetPassword.findFirst({
-    where: { id: query.id, code: query.code },
-  })
+  const [rp] = await db
+    .select({
+      id: resetPasswordsTable.id,
+      expiresAt: resetPasswordsTable.expiresAt,
+    })
+    .from(resetPasswordsTable)
+    .where(
+      and(
+        eq(resetPasswordsTable.id, query.id),
+        eq(resetPasswordsTable.code, query.code),
+      ),
+    )
+    .limit(1)
+    .execute()
 
   if (!rp || dayjs().isAfter(rp.expiresAt)) {
     return {
