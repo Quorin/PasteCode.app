@@ -146,10 +146,10 @@ const Paste = ({
             <div className="flex flex-wrap gap-2 my-5">
               {paste.tags.map((tag) => (
                 <p
-                  key={tag.tag.name}
+                  key={tag}
                   className="inline-flex items-center py-1 px-2 text-sm font-medium  rounded bg-zinc-500 text-zinc-200"
                 >
-                  #{tag.tag.name}
+                  #{tag}
                 </p>
               ))}
             </div>

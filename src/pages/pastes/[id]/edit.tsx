@@ -42,7 +42,7 @@ const Edit: NextPage = () => {
       refetchOnWindowFocus: false,
       onSuccess: ({ paste }) => {
         methods.setValue('id', paste?.id ?? '')
-        methods.setValue('tags', paste?.tags.map((tag) => tag.tag.name) ?? [])
+        methods.setValue('tags', paste?.tags ?? [])
       },
       onError: async () => {
         await router.replace(routes.HOME)

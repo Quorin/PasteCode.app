@@ -109,12 +109,12 @@ const Profile = () => {
                       </h2>
                       {p.tags.length > 0 && (
                         <div className="flex flex-wrap gap-2 my-4">
-                          {p.tags.map((t, i) => (
+                          {p.tags.map((t) => (
                             <p
-                              key={i}
+                              key={t}
                               className="inline-flex items-center py-1 px-2 text-sm font-medium bg-zinc-500 rounded text-zinc-200"
                             >
-                              #{t.tag.name}
+                              #{t}
                             </p>
                           ))}
                         </div>

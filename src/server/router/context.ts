@@ -5,11 +5,11 @@ import { getIronSession } from 'iron-session'
 import { sessionOptions } from '../auth/config'
 import superjson from 'superjson'
 
-import { prisma } from '../db/client'
 import { ZodError } from 'zod'
 import { initTRPC } from '@trpc/server'
 import { TRPCPanelMeta } from 'trpc-panel'
 import { SessionUser } from '../../utils/useAuth'
+import { db } from '../../../db/db'
 
 export const createContext = async (
   opts?: trpcNext.CreateNextContextOptions,
@@ -26,7 +26,7 @@ export const createContext = async (
     req,
     res,
     session,
-    prisma,
+    db,
   }
 }
 
@@ -60,7 +60,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 
   return next({
     ctx: {
-      session: { ...ctx.session, user: ctx.session.user },
+      session: ctx.session,
     },
   })
 })

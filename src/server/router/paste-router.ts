@@ -7,28 +7,30 @@ import {
 } from './context'
 import { verify, hash } from 'argon2'
 import Cryptr from 'cryptr'
-import { getExpirationDate, upsertTags } from '../../utils/paste'
+import { getExpirationDate, upsertTagsOnPaste } from '../../utils/paste'
 import {
   createPasteSchema,
   getPasteSchema,
   removePasteSchema,
   updatePasteSchema,
 } from './schema'
+import { pastesTable, tagsTable, tagsOnPastesTable } from '../../../db/schema'
+import { and, desc, eq, gt, gte, isNull, or, sql } from 'drizzle-orm'
 
 export const pasteRouter = createTRPCRouter({
   remove: protectedProcedure
     .input(removePasteSchema)
     .mutation(async ({ input, ctx }) => {
-      const paste = await ctx.prisma.paste.findFirst({
-        where: {
-          id: input.id,
-        },
-        select: {
-          id: true,
-          userId: true,
-          password: true,
-        },
-      })
+      const [paste] = await ctx.db
+        .select({
+          id: pastesTable.id,
+          userId: pastesTable.userId,
+          password: pastesTable.password,
+        })
+        .from(pastesTable)
+        .where(eq(pastesTable.id, input.id))
+        .limit(1)
+        .execute()
 
       if (!paste) {
         throw new trpc.TRPCError({
@@ -61,24 +63,25 @@ export const pasteRouter = createTRPCRouter({
         }
       }
 
-      await ctx.prisma.paste.delete({
-        where: {
-          id: input.id,
-        },
-        select: null,
-      })
+      await ctx.db
+        .delete(pastesTable)
+        .where(eq(pastesTable.id, input.id))
+        .execute()
     }),
   update: protectedProcedure
     .input(updatePasteSchema)
     .mutation(async ({ input, ctx }) => {
-      const paste = await ctx.prisma.paste.findFirst({
-        where: {
-          id: input.id,
-        },
-        include: {
-          tags: true,
-        },
-      })
+      const [paste] = await ctx.db
+        .select({
+          id: pastesTable.id,
+          userId: pastesTable.userId,
+          password: pastesTable.password,
+          expiresAt: pastesTable.expiresAt,
+        })
+        .from(pastesTable)
+        .where(eq(pastesTable.id, input.id))
+        .limit(1)
+        .execute()
 
       if (!paste) {
         throw new trpc.TRPCError({
@@ -111,29 +114,32 @@ export const pasteRouter = createTRPCRouter({
         }
       }
 
-      await ctx.prisma.paste.update({
-        where: {
-          id: input.id,
-        },
-        data: {
+      await ctx.db
+        .update(pastesTable)
+        .set({
           title: input.title,
           content: input.password
             ? new Cryptr(input.password).encrypt(input.content)
             : input.content,
           style: input.style,
           description: input.description,
-          expiresAt: getExpirationDate(input.expiration, paste.expiresAt),
+          expiresAt: getExpirationDate(
+            input.expiration,
+            paste.expiresAt ? new Date(paste.expiresAt) : null,
+          ),
           password: input.password ? await hash(input.password) : null,
-        },
-      })
+        })
+        .where(eq(pastesTable.id, input.id))
+        .execute()
 
-      await upsertTags(ctx.prisma, input.tags, input.id)
+      await upsertTagsOnPaste(ctx.db, input.tags, input.id)
     }),
   create: publicProcedure
     .input(createPasteSchema)
     .mutation(async ({ input, ctx }) => {
-      const paste = await ctx.prisma.paste.create({
-        data: {
+      const [paste] = await ctx.db
+        .insert(pastesTable)
+        .values({
           title: input.title,
           content: input.password
             ? new Cryptr(input.password).encrypt(input.content)
@@ -142,58 +148,48 @@ export const pasteRouter = createTRPCRouter({
           description: input.description,
           expiresAt: getExpirationDate(input.expiration),
           password: input.password ? await hash(input.password) : null,
-          user: ctx.session?.user?.id
-            ? {
-                connect: {
-                  id: ctx.session?.user?.id,
-                },
-              }
-            : undefined,
-        },
-      })
+          userId: ctx.session?.user?.id ?? null,
+        })
+        .returning({
+          id: pastesTable.id,
+        })
+        .execute()
 
-      await upsertTags(ctx.prisma, input.tags, paste.id)
+      await upsertTagsOnPaste(ctx.db, input.tags, paste!.id)
 
-      return paste.id
+      return paste!.id
     }),
   get: publicProcedure.input(getPasteSchema).query(async ({ input, ctx }) => {
-    const now = new Date()
-
-    const paste = await ctx.prisma.paste.findFirst({
-      where: {
-        id: input.id,
-        OR: [
-          {
-            expiresAt: null,
-          },
-          {
-            expiresAt: {
-              gt: now,
-            },
-          },
-        ],
-      },
-      select: {
-        id: true,
-        content: true,
-        password: true,
-        tags: {
-          select: {
-            tag: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-        title: true,
-        style: true,
-        description: true,
-        createdAt: true,
-        expiresAt: true,
-        userId: true,
-      },
-    })
+    const [paste] = await ctx.db
+      .select({
+        id: pastesTable.id,
+        content: pastesTable.content,
+        password: pastesTable.password,
+        tags: sql<
+          string[]
+        >`coalesce(array_agg(${tagsTable.name}) filter (where ${tagsTable.name} is not null), '{}')`,
+        title: pastesTable.title,
+        style: pastesTable.style,
+        description: pastesTable.description,
+        createdAt: pastesTable.createdAt,
+        expiresAt: pastesTable.expiresAt,
+        userId: pastesTable.userId,
+      })
+      .from(pastesTable)
+      .where(
+        and(
+          eq(pastesTable.id, input.id),
+          or(
+            isNull(pastesTable.expiresAt),
+            gte(pastesTable.expiresAt, sql`now()`),
+          ),
+        ),
+      )
+      .leftJoin(tagsOnPastesTable, eq(tagsOnPastesTable.pasteId, input.id))
+      .leftJoin(tagsTable, eq(tagsTable.id, tagsOnPastesTable.tagId))
+      .groupBy(pastesTable.id)
+      .limit(1)
+      .execute()
 
     if (paste && paste.password) {
       if (input.password) {
@@ -228,46 +224,39 @@ export const pasteRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 50
 
-      const now = new Date()
+      const pastes = await ctx.db
+        .select({
+          id: pastesTable.id,
+          createdAt: pastesTable.createdAt,
+          expiresAt: pastesTable.expiresAt,
+          tags: sql<
+            string[]
+          >`coalesce(array_agg(${tagsTable.name}) filter (where ${tagsTable.name} is not null), '{}')`,
 
-      const pastes = await ctx.prisma.paste.findMany({
-        where: {
-          userId: ctx.session.user.id,
-          OR: [
-            {
-              expiresAt: null,
-            },
-            {
-              expiresAt: {
-                gt: now,
-              },
-            },
-          ],
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        take: limit + 1,
-        cursor: input.cursor ? { id: input.cursor } : undefined,
-        distinct: ['id'],
-        select: {
-          id: true,
-          createdAt: true,
-          expiresAt: true,
-          tags: {
-            select: {
-              tag: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-          },
-          title: true,
-          style: true,
-          description: true,
-        },
-      })
+          title: pastesTable.title,
+          style: pastesTable.style,
+          description: pastesTable.description,
+        })
+        .from(pastesTable)
+        .where(
+          and(
+            eq(pastesTable.userId, ctx.session.user.id),
+            or(
+              isNull(pastesTable.expiresAt),
+              gte(pastesTable.expiresAt, sql`now()`),
+            ),
+            input.cursor ? gt(pastesTable.id, input.cursor) : undefined,
+          ),
+        )
+        .leftJoin(
+          tagsOnPastesTable,
+          eq(tagsOnPastesTable.pasteId, pastesTable.id),
+        )
+        .leftJoin(tagsTable, eq(tagsTable.id, tagsOnPastesTable.tagId))
+        .orderBy(desc(pastesTable.createdAt))
+        .groupBy(pastesTable.id)
+        .limit(limit + 1)
+        .execute()
 
       let nextCursor: typeof input.cursor | null = null
 

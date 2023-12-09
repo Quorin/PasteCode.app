@@ -8,17 +8,27 @@ import {
 import { verify } from 'argon2'
 import * as trpc from '@trpc/server'
 import { loginSchema } from './schema'
+import { usersTable } from '../../../db/schema'
+import { eq } from 'drizzle-orm'
 
 export const authRouter = createTRPCRouter({
   logout: protectedProcedure.mutation(async ({ ctx }) => {
     ctx.session.destroy()
   }),
   login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {
-    const user = await ctx.prisma.user.findFirst({
-      where: {
-        email: input.email,
-      },
-    })
+    const [user] = await ctx.db
+      .select({
+        id: usersTable.id,
+        confirmed: usersTable.confirmed,
+        email: usersTable.email,
+        password: usersTable.password,
+        name: usersTable.name,
+        credentialsUpdatedAt: usersTable.credentialsUpdatedAt,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.email, input.email))
+      .limit(1)
+      .execute()
 
     if (!user) {
       throw new trpc.TRPCError({
@@ -74,12 +84,14 @@ export const authRouter = createTRPCRouter({
       return null
     }
 
-    const user = await ctx.prisma.user.findFirst({
-      where: { id: ctx.session.user.id },
-      select: {
-        credentialsUpdatedAt: true,
-      },
-    })
+    const [user] = await ctx.db
+      .select({
+        credentialsUpdatedAt: usersTable.credentialsUpdatedAt,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, ctx.session.user.id))
+      .limit(1)
+      .execute()
 
     if (!user) {
       return {

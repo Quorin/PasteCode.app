@@ -10,7 +10,7 @@ _Pastebin_ alternative for sharing and saving text & code.
 - Next.js
 - tRPC
 - TailwindCSS
-- Prisma
-- PlanetScale
+- DrizzleORM
+- NeonDB
 - Shikiji
 - SendGrid

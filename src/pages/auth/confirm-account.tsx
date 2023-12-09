@@ -1,7 +1,9 @@
 import dayjs from 'dayjs'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Image from 'next/image'
-import { prisma } from '../../server/db/client'
+import { db } from '../../../db/db'
+import { confirmationCodesTable, usersTable } from '../../../db/schema'
+import { and, eq } from 'drizzle-orm'
 
 type Props = {
   result: boolean
@@ -60,9 +62,21 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
     }
   }
 
-  const confirmation = await prisma.confirmationCode.findFirst({
-    where: { id: query.id, code: query.code },
-  })
+  const [confirmation] = await db
+    .select({
+      id: confirmationCodesTable.id,
+      expiresAt: confirmationCodesTable.expiresAt,
+      userId: confirmationCodesTable.userId,
+    })
+    .from(confirmationCodesTable)
+    .where(
+      and(
+        eq(confirmationCodesTable.id, query.id),
+        eq(confirmationCodesTable.code, query.code),
+      ),
+    )
+    .limit(1)
+    .execute()
 
   if (!confirmation || dayjs().isAfter(confirmation.expiresAt)) {
     return {
@@ -72,15 +86,18 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
     }
   }
 
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: confirmation.userId },
-      data: {
-        confirmed: true,
-      },
-    }),
-    prisma.confirmationCode.delete({ where: { id: confirmation.id } }),
-  ])
+  await db
+    .update(usersTable)
+    .set({
+      confirmed: true,
+    })
+    .where(eq(usersTable.id, confirmation.userId))
+    .execute()
+
+  await db
+    .delete(confirmationCodesTable)
+    .where(eq(confirmationCodesTable.id, confirmation.id))
+    .execute()
 
   return {
     props: {
