@@ -1,5 +1,5 @@
 import * as sendGrid from '@sendgrid/mail'
-import { getBaseUrl } from '../pages/_app'
+import { getBaseUrl } from '../pages_old/_app'
 
 enum EmailType {
   ResetPassword,

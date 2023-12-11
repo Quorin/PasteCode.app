@@ -3,7 +3,7 @@ import type { AppRouter } from '../server/router'
 import { createTRPCNext } from '@trpc/next'
 import superjson from 'superjson'
 import { httpBatchLink, loggerLink } from '@trpc/client'
-import { getBaseUrl } from '../pages/_app'
+import { getBaseUrl } from '../pages_old/_app'
 import { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 
 export const api = createTRPCNext<AppRouter>({

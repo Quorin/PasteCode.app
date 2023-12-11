@@ -1,4 +1,4 @@
-import { Option } from '../components/Select'
+import { Option } from '../app/_components/Select'
 import { capitalize } from './strings'
 import { bundledLanguages } from 'shikiji/langs'
 
