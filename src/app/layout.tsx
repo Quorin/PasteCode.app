@@ -26,11 +26,11 @@ const RootLayout = ({ children }: Props) => {
     <html lang="en">
       <body>
         <div
-          className={`${spaceGrotesk.className} flex flex-col justify-between min-h-screen bg-zinc-900 gap-6`}
+          className={`${spaceGrotesk.className} flex flex-col justify-between min-h-screen gap-6`}
         >
           <Providers>
             <Navbar />
-            <main className="container mx-auto px-10 md:px-20 lg:px-40 xl:px-52 text-zinc-400">
+            <main className="container mx-auto px-10 md:px-20 lg:px-40 xl:px-52 ">
               {children}
             </main>
             <Footer />

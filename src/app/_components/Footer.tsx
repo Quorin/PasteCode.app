@@ -3,9 +3,9 @@ import { routes } from '../../constants/routes'
 
 const Footer = () => {
   return (
-    <div className="p-4 rounded-lg shadow md:px-6 md:py-8 bg-zinc-900">
+    <div className="p-4 rounded-lg shadow md:px-6 md:py-8 ">
       <footer className="container mx-auto">
-        <ul className="flex flex-col md:flex-row flex-wrap items-center justify-center mb-6 text-sm sm:mb-0 text-zinc-400">
+        <ul className="flex flex-col md:flex-row flex-wrap items-center justify-center mb-6 text-sm sm:mb-0 text-muted-foreground">
           <li>
             <a
               href="https://github.com/Quorin/PasteCode.app"
@@ -26,9 +26,9 @@ const Footer = () => {
             </a>
           </li>
         </ul>
-        <p className="text-center text-sm text-zinc-400 my-3">
+        <p className="text-center text-sm my-3">
           © {new Date().getFullYear()}{' '}
-          <span className="hover:underline cursor-pointer text-zinc-200">
+          <span className="hover:underline cursor-pointer">
             <span className="font-bold">Paste</span>Code
           </span>
         </p>
