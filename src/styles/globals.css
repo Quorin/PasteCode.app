@@ -31,6 +31,7 @@
     @apply p-4;
     @apply rounded-lg;
     @apply overflow-x-auto;
+    @apply min-h-[25vh];
   }
 }
 

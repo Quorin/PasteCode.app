@@ -20,6 +20,9 @@ dependencies:
   '@neondatabase/serverless':
     specifier: ^0.6.0
     version: 0.6.0
+  '@radix-ui/react-alert-dialog':
+    specifier: ^1.0.5
+    version: 1.0.5(@types/react-dom@18.2.17)(@types/react@18.2.42)(react-dom@18.2.0)(react@18.2.0)
   '@radix-ui/react-dialog':
     specifier: ^1.0.5
     version: 1.0.5(@types/react-dom@18.2.17)(@types/react@18.2.42)(react-dom@18.2.0)(react@18.2.0)
@@ -74,6 +77,9 @@ dependencies:
   drizzle-orm:
     specifier: ^0.29.1
     version: 0.29.1(@neondatabase/serverless@0.6.0)(postgres@3.4.3)
+  geist:
+    specifier: ^1.2.0
+    version: 1.2.0(next@14.0.4)
   iron-session:
     specifier: ^8.0.1
     version: 8.0.1
@@ -1199,6 +1205,32 @@ packages:
     resolution: {integrity: sha512-yQ8oGX2GVsEYMWGxcovu1uGWPCxV5BFfeeYxqPmuAzUyLT9qmaMXSAhXpb0WrspIeqYzdJpkh2vHModJPgRIaw==}
     dependencies:
       '@babel/runtime': 7.23.6
+    dev: false
+
+  /@radix-ui/react-alert-dialog@1.0.5(@types/react-dom@18.2.17)(@types/react@18.2.42)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-OrVIOcZL0tl6xibeuGt5/+UxoT2N27KCFOPjFyfXMnchxSHZ/OW7cCX2nGlIYJrbHK/fczPcFzAwvNBB6XBNMA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.23.6
+      '@radix-ui/primitive': 1.0.1
+      '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.42)(react@18.2.0)
+      '@radix-ui/react-context': 1.0.1(@types/react@18.2.42)(react@18.2.0)
+      '@radix-ui/react-dialog': 1.0.5(@types/react-dom@18.2.17)(@types/react@18.2.42)(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-primitive': 1.0.3(@types/react-dom@18.2.17)(@types/react@18.2.42)(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-slot': 1.0.2(@types/react@18.2.42)(react@18.2.0)
+      '@types/react': 18.2.42
+      '@types/react-dom': 18.2.17
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /@radix-ui/react-arrow@1.0.3(@types/react-dom@18.2.17)(@types/react@18.2.42)(react-dom@18.2.0)(react@18.2.0):
@@ -3467,6 +3499,14 @@ packages:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       wide-align: 1.1.5
+    dev: false
+
+  /geist@1.2.0(next@14.0.4):
+    resolution: {integrity: sha512-RZsgCkGnSi1IV1Ozg3s6Ou4r/jzLff9+47ChjpJ5yX8ncEC/RwdStGwhdFzDcnSv0xU0+9J/fTX5Kht0NajTXA==}
+    peerDependencies:
+      next: ^13.2 || ^14
+    dependencies:
+      next: 14.0.4(react-dom@18.2.0)(react@18.2.0)
     dev: false
 
   /get-east-asian-width@1.2.0:

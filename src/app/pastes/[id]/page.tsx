@@ -9,14 +9,6 @@ import DocumentTextIcon from '@heroicons/react/24/outline/DocumentTextIcon'
 import dayjs from 'dayjs'
 import CopyButton from './CopyButton'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '../../../components/ui/dialog'
-import {
   DocumentDuplicateIcon,
   PencilIcon,
   TrashIcon,
@@ -24,6 +16,19 @@ import {
 import UnlockForm from './UnlockForm'
 import { Button } from '../../../components/ui/button'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { Skeleton } from '../../../components/ui/skeleton'
+import { Tag, TagList } from '../../../components/ui/tag'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '../../../components/ui/alert-dialog'
 
 dayjs.extend(relativeTime)
 
@@ -58,18 +63,7 @@ const PasteIndex = async ({
       ) : (
         <div>
           <FormTitle title={paste.title} />
-          {paste.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 my-5">
-              {paste.tags.map((tag) => (
-                <p
-                  key={tag}
-                  className="inline-flex items-center py-1 px-2 text-sm font-medium  rounded bg-zinc-500 text-zinc-200"
-                >
-                  #{tag}
-                </p>
-              ))}
-            </div>
-          )}
+
           {paste.description && (
             <h3 className="text-sm text-zinc-400 mb-10 font-light italic break-all">
               {paste.description}
@@ -80,7 +74,6 @@ const PasteIndex = async ({
             <CopyButton content={paste.content} />
             {canEdit && (
               <Link
-                // className="flex items-center gap-2 justify-center bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
                 type="button"
                 // onClick={() =>
                 //   router.push({
@@ -105,8 +98,6 @@ const PasteIndex = async ({
               </Link>
             )}
             <Link
-              // className="flex items-center gap-2 justify-center text-center cursor-pointer bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
-              // type="button"
               href={{
                 pathname: `/pastes/${paste.id}/raw`,
                 query: {
@@ -124,7 +115,6 @@ const PasteIndex = async ({
               </Button>
             </Link>
             <Link
-              // className="flex items-center gap-2 justify-center bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
               href={{
                 pathname: `/pastes/${paste.id}/fork`,
                 query: {
@@ -147,37 +137,40 @@ const PasteIndex = async ({
               </Button>
             </Link>
             {canEdit && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant={'destructive'}
-                    className="gap-2"
-                    // className="flex items-center gap-2 justify-center bg-zinc-700 px-5 py-2 rounded text-zinc-300 transition-colors hover:bg-zinc-600 hover:text-zinc-200"
-                  >
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant={'destructive'} className="gap-2">
                     <TrashIcon className="w-6" />
                     Delete
                   </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle className="text-lg leading-6 font-medium text-zinc-50">
-                      Remove
-                    </DialogTitle>
-                    <DialogDescription className="text-sm text-zinc-300">
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete paste</AlertDialogTitle>
+                    <AlertDialogDescription>
                       {
-                        "Are you sure you want to remove this paste? It's cannot be undone."
+                        "Are you sure you want to delete this paste? It's cannot be undone."
                       }
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction>Delete</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </div>
           <div className="mb-10">
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<Skeleton className="shiki"></Skeleton>}>
               <Code id={paste.id} code={paste.content} style={paste.style} />
             </Suspense>
           </div>
+          <TagList>
+            {paste.tags.map((tag) => (
+              <Tag key={tag} value={tag} />
+            ))}
+          </TagList>
           <p className="text-zinc-300 text-sm">
             Created at:{' '}
             <span className="font-bold">
@@ -194,15 +187,6 @@ const PasteIndex = async ({
       )}
     </div>
   )
-
-  // return (
-  //   <div>
-  //     <h1>{paste.title}</h1>
-  //     <Suspense fallback={<div>Loading...</div>}>
-  //       <Code id={paste.id} code={paste.content} style={paste.style} />
-  //     </Suspense>
-  //   </div>
-  // )
 }
 
 export default PasteIndex

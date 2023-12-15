@@ -27,6 +27,7 @@ import {
   FormLabel,
   FormMessage,
 } from '../../../components/ui/form'
+import { Loader2 } from 'lucide-react'
 
 type FormValues = z.infer<typeof createPasteSchema> & { tag: string }
 
@@ -56,7 +57,7 @@ const PasteForm = () => {
   })
 
   const resetForm = () => {
-    methods.setValue('tags', [])
+    methods.reset()
   }
 
   return (
@@ -154,6 +155,7 @@ const PasteForm = () => {
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        {...field}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Never" />
@@ -180,9 +182,6 @@ const PasteForm = () => {
                 )}
               />
             </div>
-            {/* <div className="w-1/2 md:w-auto"> */}
-
-            {/* </div> */}
             <div className="w-1/2 md:w-[150px]">
               <FormField
                 control={methods.control}
@@ -194,6 +193,7 @@ const PasteForm = () => {
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        {...field}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="(Text)" />
@@ -213,46 +213,26 @@ const PasteForm = () => {
               />
             </div>
           </div>
-          {/* <div className="flex gap-6 mb-6 md:mb-0">
-            <div className="w-1/2 md:w-auto">
-              <Select
-                id={'expiration'}
-                label={'Expiration'}
-                required={true}
-                name={'expiration'}
-                options={[
-                  { key: 'never', value: 'Never' },
-                  { key: 'year', value: '1 Year' },
-                  { key: 'month', value: '1 Month' },
-                  { key: 'week', value: '1 Week' },
-                  { key: 'day', value: '1 Day' },
-                  { key: 'hour', value: '1 Hour' },
-                  { key: '10m', value: '10 Minutes' },
-                ]}
-              />
-            </div>
-            <div className="w-1/2 md:w-auto">
-              <Select
-                id={'style'}
-                label={'Style'}
-                name={'style'}
-                required={true}
-                options={languageOptions}
-              />
-            </div>
-          </div> */}
           <div className="flex flex-col md:flex-row md:self-end gap-2 md:gap-6">
             <Button
               type="submit"
               className="px-10"
-              aria-disabled={mutation.status === 'loading'}
+              disabled={mutation.status !== 'idle'}
             >
-              Submit
+              {mutation.status !== 'idle' ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting
+                </>
+              ) : (
+                'Submit'
+              )}
             </Button>
             <Button
               variant={'secondary'}
               onClick={resetForm}
-              type="reset"
+              disabled={!methods.formState.isDirty}
+              type="button"
               className=" px-5"
             >
               Reset

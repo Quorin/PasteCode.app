@@ -6,6 +6,7 @@ import { cx } from 'class-variance-authority'
 import { InputHTMLAttributes, KeyboardEvent } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Input } from '../../components/ui/input'
+import { TagRemoveAction, Tag, TagList } from '../../components/ui/tag'
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   label?: string
@@ -15,15 +16,8 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 
 const TagInput = React.forwardRef<HTMLInputElement, Props>(
   ({ label, arrayProp, maxlength, defaultValue, ...props }, ref) => {
-    const {
-      register,
-      getValues,
-      formState,
-      setValue,
-      resetField,
-      watch,
-      trigger,
-    } = useFormContext()
+    const { register, getValues, setValue, resetField, watch, trigger } =
+      useFormContext()
 
     const tags = watch(arrayProp) as string[] | undefined
 
@@ -58,22 +52,13 @@ const TagInput = React.forwardRef<HTMLInputElement, Props>(
     return (
       <div>
         {tags && tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-3">
+          <TagList>
             {tags.map((tag) => (
-              <span
-                key={tag}
-                className="bg-secondary text-xs px-2.5 py-1.5 rounded-lg"
-              >
-                {tag}
-                <span
-                  onClick={() => removeTag(tag)}
-                  className="inline-flex items-center px-1.5 ml-1 text-sm text-red-400 rounded-sm cursor-pointer hover:text-zinc-100 hover:bg-red-500"
-                >
-                  x
-                </span>
-              </span>
+              <Tag key={tag} value={tag}>
+                <TagRemoveAction onClick={() => removeTag(tag)} />
+              </Tag>
             ))}
-          </div>
+          </TagList>
         )}
         <Input
           id={props.id}
