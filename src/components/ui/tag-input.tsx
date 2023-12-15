@@ -5,8 +5,8 @@ import * as React from 'react'
 import { cx } from 'class-variance-authority'
 import { InputHTMLAttributes, KeyboardEvent } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Input } from '../../components/ui/input'
-import { TagRemoveAction, Tag, TagList } from '../../components/ui/tag'
+import { Input } from './input'
+import { TagRemoveAction, Tag, TagList } from './tag'
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   label?: string

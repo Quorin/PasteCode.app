@@ -1,3 +1,5 @@
+'use server'
+
 import { and, eq, gte, isNull, or, sql } from 'drizzle-orm'
 import { pastesTable, tagsOnPastesTable, tagsTable } from '../../../db/schema'
 import { verify } from 'argon2'
@@ -39,9 +41,20 @@ export const getPaste = async (id: string, password: string | null = null) =>
         .limit(1)
         .execute()
 
+      console.log({
+        paste,
+        password,
+      })
+
       if (paste && paste.password) {
         if (password) {
           const valid = await verify(paste.password, password)
+
+          console.log({
+            valid,
+            paste,
+            password,
+          })
 
           if (valid) {
             return {
@@ -62,9 +75,9 @@ export const getPaste = async (id: string, password: string | null = null) =>
 
       return { paste, secure: false }
     },
-    [`paste-${id}`],
+    [`paste-${id}-${password ?? ''}`],
     {
-      revalidate: 3600,
+      revalidate: 1,
       tags: ['paste'],
     },
   )(id, password)

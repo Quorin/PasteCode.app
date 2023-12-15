@@ -1,7 +1,7 @@
 'use client'
 
 import { ClipboardIcon } from '@heroicons/react/24/outline'
-import { Button } from '../../../components/ui/button'
+import { Button } from './button'
 
 const CopyButton = ({ content }: { content: string }) => {
   return (

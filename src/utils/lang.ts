@@ -1,5 +1,3 @@
-import { Option } from '../app/_components/Select'
-import { capitalize } from './strings'
 import { bundledLanguages } from 'shikiji/langs'
 
 export const defaultLanguage = 'text'
@@ -9,11 +7,4 @@ export const isValidLanguage = (lang: string): boolean =>
 
 export const languages = Object.keys(bundledLanguages).sort()
 
-export const languageOptions: Option[] = [
-  { value: '(Text)', key: defaultLanguage },
-].concat(
-  languages.map((lang) => ({
-    value: capitalize(lang),
-    key: lang,
-  })),
-)
+export const languageOptions: string[] = [defaultLanguage].concat(languages)

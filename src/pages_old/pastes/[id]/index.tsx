@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import Button from '../../../app/_components/Button'
-import FormTitle from '../../../app/_components/FormTitle'
+import FormTitle from '../../../components/ui/form-title'
 import Input from '../../../app/_components/Input'
 import Modal from '../../../app/_components/Modal'
 import { routes } from '../../../constants/routes'
@@ -26,7 +26,7 @@ import { z } from 'zod'
 import { getHighlighter } from 'shikiji/index.mjs'
 import { bundledLanguages } from 'shikiji/langs.mjs'
 import { ssrHelper } from '../../../utils/ssr'
-import Code from '../../../app/_components/Code'
+import Code from '../../../components/ui/code'
 dayjs.extend(relativeTime)
 
 type FormValues = z.infer<typeof getPasteSchema>

@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import PageTitle from '../app/_components/PageTitle'
+import PageTitle from '../components/ui/page-title'
 import { routes } from '../constants/routes'
 
 const NotFound = () => {

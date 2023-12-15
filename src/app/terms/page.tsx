@@ -1,10 +1,10 @@
-import PageTitle from '../components/ui/page-title'
+import PageTitle from '../../components/ui/page-title'
 
-const TermsAndConditions = () => {
+const Terms = () => {
   return (
     <div className="flex flex-col">
       <PageTitle title="Terms and Conditions" />
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 text-sm">
         <p>
           By using our website these terms will automatically apply to you. Make
           sure that you read them carefully before using. You&apos;re allowed to
@@ -30,4 +30,4 @@ const TermsAndConditions = () => {
   )
 }
 
-export default TermsAndConditions
+export default Terms

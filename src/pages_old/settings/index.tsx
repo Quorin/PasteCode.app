@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import PageTitle from '../../app/_components/PageTitle'
+import PageTitle from '../../components/ui/page-title'
 import { routes } from '../../constants/routes'
 import { api } from '../../utils/trpc'
 import useAuth from '../../utils/useAuth'

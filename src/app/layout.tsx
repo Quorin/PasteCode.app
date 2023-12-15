@@ -1,6 +1,6 @@
 import { Toaster } from 'react-hot-toast'
-import Footer from './_components/Footer'
-import Navbar from './_components/Navbar'
+import Footer from '../components/ui/footer'
+import Navbar from '../components/ui/navbar'
 import { Metadata } from 'next'
 import { GeistMono } from 'geist/font/mono'
 import Providers from './providers'

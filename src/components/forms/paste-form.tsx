@@ -1,24 +1,24 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
-import { defaultLanguage, languageOptions } from '../../../utils/lang'
-import { useAction } from '../../api-client'
-import { TagInput } from '../TagInput'
+import { defaultLanguage, languageOptions } from '../../utils/lang'
+import { useAction } from '../../app/api-client'
+import { TagInput } from '../ui/tag-input'
 import { z } from 'zod'
-import { createPasteSchema } from '../../../server/router/schema'
-import { createPasteAction } from '../../_actions/create-paste'
-import { errorHandler } from '../../../utils/errorHandler'
+import { createPasteSchema } from '../../server/router/schema'
+import { createPasteAction } from '../../app/_actions/create-paste'
+import { errorHandler } from '../../utils/errorHandler'
 import { useRouter } from 'next/navigation'
-import { Input } from '../../../components/ui/input'
+import { Input } from '../ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../../components/ui/select'
-import { Button } from '../../../components/ui/button'
-import { Textarea } from '../../../components/ui/textarea'
+} from '../ui/select'
+import { Button } from '../ui/button'
+import { Textarea } from '../ui/textarea'
 import {
   Form,
   FormControl,
@@ -26,24 +26,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../../../components/ui/form'
+} from '../ui/form'
 import { Loader2 } from 'lucide-react'
 
-type FormValues = z.infer<typeof createPasteSchema> & { tag: string }
+export type FormValues = z.infer<typeof createPasteSchema> & { tag: string }
 
-const PasteForm = () => {
+const defaultValues: FormValues = {
+  title: '',
+  description: '',
+  content: '',
+  expiration: 'never',
+  style: defaultLanguage,
+  tag: '',
+  tags: [],
+  password: '',
+}
+
+const PasteForm = (
+  { initialValues }: { initialValues?: FormValues } = {
+    initialValues: undefined,
+  },
+) => {
   const router = useRouter()
   const methods = useForm<FormValues>({
-    defaultValues: {
-      title: '',
-      description: '',
-      content: '',
-      expiration: 'never',
-      style: defaultLanguage,
-      tag: '',
-      tags: [],
-      password: '',
-    },
+    defaultValues,
+    values: initialValues,
     mode: 'onBlur',
   })
 
@@ -57,7 +64,7 @@ const PasteForm = () => {
   })
 
   const resetForm = () => {
-    methods.reset()
+    methods.reset(defaultValues)
   }
 
   return (
@@ -192,16 +199,17 @@ const PasteForm = () => {
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        {...field}
+                        defaultValue={initialValues?.style || field.value}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="(Text)" />
+                          <SelectValue
+                            placeholder={field.value || defaultLanguage}
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {languageOptions.map((option) => (
-                            <SelectItem key={option.key} value={option.key}>
-                              {option.value}
+                            <SelectItem key={option} value={option}>
+                              {option}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -217,9 +225,9 @@ const PasteForm = () => {
             <Button
               type="submit"
               className="px-10"
-              disabled={mutation.status !== 'idle'}
+              disabled={mutation.status === 'loading'}
             >
-              {mutation.status !== 'idle' ? (
+              {mutation.status === 'loading' ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Submitting

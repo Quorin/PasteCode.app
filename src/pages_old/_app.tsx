@@ -1,7 +1,7 @@
 // src/pages/_app.tsx
 import type { AppType } from 'next/dist/shared/lib/utils'
-import Head from 'next/head'
-import Layout from '../app/_components/Layout'
+// import Head from 'next/head'
+// import Layout from '../app/_components/Layout'
 import '../styles/globals.css'
 import { AuthProvider } from '../utils/useAuth'
 import { api } from '../utils/trpc'
@@ -11,25 +11,26 @@ const queryClient = new QueryClient()
 
 const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
   return (
-    <>
-      <Head>
-        <title>PasteCode</title>
-        <meta charSet="UTF-8" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1"
-        />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-        </AuthProvider>
-      </QueryClientProvider>
-      <Analytics />
-    </>
+    <div></div>
+    // <>
+    //   <Head>
+    //     <title>PasteCode</title>
+    //     <meta charSet="UTF-8" />
+    //     <meta
+    //       name="viewport"
+    //       content="width=device-width, initial-scale=1, maximum-scale=1"
+    //     />
+    //     <link rel="icon" href="/favicon.ico" />
+    //   </Head>
+    //   <QueryClientProvider client={queryClient}>
+    //     <AuthProvider>
+    //       {/* <Layout>
+    //         <Component {...pageProps} />
+    //       </Layout> */}
+    //     </AuthProvider>
+    //   </QueryClientProvider>
+    //   <Analytics />
+    // </>
   )
 }
 

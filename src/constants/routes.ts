@@ -2,8 +2,8 @@ export const routes = {
   HOME: '/',
   REGISTER: '/register',
   AUTH: {
-    LOGIN: '/auth/login',
-    RESET_PASSWORD: '/auth/reset-password',
+    LOGIN: '/login',
+    RESET_PASSWORD: '/reset-password',
   },
   PROFILE: '/profile',
   SETTINGS: {
@@ -18,6 +18,6 @@ export const routes = {
     RAW: '/pastes/[id]/raw',
     EDIT: '/pastes/[id]/edit',
   },
-  PRIVACY_POLICY: '/privacy-policy',
-  TERMS_AND_CONDITIONS: '/terms-and-conditions',
+  PRIVACY_POLICY: '/policy',
+  TERMS_AND_CONDITIONS: '/terms',
 }
