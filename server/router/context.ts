@@ -6,6 +6,7 @@ import { initTRPC } from '@trpc/server'
 import { db } from '@/db/db'
 import { experimental_createServerActionHandler } from '@trpc/next/app-dir/server'
 import { auth } from '@/utils/auth'
+import { IronSession } from 'iron-session'
 
 export const createContext = async () => {
   const session = await auth()
@@ -41,14 +42,17 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
     throw new TRPCError({ code: 'UNAUTHORIZED' })
   }
 
+  const nextCtx = ctx as {
+    session: {
+      user: NonNullable<Context['session']['user']>
+    }
+  }
+
   return next({
     ctx: {
-      session: {
-        ...ctx.session,
-        user: {
-          ...ctx.session.user,
-        },
-      },
+      session: ctx.session as IronSession<{
+        user: NonNullable<Context['session']['user']>
+      }>,
     },
   })
 })
