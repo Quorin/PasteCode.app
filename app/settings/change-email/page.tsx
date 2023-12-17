@@ -5,7 +5,7 @@ import PageTitle from '@/components/ui/page-title'
 import { routes } from '@/constants/routes'
 
 const ChangeEmailPage = async () => {
-  const user = await auth()
+  const { user } = await auth()
 
   if (!user) {
     redirect(routes.AUTH.LOGIN)

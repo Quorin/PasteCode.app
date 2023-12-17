@@ -1,6 +1,6 @@
 import { routes } from '@/constants/routes'
 import Link from 'next/link'
-import { SessionUser, auth } from '@/utils/auth'
+import { auth } from '@/utils/auth'
 import CollapsableButton from '@/components/ui/collapsable-button'
 
 const unauthorizedPaths = [

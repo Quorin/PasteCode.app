@@ -1,6 +1,6 @@
 import { getPaste } from '@/actions/get-paste'
 import { Suspense } from 'react'
-import { redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Code from '@/components/ui/code'
 import FormTitle from '@/components/ui/form-title'
 import Link from 'next/link'
@@ -29,6 +29,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { routes } from '@/constants/routes'
+import { auth } from '@/utils/auth'
 
 dayjs.extend(relativeTime)
 
@@ -39,16 +40,17 @@ const PasteIndex = async ({
   params: { id: string }
   searchParams: { password?: string | string[] }
 }) => {
+  const { user } = await auth()
+
   const { paste, secure } = await getPaste(
     id,
     Array.isArray(password) ? password[0] : password,
   )
 
-  // todo: check if user can edit paste
-  const canEdit = true
+  const canEdit = user?.id === paste?.userId
 
   if (!paste) {
-    return redirect('/404')
+    notFound()
   }
 
   if (secure) {

@@ -5,7 +5,7 @@ import { routes } from '@/constants/routes'
 import ChangeNameForm from '@/components/forms/change-name-form'
 
 const ChangeNamePage = async () => {
-  const user = await auth()
+  const { user } = await auth()
 
   if (!user) {
     redirect(routes.AUTH.LOGIN)
