@@ -5,7 +5,7 @@ import { defaultLanguage, languageOptions } from '../../utils/lang'
 import { useAction } from '../../app/api-client'
 import { TagInput } from '../ui/tag-input'
 import { z } from 'zod'
-import { createPasteSchema } from '../../server/router/schema'
+import { updatePasteSchema } from '../../server/router/schema'
 import { createPasteAction } from '../../app/_actions/create-paste'
 import { errorHandler } from '../../utils/errorHandler'
 import { useRouter } from 'next/navigation'
@@ -28,35 +28,20 @@ import {
   FormMessage,
 } from '../ui/form'
 import { Loader2 } from 'lucide-react'
+import { editPasteAction } from '../../app/_actions/edit-paste'
 
-export type FormValues = z.infer<typeof createPasteSchema> & { tag: string }
+export type FormValues = z.infer<typeof updatePasteSchema> & { tag: string }
 
-const defaultValues: FormValues = {
-  title: '',
-  description: '',
-  content: '',
-  expiration: 'never',
-  style: defaultLanguage,
-  tag: '',
-  tags: [],
-  password: '',
-}
-
-const PasteForm = (
-  { initialValues }: { initialValues?: FormValues } = {
-    initialValues: undefined,
-  },
-) => {
+const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
   const router = useRouter()
   const methods = useForm<FormValues>({
-    defaultValues,
-    values: initialValues,
+    defaultValues: initialValues,
     mode: 'onBlur',
   })
 
-  const mutation = useAction(createPasteAction, {
-    onSuccess: (id) => {
-      router.push(`/pastes/${id}`)
+  const mutation = useAction(editPasteAction, {
+    onSuccess: () => {
+      router.push(`/pastes/${initialValues.id}`)
     },
     onError: (error) => {
       errorHandler(methods.setError, error)
@@ -64,7 +49,7 @@ const PasteForm = (
   })
 
   const resetForm = () => {
-    methods.reset(defaultValues)
+    methods.reset(initialValues)
   }
 
   return (
@@ -165,10 +150,11 @@ const PasteForm = (
                         {...field}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Never" />
+                          <SelectValue placeholder="No changes" />
                         </SelectTrigger>
                         <SelectContent>
                           {[
+                            { key: 'same', value: 'No changes' },
                             { key: 'never', value: 'Never' },
                             { key: 'year', value: '1 Year' },
                             { key: 'month', value: '1 Month' },
@@ -230,10 +216,10 @@ const PasteForm = (
               {mutation.status === 'loading' ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
+                  Saving...
                 </>
               ) : (
-                'Submit'
+                'Save'
               )}
             </Button>
             <Button
@@ -252,4 +238,4 @@ const PasteForm = (
   )
 }
 
-export default PasteForm
+export default EditPasteForm

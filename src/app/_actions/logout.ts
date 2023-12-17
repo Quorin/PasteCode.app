@@ -1,9 +1,12 @@
 'use server'
 
-import { createAction, protectedProcedure } from '../../server/router/context'
+import { redirect } from 'next/navigation'
+import { auth } from '../../auth'
+import { routes } from '../../constants/routes'
 
-export const logoutAction = createAction(
-  protectedProcedure.mutation(async ({ ctx }) => {
-    ctx.session.destroy()
-  }),
-)
+export const logoutAction = async () => {
+  const session = await auth()
+  session.destroy()
+
+  redirect(routes.HOME)
+}

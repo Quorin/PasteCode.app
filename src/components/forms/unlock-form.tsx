@@ -24,7 +24,10 @@ const UnlockForm = ({ id }: { id: string }) => {
   const methods = useForm<FormValues>({ defaultValues: { password: '' } })
 
   const handleSubmit = (data: FormValues) => {
-    router.push(`/pastes/${id}?password=${data.password}`)
+    const url = new URL(window.location.href)
+    url.searchParams.set('password', data.password)
+
+    router.push(url.href)
     methods.reset()
   }
 

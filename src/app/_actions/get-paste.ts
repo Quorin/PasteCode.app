@@ -78,6 +78,6 @@ export const getPaste = async (id: string, password: string | null = null) =>
     [`paste-${id}-${password ?? ''}`],
     {
       revalidate: 1,
-      tags: ['paste'],
+      tags: ['paste', `paste-${id}`],
     },
   )(id, password)

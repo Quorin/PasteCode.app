@@ -6,4 +6,4 @@ import { SessionUser } from './utils/useAuth'
 import { sessionOptions } from './server/auth/config'
 
 export const auth = () =>
-  getIronSession<{ user: SessionUser }>(cookies(), sessionOptions)
+  getIronSession<{ user: SessionUser | null }>(cookies(), sessionOptions)
