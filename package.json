@@ -35,7 +35,6 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cryptr": "^6.3.0",
-    "csstype": "^3.1.3",
     "dayjs": "^1.11.10",
     "drizzle-orm": "^0.29.1",
     "geist": "^1.2.0",
@@ -52,7 +51,6 @@
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.1.0",
     "tailwindcss-animate": "^1.0.7",
-    "trpc-panel": "^1.3.4",
     "zod": "^3.22.4"
   },
   "devDependencies": {
