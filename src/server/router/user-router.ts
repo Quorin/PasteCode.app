@@ -22,6 +22,50 @@ import {
 import { and, eq, or, sql } from 'drizzle-orm'
 
 export const userRouter = createTRPCRouter({
+  confirmAccount: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        code: z.string(),
+      }),
+    )
+    .output(z.boolean())
+    .mutation(async ({ ctx, input: { id, code } }) => {
+      const [confirmation] = await ctx.db
+        .select({
+          id: confirmationCodesTable.id,
+          expiresAt: confirmationCodesTable.expiresAt,
+          userId: confirmationCodesTable.userId,
+        })
+        .from(confirmationCodesTable)
+        .where(
+          and(
+            eq(confirmationCodesTable.id, id),
+            eq(confirmationCodesTable.code, code),
+          ),
+        )
+        .limit(1)
+        .execute()
+
+      if (!confirmation || dayjs().isAfter(confirmation.expiresAt)) {
+        return false
+      }
+
+      await ctx.db
+        .update(usersTable)
+        .set({
+          confirmed: true,
+        })
+        .where(eq(usersTable.id, confirmation.userId))
+        .execute()
+
+      await ctx.db
+        .delete(confirmationCodesTable)
+        .where(eq(confirmationCodesTable.id, confirmation.id))
+        .execute()
+
+      return true
+    }),
   resendConfirmationCode: publicProcedure
     .input(
       z.object({

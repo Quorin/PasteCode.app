@@ -17,7 +17,7 @@ export const sendConfirmationEmail = async (
     from: process.env.SENDGRID_FROM_EMAIL!,
     to: email,
     subject: getSubject(EmailType.ConfirmAccount),
-    html: `<a href="${getBaseUrl()}/auth/confirm-account?id=${id}&code=${code}">Click here to confirm your account.</a>`,
+    html: `<a href="${getBaseUrl()}/confirm-account?id=${id}&code=${code}">Click here to confirm your account.</a>`,
   })
 }
 
@@ -32,7 +32,7 @@ export const sendResetPasswordEmail = async (
     from: process.env.SENDGRID_FROM_EMAIL!,
     to: email,
     subject: getSubject(EmailType.ResetPassword),
-    html: `<a href="${getBaseUrl()}/auth/reset-password-confirmation?id=${id}&code=${code}">Click here to reset your password.</a>`,
+    html: `<a href="${getBaseUrl()}/reset-password/confirm?id=${id}&code=${code}">Click here to reset your password.</a>`,
   })
 }
 

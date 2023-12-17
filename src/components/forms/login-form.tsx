@@ -19,6 +19,9 @@ import { useRouter } from 'next/navigation'
 import { routes } from '../../constants/routes'
 import { Button } from '../ui/button'
 import { Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { resendConfirmationCodeAction } from '../../app/_actions/resend-confirmation-code'
+import toast from 'react-hot-toast'
 
 type FormValues = z.infer<typeof loginSchema>
 
@@ -32,7 +35,7 @@ const LoginForm = () => {
     },
   })
 
-  const mutation = useAction(loginAction, {
+  const loginMutation = useAction(loginAction, {
     onSuccess: () => {
       methods.reset()
       router.push(routes.HOME)
@@ -42,10 +45,28 @@ const LoginForm = () => {
     },
   })
 
+  const resendCodeMutation = useAction(resendConfirmationCodeAction, {
+    onSuccess: () => {
+      methods.reset()
+
+      toast.custom(
+        () => (
+          <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
+            <p>Confirmation code has been sent to your email.</p>
+          </div>
+        ),
+        { position: 'bottom-center' },
+      )
+    },
+    onError: (error) => {
+      errorHandler(methods.setError, error)
+    },
+  })
+
   return (
     <Form {...methods}>
       <form
-        onSubmit={methods.handleSubmit((data) => mutation.mutate(data))}
+        onSubmit={methods.handleSubmit((data) => loginMutation.mutate(data))}
         className="flex flex-col gap-6"
       >
         <FormField
@@ -71,33 +92,56 @@ const LoginForm = () => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel required={true}>Password</FormLabel>
+              <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
-                  required
-                  placeholder="********"
-                  type="password"
-                  {...field}
-                />
+                <Input placeholder="********" type="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          className="px-20 md:self-start"
-          disabled={mutation.status === 'loading'}
+        <Link
+          href={routes.AUTH.RESET_PASSWORD}
+          className="text-accent-foreground hover:underline"
         >
-          {mutation.status === 'loading' ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Logging in...
-            </>
-          ) : (
-            'Login'
-          )}
-        </Button>
+          Forgot password?
+        </Link>
+        <div className="flex flex-col md:flex-row md:self-start gap-2 md:gap-6">
+          <Button
+            type="submit"
+            className="px-20 md:self-start"
+            disabled={loginMutation.status === 'loading'}
+          >
+            {loginMutation.status === 'loading' ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              'Login'
+            )}
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => {
+              methods.clearErrors()
+              resendCodeMutation.mutate({ email: methods.getValues('email') })
+            }}
+            className="px-20 md:self-start"
+            disabled={resendCodeMutation.status === 'loading'}
+            variant={'secondary'}
+          >
+            {resendCodeMutation.status === 'loading' ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              'Send Confirmation'
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   )

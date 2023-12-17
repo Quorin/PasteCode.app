@@ -8,8 +8,21 @@ import {
 } from '@trpc/next/app-dir/client'
 import { experimental_nextHttpLink } from '@trpc/next/app-dir/links/nextHttp'
 import superjson from 'superjson'
-import { getBaseUrl } from '../pages_old/_app'
 import { AppRouter } from '../server/router'
+
+export const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return ''
+  }
+
+  if (process.env.NODE_ENV === 'production' && process.env.APP_URL) {
+    return `https://${process.env.APP_URL}`
+  }
+
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}` // SSR should use vercel url
+
+  return `http://localhost:${process.env.PORT ?? 3000}` // dev SSR should use localhost
+}
 
 export const api = experimental_createTRPCNextAppDirClient<AppRouter>({
   config() {
