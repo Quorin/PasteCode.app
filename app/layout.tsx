@@ -1,7 +1,7 @@
 import { Toaster } from 'react-hot-toast'
 import Footer from '@/components/ui/footer'
 import Navbar from '@/components/ui/navbar'
-import { Metadata } from 'next'
+import { Metadata, Viewport } from 'next'
 import { GeistMono } from 'geist/font/mono'
 import Providers from '@/app/providers'
 import './globals.css'
@@ -13,6 +13,13 @@ type Props = {
 export const metadata: Metadata = {
   title: 'PasteCode',
   description: 'A simple code sharing platform',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: 'hsl(20 14.3% 4.1%)',
 }
 
 const RootLayout = ({ children }: Props) => {
