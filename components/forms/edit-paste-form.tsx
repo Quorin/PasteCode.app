@@ -154,14 +154,14 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
                         </SelectTrigger>
                         <SelectContent>
                           {[
-                            { key: 'same', value: 'No changes' },
-                            { key: 'never', value: 'Never' },
-                            { key: 'year', value: '1 Year' },
-                            { key: 'month', value: '1 Month' },
-                            { key: 'week', value: '1 Week' },
-                            { key: 'day', value: '1 Day' },
-                            { key: 'hour', value: '1 Hour' },
-                            { key: '10m', value: '10 Minutes' },
+                            { key: 'same', value: 'no changes' },
+                            { key: 'never', value: 'never' },
+                            { key: 'year', value: '1 year' },
+                            { key: 'month', value: '1 month' },
+                            { key: 'week', value: '1 week' },
+                            { key: 'day', value: '1 day' },
+                            { key: 'hour', value: '1 hour' },
+                            { key: '10m', value: '10 minutes' },
                           ].map((option) => (
                             <SelectItem key={option.key} value={option.key}>
                               {option.value}
