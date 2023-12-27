@@ -101,20 +101,18 @@ const PasteList = () => {
               key={p.id}
               className="hover:brightness-125 transition cursor-pointer p-6 rounded-lg border shadow-md bg-background"
             >
-              <div className="flex flex-col">
-                <div>
-                  <h2 className="mb-2 text-2xl font-semibold text-primary truncate">
-                    {p.title}
-                  </h2>
-                  <TagList>
-                    {p.tags.map((t) => (
-                      <Tag value={t} key={t} />
-                    ))}
-                  </TagList>
-                  <p className="font-normal text-sm text-muted-foreground truncate italic mb-2">
-                    {p.description}
-                  </p>
-                </div>
+              <div className="flex flex-col gap-2">
+                <h2 className="text-2xl pb-2 font-semibold text-primary truncate">
+                  {p.title}
+                </h2>
+                <TagList>
+                  {p.tags.map((t) => (
+                    <Tag value={t} key={t} />
+                  ))}
+                </TagList>
+                <p className="font-normal text-sm text-muted-foreground truncate italic mb-2">
+                  {p.description}
+                </p>
                 <div>
                   <div className="flex gap-1 items-center -ml-1 mt-1 text-xs">
                     <svg

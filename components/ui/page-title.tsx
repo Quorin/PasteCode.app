@@ -4,7 +4,7 @@ type Props = {
 
 const PageTitle = ({ title }: Props) => {
   return (
-    <h2 className="text-3xl text-zinc-200 mb-10 font-semibold self-center">
+    <h2 className="text-3xl text-primary pb-10 font-semibold self-center">
       {title}
     </h2>
   )

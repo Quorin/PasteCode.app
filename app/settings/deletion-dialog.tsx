@@ -73,8 +73,6 @@ const DeletionDialog = (props: ButtonProps) => {
             Are you sure you want to deactivate your account? All of your data
             will be permanently removed. This action cannot be undone.
           </DialogDescription>
-          {/* <Button variant="ghost">Cancel</Button>
-          <Button variant="destructive">Remove Account & Data</Button> */}
           <Form {...methods}>
             <form
               onSubmit={methods.handleSubmit((data) => mutation.mutate(data))}

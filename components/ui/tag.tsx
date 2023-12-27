@@ -7,11 +7,7 @@ const TagList = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ children, className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn('flex flex-wrap gap-2 mb-3', className)}
-    {...props}
-  >
+  <div ref={ref} className={cn('flex flex-wrap gap-2', className)} {...props}>
     {children}
   </div>
 ))

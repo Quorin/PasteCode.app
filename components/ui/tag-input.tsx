@@ -50,7 +50,7 @@ const TagInput = React.forwardRef<HTMLInputElement, Props>(
     }
 
     return (
-      <div>
+      <div className=" flex flex-col gap-3">
         {tags && tags.length > 0 && (
           <TagList>
             {tags.map((tag) => (

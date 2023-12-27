@@ -17,19 +17,19 @@ import { Button } from '@/components/ui/button'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tag, TagList } from '@/components/ui/tag'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { routes } from '@/constants/routes'
 import { auth } from '@/utils/auth'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { removePasteAction } from '@/actions/remove-paste'
 
 dayjs.extend(relativeTime)
 
@@ -42,10 +42,9 @@ const PasteIndex = async ({
 }) => {
   const { user } = await auth()
 
-  const { paste, secure } = await getPaste(
-    id,
-    Array.isArray(password) ? password[0] : password,
-  )
+  const pastePassword = Array.isArray(password) ? password[0] : password
+
+  const { paste, secure } = await getPaste(id, pastePassword)
 
   const canEdit = user?.id === paste?.userId
 
@@ -57,105 +56,119 @@ const PasteIndex = async ({
     return <UnlockForm id={id} />
   }
 
+  const handleDelete = async () => {
+    'use server'
+    await removePasteAction({ id, password: pastePassword })
+  }
+
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <FormTitle title={paste.title} />
+      <FormTitle title={paste.title} />
 
-        {paste.description && (
-          <h3 className="text-sm text-zinc-400 mb-10 font-light italic break-all">
-            {paste.description}
-          </h3>
+      {paste.description && (
+        <h3 className="text-sm text-secondary-400 font-light italic break-all">
+          {paste.description}
+        </h3>
+      )}
+
+      <TagList>
+        {paste.tags.map((tag) => (
+          <Tag key={tag} value={tag} />
+        ))}
+      </TagList>
+
+      <div className="flex gap-2 flex-wrap">
+        <CopyButton content={paste.content} />
+        {canEdit && (
+          <Link
+            type="button"
+            href={{
+              pathname: `/pastes/${paste.id}/edit`,
+              query: {
+                password,
+              },
+            }}
+          >
+            <Button className="gap-2" variant={'secondary'}>
+              <PencilIcon className="w-6" />
+              Edit
+            </Button>
+          </Link>
         )}
-
-        <div className="mb-10 flex gap-2 flex-wrap">
-          <CopyButton content={paste.content} />
-          {canEdit && (
-            <Link
-              type="button"
-              href={{
-                pathname: `/pastes/${paste.id}/edit`,
-                query: {
-                  password,
-                },
-              }}
-            >
-              <Button className="gap-2" variant={'secondary'}>
-                <PencilIcon className="w-6" />
-                Edit
+        <Link
+          href={{
+            pathname: `/pastes/${paste.id}/raw`,
+            query: {
+              password,
+            },
+          }}
+        >
+          <Button className="gap-2" variant={'secondary'}>
+            <DocumentTextIcon className="w-6" />
+            Raw View
+          </Button>
+        </Link>
+        <Link
+          href={{
+            pathname: routes.HOME,
+            query: {
+              fork: paste?.id,
+              password,
+            },
+          }}
+        >
+          <Button className="gap-2" variant={'secondary'}>
+            <DocumentDuplicateIcon className="w-6" />
+            Duplicate
+          </Button>
+        </Link>
+        {canEdit && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant={'destructive'} className="gap-2">
+                <TrashIcon className="w-6" />
+                Delete
               </Button>
-            </Link>
-          )}
-          <Link
-            href={{
-              pathname: `/pastes/${paste.id}/raw`,
-              query: {
-                password,
-              },
-            }}
-          >
-            <Button className="gap-2" variant={'secondary'}>
-              <DocumentTextIcon className="w-6" />
-              Raw View
-            </Button>
-          </Link>
-          <Link
-            href={{
-              pathname: routes.HOME,
-              query: {
-                fork: paste?.id,
-                password,
-              },
-            }}
-          >
-            <Button className="gap-2" variant={'secondary'}>
-              <DocumentDuplicateIcon className="w-6" />
-              Duplicate
-            </Button>
-          </Link>
-          {canEdit && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant={'destructive'} className="gap-2">
-                  <TrashIcon className="w-6" />
-                  Delete
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete paste</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {
-                      "Are you sure you want to delete this paste? It's cannot be undone."
-                    }
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction>Delete</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
-        </div>
-        <div className="mb-10">
-          <Suspense fallback={<Skeleton className="shiki"></Skeleton>}>
-            <Code id={paste.id} code={paste.content} style={paste.style} />
-          </Suspense>
-        </div>
-        <TagList>
-          {paste.tags.map((tag) => (
-            <Tag key={tag} value={tag} />
-          ))}
-        </TagList>
-        <p className="text-zinc-300 text-sm">
-          Created at:{' '}
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete paste</DialogTitle>
+                <DialogDescription>
+                  {
+                    "Are you sure you want to delete this paste? It can't be undone."
+                  }
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant={'secondary'}>
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <form action={handleDelete}>
+                  <Button type="submit" variant={'destructive'}>
+                    Delete
+                  </Button>
+                </form>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+      <div className="py-4">
+        <Suspense fallback={<Skeleton className="shiki"></Skeleton>}>
+          <Code id={paste.id} code={paste.content} style={paste.style} />
+        </Suspense>
+      </div>
+      <div>
+        <p className="font-normal text-sm text-muted-foreground">
+          Created At{' '}
           <span className="font-bold">
             {dayjs(paste.createdAt).format('YYYY/MM/DD')}
           </span>
         </p>
-        <p className="text-zinc-300 text-sm">
-          Expires:{' '}
+        <p className="font-normal text-sm text-muted-foreground">
+          Expires{' '}
           <span className="font-bold">
             {paste.expiresAt ? dayjs(paste.expiresAt).fromNow() : 'Never'}
           </span>
