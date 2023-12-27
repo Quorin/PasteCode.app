@@ -42,12 +42,6 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
     throw new TRPCError({ code: 'UNAUTHORIZED' })
   }
 
-  const nextCtx = ctx as {
-    session: {
-      user: NonNullable<Context['session']['user']>
-    }
-  }
-
   return next({
     ctx: {
       session: ctx.session as IronSession<{
