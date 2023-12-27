@@ -1,7 +1,7 @@
 'use client'
 
 import { z } from 'zod'
-import { changePasswordSchema } from '@/server/router/schema'
+import { changePasswordSchema } from '@/server/trpc/schema'
 import { useForm } from 'react-hook-form'
 import { useAction } from '@/app/api-client'
 import { changePasswordAction } from '@/actions/change-password'

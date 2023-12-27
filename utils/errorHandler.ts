@@ -1,10 +1,10 @@
 import { TRPCClientErrorLike } from '@trpc/react-query'
 import { FieldValues, Path, UseFormSetError } from 'react-hook-form'
-import { AppRouter } from '@/server/router'
+import { AnyProcedure } from '@trpc/server'
 
 export function errorHandler<T extends FieldValues>(
   setter: UseFormSetError<T>,
-  errors: TRPCClientErrorLike<AppRouter>,
+  errors: TRPCClientErrorLike<AnyProcedure>,
 ) {
   Object.entries(errors?.data?.zodError?.fieldErrors ?? {}).forEach(
     ([field, message]) => {
@@ -14,7 +14,10 @@ export function errorHandler<T extends FieldValues>(
         return
       }
 
-      setter(field as Path<T>, { message })
+      setter(field as Path<T>, {
+        message:
+          typeof message === 'string' ? message : 'Internal server error',
+      })
     },
   )
 }

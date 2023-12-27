@@ -1,8 +1,8 @@
 'use server'
 
 import { ZodError, ZodIssue } from 'zod'
-import { createAction, publicProcedure } from '@/server/router/context'
-import { registerSchema } from '@/server/router/schema'
+import { createAction, publicProcedure } from '@/server/trpc/context'
+import { registerSchema } from '@/server/trpc/schema'
 import {
   confirmationCodeLength,
   confirmationCodesTable,

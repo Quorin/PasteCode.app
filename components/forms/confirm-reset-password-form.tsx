@@ -1,7 +1,7 @@
 'use client'
 
 import { z } from 'zod'
-import { resetPasswordConfirmationSchema } from '@/server/router/schema'
+import { resetPasswordConfirmationSchema } from '@/server/trpc/schema'
 import { useForm } from 'react-hook-form'
 import { useAction } from '@/app/api-client'
 import { resetPasswordConfirmationAction } from '@/actions/reset-password-confirmation'

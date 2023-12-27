@@ -2,8 +2,8 @@
 
 import { eq } from 'drizzle-orm'
 import { usersTable } from '@/db/schema'
-import { createAction, protectedProcedure } from '@/server/router/context'
-import { changePasswordSchema } from '@/server/router/schema'
+import { createAction, protectedProcedure } from '@/server/trpc/context'
+import { changePasswordSchema } from '@/server/trpc/schema'
 import { TRPCError } from '@trpc/server'
 import { hash, verify } from 'argon2'
 import { ZodError } from 'zod'

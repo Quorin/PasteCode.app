@@ -1,7 +1,7 @@
 'use client'
 
 import { z } from 'zod'
-import { changeNameSchema } from '@/server/router/schema'
+import { changeNameSchema } from '@/server/trpc/schema'
 import { useForm } from 'react-hook-form'
 import { useAction } from '@/app/api-client'
 import { changeNameAction } from '@/actions/change-name'

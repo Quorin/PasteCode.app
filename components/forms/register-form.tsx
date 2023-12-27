@@ -1,7 +1,7 @@
 'use client'
 
 import { z } from 'zod'
-import { registerSchema } from '@/server/router/schema'
+import { registerSchema } from '@/server/trpc/schema'
 import { useForm } from 'react-hook-form'
 import {
   Form,

@@ -2,8 +2,8 @@
 
 import { TRPCError } from '@trpc/server'
 import { pastesTable } from '@/db/schema'
-import { createAction, protectedProcedure } from '@/server/router/context'
-import { updatePasteSchema } from '@/server/router/schema'
+import { createAction, protectedProcedure } from '@/server/trpc/context'
+import { updatePasteSchema } from '@/server/trpc/schema'
 import { eq } from 'drizzle-orm'
 import { hash, verify } from 'argon2'
 import Cryptr from 'cryptr'

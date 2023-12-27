@@ -1,7 +1,7 @@
 'use server'
 
 import { ZodError, z } from 'zod'
-import { createAction, publicProcedure } from '@/server/router/context'
+import { createAction, publicProcedure } from '@/server/trpc/context'
 import {
   confirmationCodeLength,
   confirmationCodesTable,

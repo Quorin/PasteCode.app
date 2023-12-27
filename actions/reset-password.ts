@@ -6,8 +6,8 @@ import {
   resetPasswordsTable,
   usersTable,
 } from '@/db/schema'
-import { createAction, publicProcedure } from '@/server/router/context'
-import { resetPasswordSchema } from '@/server/router/schema'
+import { createAction, publicProcedure } from '@/server/trpc/context'
+import { resetPasswordSchema } from '@/server/trpc/schema'
 import { sendResetPasswordEmail } from '@/utils/email'
 import { generateRandomString } from '@/utils/random'
 import { TRPCError } from '@trpc/server'

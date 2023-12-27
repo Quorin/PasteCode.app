@@ -20,7 +20,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { z } from 'zod'
-import { removeAccountSchema } from '@/server/router/schema'
+import { removeAccountSchema } from '@/server/trpc/schema'
 import { removeAccountAction } from '@/actions/remove-account'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'

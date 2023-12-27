@@ -1,7 +1,7 @@
 'use client'
 
 import { z } from 'zod'
-import { changeEmailSchema } from '@/server/router/schema'
+import { changeEmailSchema } from '@/server/trpc/schema'
 import { useForm } from 'react-hook-form'
 import { useAction } from '@/app/api-client'
 import { changeEmailAction } from '@/actions/change-email'

@@ -1,8 +1,8 @@
 'use server'
 
 import Cryptr from 'cryptr'
-import { createAction, publicProcedure } from '@/server/router/context'
-import { createPasteSchema } from '@/server/router/schema'
+import { createAction, publicProcedure } from '@/server/trpc/context'
+import { createPasteSchema } from '@/server/trpc/schema'
 import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
 import { hash } from 'argon2'
 import { pastesTable } from '@/db/schema'

@@ -6,8 +6,8 @@ import {
   confirmationCodesTable,
   usersTable,
 } from '@/db/schema'
-import { createAction, protectedProcedure } from '@/server/router/context'
-import { changeEmailSchema } from '@/server/router/schema'
+import { createAction, protectedProcedure } from '@/server/trpc/context'
+import { changeEmailSchema } from '@/server/trpc/schema'
 import { generateRandomString } from '@/utils/random'
 import dayjs from 'dayjs'
 import { sendConfirmationEmail } from '@/utils/email'

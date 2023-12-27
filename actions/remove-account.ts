@@ -2,11 +2,11 @@
 
 import { eq } from 'drizzle-orm'
 import { usersTable } from '@/db/schema'
-import { createAction, protectedProcedure } from '@/server/router/context'
+import { createAction, protectedProcedure } from '@/server/trpc/context'
 import { ZodError } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { verify } from 'argon2'
-import { removeAccountSchema } from '@/server/router/schema'
+import { removeAccountSchema } from '@/server/trpc/schema'
 
 export const removeAccountAction = createAction(
   protectedProcedure

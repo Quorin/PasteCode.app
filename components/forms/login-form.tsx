@@ -1,7 +1,7 @@
 'use client'
 
 import { z } from 'zod'
-import { loginSchema } from '@/server/router/schema'
+import { loginSchema } from '@/server/trpc/schema'
 import { useForm } from 'react-hook-form'
 import { useAction } from '@/app/api-client'
 import { loginAction } from '@/actions/login'
