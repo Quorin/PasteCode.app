@@ -40,7 +40,14 @@ export const editPasteAction = createAction(
         })
       }
 
-      if (input.currentPassword && paste.password) {
+      if (paste.password) {
+        if (!input.currentPassword) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Password is required',
+          })
+        }
+
         const valid = await verify(paste.password, input.currentPassword)
         if (!valid) {
           throw new TRPCError({
@@ -48,11 +55,6 @@ export const editPasteAction = createAction(
             message: 'Password is incorrect',
           })
         }
-      } else {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Password is required',
-        })
       }
 
       await ctx.db

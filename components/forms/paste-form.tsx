@@ -49,7 +49,10 @@ const PasteForm = (
 ) => {
   const router = useRouter()
   const methods = useForm<FormValues>({
-    defaultValues,
+    defaultValues: {
+      ...defaultValues,
+      ...initialValues,
+    },
     values: initialValues,
     mode: 'onBlur',
   })
@@ -199,12 +202,11 @@ const PasteForm = (
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={initialValues?.style || field.value}
+                        defaultValue={field.value}
+                        {...field}
                       >
                         <SelectTrigger>
-                          <SelectValue
-                            placeholder={field.value || defaultLanguage}
-                          />
+                          <SelectValue placeholder={field.value} />
                         </SelectTrigger>
                         <SelectContent>
                           {languageOptions.map((option) => (

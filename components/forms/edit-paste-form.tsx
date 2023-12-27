@@ -185,7 +185,8 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={initialValues?.style || field.value}
+                        defaultValue={field.value}
+                        {...field}
                       >
                         <SelectTrigger>
                           <SelectValue
