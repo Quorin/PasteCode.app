@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { routes } from '@/constants/routes'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { apiInvoker } from '@/app/api'
+import { confirmAccountAction } from '@/actions/confirm-account'
 
 const ConfirmAccountPage = async ({
   searchParams,
@@ -29,7 +29,7 @@ const ConfirmAccountPage = async ({
     notFound()
   }
 
-  const valid = await apiInvoker.user.confirmAccount.mutate({ id, code })
+  const valid = await confirmAccountAction({ id, code })
 
   return (
     <div className="flex flex-col justify-center items-center gap-10">

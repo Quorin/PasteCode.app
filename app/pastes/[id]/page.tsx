@@ -73,15 +73,6 @@ const PasteIndex = async ({
           {canEdit && (
             <Link
               type="button"
-              // onClick={() =>
-              //   router.push({
-              //     pathname: routes.PASTES.EDIT,
-              //     query: {
-              //       id: router.query.id,
-              //       password: router.query.password,
-              //     },
-              //   })
-              // }
               href={{
                 pathname: `/pastes/${paste.id}/edit`,
                 query: {
@@ -102,10 +93,6 @@ const PasteIndex = async ({
                 password,
               },
             }}
-            // href={`${router.asPath.replace(
-            //   router.query.id as string,
-            //   `${router.query.id}/raw`,
-            // )}`}
           >
             <Button className="gap-2" variant={'secondary'}>
               <DocumentTextIcon className="w-6" />
