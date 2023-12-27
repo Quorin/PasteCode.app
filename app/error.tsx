@@ -15,8 +15,8 @@ const AppError = () => {
         src="/images/500.svg"
         alt="App Error"
         priority
-        width={500}
-        height={400}
+        width={300}
+        height={200}
       />
       <div className="text-center flex flex-col gap-10">
         <p>Something went wrong, please try again later.</p>

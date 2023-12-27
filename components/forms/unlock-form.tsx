@@ -40,11 +40,11 @@ const UnlockForm = ({ id }: { id: string }) => {
         <Image
           src="/images/secure.svg"
           alt="Paste is secure"
-          width={500}
-          height={400}
+          width={300}
+          height={200}
         />
         <p className="text-lg text-destructive-foreground">
-          Paste is secured with a password
+          Paste is password protected
         </p>
         <FormField
           control={methods.control}

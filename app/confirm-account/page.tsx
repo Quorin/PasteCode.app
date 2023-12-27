@@ -40,16 +40,16 @@ const ConfirmAccountPage = async ({
           src="/images/confirmed.svg"
           alt="Confirmed"
           priority
-          width={500}
-          height={400}
+          width={300}
+          height={200}
         />
       ) : (
         <Image
           src="/images/alert.svg"
           alt="Code is incorrect or expired"
           priority
-          width={500}
-          height={400}
+          width={300}
+          height={200}
         />
       )}
 

@@ -40,8 +40,8 @@ const ConfirmResetPasswordPage = async ({
           src="/images/alert.svg"
           alt="Link is incorrect or expired"
           priority
-          width={500}
-          height={400}
+          width={300}
+          height={200}
         />
         <div className="text-center flex flex-col gap-10">
           <p>Link is incorrect or expired.</p>

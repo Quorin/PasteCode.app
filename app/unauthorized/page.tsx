@@ -13,8 +13,8 @@ const Unauthorized = () => {
         src="/images/401.svg"
         alt="Unauthorized"
         priority
-        width={500}
-        height={400}
+        width={300}
+        height={200}
       />
       <div className="text-center flex flex-col gap-10">
         <p>You are not authorized to access this page.</p>

@@ -51,12 +51,13 @@ const PasteList = () => {
             <Loader2 className="mr-2 h-6 w-6 animate-spin" />
           </div>
         ) : (
-          <div className="text-center">
+          <div className="text-center flex flex-col gap-10">
             <Image
               src="/images/empty.svg"
               alt="No images"
-              width={500}
-              height={400}
+              priority
+              width={300}
+              height={200}
             />
             <Link href={routes.HOME} passHref>
               <Button>Add your first paste</Button>
@@ -83,6 +84,7 @@ const PasteList = () => {
           <Image
             src="/images/done.svg"
             alt="No images"
+            priority
             width={300}
             height={400}
             className="py-10"
