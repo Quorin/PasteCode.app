@@ -2,51 +2,71 @@
 
 import { eq } from 'drizzle-orm'
 import { usersTable } from '@/db/schema'
-import { createAction, protectedProcedure } from '@/server/trpc/context'
-import { changeNameSchema } from '@/server/trpc/schema'
-import { TRPCError } from '@trpc/server'
-import { ZodError } from 'zod'
+import { changeNameSchema } from '@/server/schema'
+import { ZodError, z } from 'zod'
+import { db } from '@/db/db'
+import { auth } from '@/utils/auth'
+import { redirect } from 'next/navigation'
+import { routes } from '@/constants/routes'
+import {
+  ActionResult,
+  successResult,
+  validationErrorResult,
+} from '@/utils/errorHandler'
 
-export const changeNameAction = createAction(
-  protectedProcedure
-    .input(changeNameSchema)
-    .mutation(async ({ ctx, input }) => {
-      const [exists] = await ctx.db
-        .select({
-          id: usersTable.id,
-        })
-        .from(usersTable)
-        .where(eq(usersTable.name, input.name))
-        .limit(1)
-        .execute()
+export const changeNameAction = async <
+  TInput extends z.infer<typeof changeNameSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<undefined, TInput>> => {
+  const session = await auth()
 
-      if (exists) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          cause: new ZodError([
-            {
-              path: ['name'],
-              message: 'Provided name is already taken.',
-              code: 'custom',
-            },
-          ]),
-        })
-      }
+  if (!session.user) {
+    redirect(routes.AUTH.LOGIN)
+  }
 
-      const credentialsUpdatedAt = new Date()
+  const validation = changeNameSchema.safeParse(input)
 
-      await ctx.db
-        .update(usersTable)
-        .set({
-          name: input.name,
-          credentialsUpdatedAt,
-        })
-        .where(eq(usersTable.id, ctx.session.user.id))
-        .execute()
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
 
-      ctx.session.user.name = input.name
-      ctx.session.user.credentialsUpdatedAt = credentialsUpdatedAt
+  const [exists] = await db
+    .select({
+      id: usersTable.id,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.name, validation.data.name))
+    .limit(1)
+    .execute()
 
-      await ctx.session.save()
-    }),
-)
+  if (exists) {
+    return validationErrorResult(
+      new ZodError([
+        {
+          path: ['name'],
+          message: 'Provided name is already taken.',
+          code: 'custom',
+        },
+      ]),
+    )
+  }
+
+  const credentialsUpdatedAt = new Date()
+
+  await db
+    .update(usersTable)
+    .set({
+      name: validation.data.name,
+      credentialsUpdatedAt,
+    })
+    .where(eq(usersTable.id, session.user.id))
+    .execute()
+
+  session.user.name = validation.data.name
+  session.user.credentialsUpdatedAt = credentialsUpdatedAt
+
+  await session.save()
+
+  return successResult(undefined)
+}

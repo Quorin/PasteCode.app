@@ -2,13 +2,9 @@
 
 import { useForm } from 'react-hook-form'
 import { defaultLanguage, languageOptions } from '@/utils/lang'
-import { useAction } from '@/app/api-client'
 import { TagInput } from '@/components/ui/tag-input'
 import { z } from 'zod'
-import { updatePasteSchema } from '@/server/trpc/schema'
-import { createPasteAction } from '@/actions/create-paste'
-import { errorHandler } from '@/utils/errorHandler'
-import { useRouter } from 'next/navigation'
+import { updatePasteSchema } from '@/server/schema'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -29,24 +25,27 @@ import {
 } from '@/components/ui/form'
 import { Loader2 } from 'lucide-react'
 import { editPasteAction } from '@/actions/edit-paste'
+import { handleActionError } from '@/utils/errorHandler'
 
 export type FormValues = z.infer<typeof updatePasteSchema> & { tag: string }
 
 const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
-  const router = useRouter()
   const methods = useForm<FormValues>({
     defaultValues: initialValues,
     mode: 'onBlur',
   })
 
-  const mutation = useAction(editPasteAction, {
-    onSuccess: () => {
-      router.push(`/pastes/${initialValues.id}`)
-    },
-    onError: (error) => {
-      errorHandler(methods.setError, error)
-    },
-  })
+  const handleEdit = async (values: FormValues) => {
+    const action = await editPasteAction(values)
+    if (!action) {
+      return
+    }
+
+    if (!action.success) {
+      handleActionError(methods.setError, action.errors)
+      return
+    }
+  }
 
   const resetForm = () => {
     methods.reset(initialValues)
@@ -55,8 +54,7 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
   return (
     <Form {...methods}>
       <form
-        action={createPasteAction}
-        onSubmit={methods.handleSubmit((data) => mutation.mutate(data))}
+        onSubmit={methods.handleSubmit(handleEdit)}
         className="flex flex-col gap-6"
       >
         <FormField
@@ -212,9 +210,9 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
             <Button
               type="submit"
               className="px-10"
-              disabled={mutation.status === 'loading'}
+              disabled={methods.formState.isSubmitting}
             >
-              {mutation.status === 'loading' ? (
+              {methods.formState.isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...

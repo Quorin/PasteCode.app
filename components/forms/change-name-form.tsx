@@ -1,11 +1,9 @@
 'use client'
 
 import { z } from 'zod'
-import { changeNameSchema } from '@/server/trpc/schema'
+import { changeNameSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { useAction } from '@/app/api-client'
 import { changeNameAction } from '@/actions/change-name'
-import { errorHandler } from '@/utils/errorHandler'
 import toast from 'react-hot-toast'
 import {
   Form,
@@ -18,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
+import { handleActionError } from '@/utils/errorHandler'
 
 type FormValues = z.infer<typeof changeNameSchema>
 
@@ -28,28 +27,33 @@ const ChangeNameForm = () => {
     },
   })
 
-  const mutation = useAction(changeNameAction, {
-    onSuccess: () => {
-      methods.reset()
+  const handleChange = async (values: FormValues) => {
+    const action = await changeNameAction(values)
+    if (!action) {
+      return
+    }
 
-      toast.custom(
-        () => (
-          <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
-            <p>Name has been changed</p>
-          </div>
-        ),
-        { position: 'bottom-center' },
-      )
-    },
-    onError: (error) => {
-      errorHandler(methods.setError, error)
-    },
-  })
+    if (!action.success) {
+      handleActionError(methods.setError, action.errors)
+      return
+    }
+
+    methods.reset()
+
+    toast.custom(
+      () => (
+        <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
+          <p>Name has been changed</p>
+        </div>
+      ),
+      { position: 'bottom-center' },
+    )
+  }
 
   return (
     <Form {...methods}>
       <form
-        onSubmit={methods.handleSubmit((data) => mutation.mutate(data))}
+        onSubmit={methods.handleSubmit(handleChange)}
         className="flex flex-col gap-6"
       >
         <FormField
@@ -68,9 +72,9 @@ const ChangeNameForm = () => {
         <Button
           type="submit"
           className="px-20 md:self-start"
-          disabled={mutation.status === 'loading'}
+          disabled={methods.formState.isSubmitting}
         >
-          {mutation.status === 'loading' ? (
+          {methods.formState.isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Submitting...

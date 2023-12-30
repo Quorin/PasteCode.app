@@ -2,54 +2,73 @@
 
 import { eq } from 'drizzle-orm'
 import { usersTable } from '@/db/schema'
-import { createAction, protectedProcedure } from '@/server/trpc/context'
-import { changePasswordSchema } from '@/server/trpc/schema'
-import { TRPCError } from '@trpc/server'
+import { changePasswordSchema } from '@/server/schema'
 import { hash, verify } from 'argon2'
-import { ZodError } from 'zod'
+import { ZodError, z } from 'zod'
+import { auth } from '@/utils/auth'
+import { redirect } from 'next/navigation'
+import { routes } from '@/constants/routes'
+import { db } from '@/db/db'
+import {
+  ActionResult,
+  successResult,
+  validationErrorResult,
+} from '@/utils/errorHandler'
 
-export const changePasswordAction = createAction(
-  protectedProcedure
-    .input(changePasswordSchema)
-    .mutation(async ({ ctx, input }) => {
-      const [user] = await ctx.db
-        .select({
-          password: usersTable.password,
-        })
-        .from(usersTable)
-        .where(eq(usersTable.id, ctx.session.user.id))
-        .limit(1)
-        .execute()
+export const changePasswordAction = async <
+  TInput extends z.infer<typeof changePasswordSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<undefined, TInput>> => {
+  const session = await auth()
 
-      if (!user) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'User not found',
-        })
-      }
+  if (!session.user) {
+    redirect(routes.AUTH.LOGIN)
+  }
 
-      if (!(await verify(user.password, input.currentPassword))) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          cause: new ZodError([
-            {
-              path: ['currentPassword'],
-              message: 'Current password is incorrect',
-              code: 'custom',
-            },
-          ]),
-        })
-      }
+  const validation = changePasswordSchema.safeParse(input)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
 
-      await ctx.db
-        .update(usersTable)
-        .set({
-          password: await hash(input.password),
-          credentialsUpdatedAt: new Date(),
-        })
-        .where(eq(usersTable.id, ctx.session.user.id))
-        .execute()
+  const { password, currentPassword } = validation.data
 
-      ctx.session.destroy()
-    }),
-)
+  const [user] = await db
+    .select({
+      password: usersTable.password,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, session.user.id))
+    .limit(1)
+    .execute()
+
+  if (!user) {
+    session.destroy()
+    redirect(routes.AUTH.LOGIN)
+  }
+
+  if (!(await verify(user.password, currentPassword))) {
+    return validationErrorResult(
+      new ZodError([
+        {
+          path: ['currentPassword'],
+          message: 'Current password is incorrect',
+          code: 'custom',
+        },
+      ]),
+    )
+  }
+
+  await db
+    .update(usersTable)
+    .set({
+      password: await hash(password),
+      credentialsUpdatedAt: new Date(),
+    })
+    .where(eq(usersTable.id, session.user.id))
+    .execute()
+
+  session.destroy()
+
+  return successResult(undefined)
+}

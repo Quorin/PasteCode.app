@@ -1,8 +1,7 @@
 'use server'
 
-import { ZodError, ZodIssue } from 'zod'
-import { createAction, publicProcedure } from '@/server/trpc/context'
-import { registerSchema } from '@/server/trpc/schema'
+import { ZodError, ZodIssue, z } from 'zod'
+import { registerSchema } from '@/server/schema'
 import {
   confirmationCodeLength,
   confirmationCodesTable,
@@ -13,79 +12,88 @@ import { generateRandomString } from '@/utils/random'
 import { hash } from 'argon2'
 import dayjs from 'dayjs'
 import { sendConfirmationEmail } from '@/utils/email'
-import { TRPCError } from '@trpc/server'
+import { db } from '@/db/db'
+import {
+  ActionResult,
+  successResult,
+  validationErrorResult,
+} from '@/utils/errorHandler'
 
-export const registerAction = createAction(
-  publicProcedure.input(registerSchema).mutation(async ({ input, ctx }) => {
-    const [user] = await ctx.db
-      .select({
-        id: usersTable.id,
-        email: usersTable.email,
-        name: usersTable.name,
-      })
-      .from(usersTable)
-      .where(
-        or(eq(usersTable.email, input.email), eq(usersTable.name, input.name)),
-      )
-      .limit(1)
-      .execute()
+export const registerAction = async <
+  TInput extends z.infer<typeof registerSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<undefined, TInput>> => {
+  const validation = registerSchema.safeParse(input)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
 
-    if (user) {
-      let errors: ZodIssue[] = []
+  const { email, name, password } = validation.data
 
-      if (user.email === input.email) {
-        errors.push({
-          message: 'Provided email is already in use',
-          path: ['email'],
-          code: 'custom',
-        })
-      }
+  const [user] = await db
+    .select({
+      id: usersTable.id,
+      email: usersTable.email,
+      name: usersTable.name,
+    })
+    .from(usersTable)
+    .where(or(eq(usersTable.email, email), eq(usersTable.name, name)))
+    .limit(1)
+    .execute()
 
-      if (user.name === input.name) {
-        errors.push({
-          message: 'Provided name is already in use',
-          path: ['name'],
-          code: 'custom',
-        })
-      }
+  if (user) {
+    let errors: ZodIssue[] = []
 
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        cause: new ZodError(errors),
+    if (user.email === email) {
+      errors.push({
+        message: 'Provided email is already in use',
+        path: ['email'],
+        code: 'custom',
       })
     }
 
-    const code = generateRandomString(confirmationCodeLength)
-
-    const [createdUser] = await ctx.db
-      .insert(usersTable)
-      .values({
-        email: input.email,
-        name: input.name,
-        password: await hash(input.password),
-        acceptTerms: true,
-        confirmed: false,
+    if (user.name === name) {
+      errors.push({
+        message: 'Provided name is already in use',
+        path: ['name'],
+        code: 'custom',
       })
-      .returning({
-        id: usersTable.id,
-      })
-      .execute()
+    }
 
-    const [confirmationCode] = await ctx.db
-      .insert(confirmationCodesTable)
-      .values({
-        code,
-        userId: createdUser!.id,
-        createdAt: new Date(),
-        expiresAt: dayjs().add(48, 'hours').toDate(),
-      })
-      .returning({
-        id: confirmationCodesTable.id,
-      })
-      .execute()
+    return validationErrorResult(new ZodError(errors))
+  }
 
-    await sendConfirmationEmail(input.email, confirmationCode!.id, code)
+  const code = generateRandomString(confirmationCodeLength)
 
-    return true
-  }),
-)
+  const [createdUser] = await db
+    .insert(usersTable)
+    .values({
+      email,
+      name,
+      password: await hash(password),
+      acceptTerms: true,
+      confirmed: false,
+    })
+    .returning({
+      id: usersTable.id,
+    })
+    .execute()
+
+  const [confirmationCode] = await db
+    .insert(confirmationCodesTable)
+    .values({
+      code,
+      userId: createdUser!.id,
+      createdAt: new Date(),
+      expiresAt: dayjs().add(48, 'hours').toDate(),
+    })
+    .returning({
+      id: confirmationCodesTable.id,
+    })
+    .execute()
+
+  await sendConfirmationEmail(email, confirmationCode!.id, code)
+
+  return successResult(undefined)
+}

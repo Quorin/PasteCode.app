@@ -2,75 +2,88 @@
 
 import { eq } from 'drizzle-orm'
 import { usersTable } from '@/db/schema'
-import { createAction, publicProcedure } from '@/server/trpc/context'
-import { loginSchema } from '@/server/trpc/schema'
-import { TRPCError } from '@trpc/server'
-import { ZodError } from 'zod'
+import { loginSchema } from '@/server/schema'
+import { ZodError, z } from 'zod'
 import { verify } from 'argon2'
+import { db } from '@/db/db'
+import { auth } from '@/utils/auth'
+import {
+  ActionResult,
+  successResult,
+  validationErrorResult,
+} from '@/utils/errorHandler'
 
-export const loginAction = createAction(
-  publicProcedure.input(loginSchema).mutation(async ({ input, ctx }) => {
-    const [user] = await ctx.db
-      .select({
-        id: usersTable.id,
-        confirmed: usersTable.confirmed,
-        email: usersTable.email,
-        password: usersTable.password,
-        name: usersTable.name,
-        credentialsUpdatedAt: usersTable.credentialsUpdatedAt,
-      })
-      .from(usersTable)
-      .where(eq(usersTable.email, input.email))
-      .limit(1)
-      .execute()
+export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
+  input: TInput,
+): Promise<ActionResult<undefined, TInput>> => {
+  const session = await auth()
 
-    if (!user) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        cause: new ZodError([
-          {
-            path: ['password'],
-            message: 'Invalid email or password.',
-            code: 'custom',
-          },
-        ]),
-      })
+  const validation = loginSchema.safeParse(input)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
+
+  const { email, password } = validation.data
+
+  const [user] = await db
+    .select({
+      id: usersTable.id,
+      confirmed: usersTable.confirmed,
+      email: usersTable.email,
+      password: usersTable.password,
+      name: usersTable.name,
+      credentialsUpdatedAt: usersTable.credentialsUpdatedAt,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.email, email))
+    .limit(1)
+    .execute()
+
+  if (!user) {
+    return validationErrorResult(
+      new ZodError([
+        {
+          path: ['password'],
+          message: 'Invalid email or password.',
+          code: 'custom',
+        },
+      ]),
+    )
+  }
+
+  if (!user?.confirmed) {
+    return validationErrorResult(
+      new ZodError([
+        {
+          code: 'custom',
+          message: 'Email is not confirmed',
+          path: ['email'],
+        },
+      ]),
+    )
+  }
+
+  if (!(await verify(user.password ?? '', password))) {
+    return validationErrorResult(
+      new ZodError([
+        {
+          message: 'Invalid email or password.',
+          path: ['password'],
+          code: 'custom',
+        },
+      ]),
+    )
+  }
+
+  if (session) {
+    session.user = {
+      id: user.id,
+      name: user.name,
+      credentialsUpdatedAt: user.credentialsUpdatedAt,
     }
 
-    if (!user?.confirmed) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        cause: new ZodError([
-          {
-            code: 'custom',
-            message: 'Email is not confirmed',
-            path: ['email'],
-          },
-        ]),
-      })
-    }
+    await session.save()
+  }
 
-    if (!(await verify(user.password ?? '', input.password))) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        cause: new ZodError([
-          {
-            message: 'Invalid email or password.',
-            path: ['password'],
-            code: 'custom',
-          },
-        ]),
-      })
-    }
-
-    if (ctx.session) {
-      ctx.session.user = {
-        id: user.id,
-        name: user.name,
-        credentialsUpdatedAt: user.credentialsUpdatedAt,
-      }
-
-      await ctx.session.save()
-    }
-  }),
-)
+  return successResult(undefined)
+}

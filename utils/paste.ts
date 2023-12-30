@@ -1,8 +1,9 @@
-import { Maybe } from '@trpc/server'
 import dayjs from 'dayjs'
 import { tagsTable, tagsOnPastesTable } from '@/db/schema'
 import { eq, sql } from 'drizzle-orm'
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http'
+
+type Maybe<T> = T | null | undefined
 
 type Expiration =
   | 'same'

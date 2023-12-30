@@ -21,7 +21,7 @@ const EditPastePage = async ({
   }
 
   if (secure) {
-    return <UnlockForm id={id} />
+    return <UnlockForm />
   }
 
   return (

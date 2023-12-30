@@ -3,23 +3,31 @@
 import { routes } from '@/constants/routes'
 import { db } from '@/db/db'
 import { pastesTable } from '@/db/schema'
-import { removePasteSchema } from '@/server/trpc/schema'
+import { removePasteSchema } from '@/server/schema'
 import { auth } from '@/utils/auth'
+import { ActionResult, validationErrorResult } from '@/utils/errorHandler'
 import { verify } from 'argon2'
 import { eq } from 'drizzle-orm'
 import { notFound, redirect } from 'next/navigation'
 import { z } from 'zod'
 
-export const removePasteAction = async (
-  input: z.infer<typeof removePasteSchema>,
-) => {
+export const removePasteAction = async <
+  TInput extends z.infer<typeof removePasteSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<undefined, TInput>> => {
   const { user } = await auth()
 
   if (!user) {
     redirect(routes.AUTH.LOGIN)
   }
 
-  const { id, password } = removePasteSchema.parse(input)
+  const validation = removePasteSchema.safeParse(input)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
+
+  const { id, password } = validation.data
 
   const [paste] = await db
     .select({
@@ -40,6 +48,7 @@ export const removePasteAction = async (
     redirect('/401')
   }
 
+  // todo: refactor to return error instead of redirect
   if (paste.password) {
     if (password) {
       const valid = await verify(paste.password, password)

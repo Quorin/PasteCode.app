@@ -53,7 +53,7 @@ const PasteIndex = async ({
   }
 
   if (secure) {
-    return <UnlockForm id={id} />
+    return <UnlockForm />
   }
 
   const handleDelete = async () => {

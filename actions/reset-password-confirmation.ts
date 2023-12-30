@@ -2,63 +2,74 @@
 
 import { and, eq } from 'drizzle-orm'
 import { resetPasswordsTable, usersTable } from '@/db/schema'
-import { createAction, publicProcedure } from '@/server/trpc/context'
-import { resetPasswordConfirmationSchema } from '@/server/trpc/schema'
+import { resetPasswordConfirmationSchema } from '@/server/schema'
 import { hash } from 'argon2'
-import { TRPCError } from '@trpc/server'
-import { ZodError } from 'zod'
+import { ZodError, z } from 'zod'
 import dayjs from 'dayjs'
+import { db } from '@/db/db'
+import {
+  ActionResult,
+  successResult,
+  validationErrorResult,
+} from '@/utils/errorHandler'
+import { redirect } from 'next/navigation'
+import { routes } from '@/constants/routes'
 
-export const resetPasswordConfirmationAction = createAction(
-  publicProcedure
-    .input(resetPasswordConfirmationSchema)
-    .mutation(async ({ ctx, input }) => {
-      const [rp] = await ctx.db
-        .select({
-          id: resetPasswordsTable.id,
-          userId: resetPasswordsTable.userId,
-          code: resetPasswordsTable.code,
-          expiresAt: resetPasswordsTable.expiresAt,
-          user: {
-            id: usersTable.id,
-          },
-        })
-        .from(resetPasswordsTable)
-        .innerJoin(usersTable, eq(usersTable.id, resetPasswordsTable.userId))
-        .where(
-          and(
-            eq(resetPasswordsTable.id, input.id),
-            eq(resetPasswordsTable.code, input.code),
-          ),
-        )
-        .limit(1)
-        .execute()
+export const resetPasswordConfirmationAction = async <
+  TInput extends z.infer<typeof resetPasswordConfirmationSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<undefined, TInput>> => {
+  const validation = resetPasswordConfirmationSchema.safeParse(input)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
 
-      if (!rp || dayjs().isAfter(rp.expiresAt)) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          cause: new ZodError([
-            {
-              path: ['password'],
-              message: 'Code is incorrect or expired',
-              code: 'custom',
-            },
-          ]),
-        })
-      }
+  const { password, code, id } = validation.data
 
-      await ctx.db
-        .update(usersTable)
-        .set({
-          password: await hash(input.password),
-          credentialsUpdatedAt: new Date(),
-        })
-        .where(eq(usersTable.id, rp.userId))
-        .execute()
+  const [rp] = await db
+    .select({
+      id: resetPasswordsTable.id,
+      userId: resetPasswordsTable.userId,
+      code: resetPasswordsTable.code,
+      expiresAt: resetPasswordsTable.expiresAt,
+      user: {
+        id: usersTable.id,
+      },
+    })
+    .from(resetPasswordsTable)
+    .innerJoin(usersTable, eq(usersTable.id, resetPasswordsTable.userId))
+    .where(
+      and(eq(resetPasswordsTable.id, id), eq(resetPasswordsTable.code, code)),
+    )
+    .limit(1)
+    .execute()
 
-      await ctx.db
-        .delete(resetPasswordsTable)
-        .where(eq(resetPasswordsTable.id, rp.id))
-        .execute()
-    }),
-)
+  if (!rp || dayjs().isAfter(rp.expiresAt)) {
+    return validationErrorResult(
+      new ZodError([
+        {
+          path: ['password'],
+          message: 'Code is incorrect or expired',
+          code: 'custom',
+        },
+      ]),
+    )
+  }
+
+  await db
+    .update(usersTable)
+    .set({
+      password: await hash(password),
+      credentialsUpdatedAt: new Date(),
+    })
+    .where(eq(usersTable.id, rp.userId))
+    .execute()
+
+  await db
+    .delete(resetPasswordsTable)
+    .where(eq(resetPasswordsTable.id, rp.id))
+    .execute()
+
+  redirect(routes.AUTH.LOGIN)
+}

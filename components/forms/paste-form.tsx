@@ -2,12 +2,10 @@
 
 import { useForm } from 'react-hook-form'
 import { defaultLanguage, languageOptions } from '@/utils/lang'
-import { useAction } from '@/app/api-client'
 import { TagInput } from '@/components/ui/tag-input'
 import { z } from 'zod'
-import { createPasteSchema } from '@/server/trpc/schema'
+import { createPasteSchema } from '@/server/schema'
 import { createPasteAction } from '@/actions/create-paste'
-import { errorHandler } from '@/utils/errorHandler'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import {
@@ -27,6 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { handleActionError } from '@/utils/errorHandler'
 import { Loader2 } from 'lucide-react'
 
 export type FormValues = z.infer<typeof createPasteSchema> & { tag: string }
@@ -57,14 +56,21 @@ const PasteForm = (
     mode: 'onBlur',
   })
 
-  const mutation = useAction(createPasteAction, {
-    onSuccess: (id) => {
-      router.push(`/pastes/${id}`)
-    },
-    onError: (error) => {
-      errorHandler(methods.setError, error)
-    },
-  })
+  const handleSubmit = async (values: FormValues) => {
+    const action = await createPasteAction(values)
+    if (!action) {
+      return
+    }
+
+    if (action.success) {
+      router.push(`/pastes/${action.data.id}`)
+      return
+    }
+
+    if (!action.success) {
+      handleActionError(methods.setError, action.errors)
+    }
+  }
 
   const resetForm = () => {
     methods.reset(defaultValues)
@@ -73,8 +79,7 @@ const PasteForm = (
   return (
     <Form {...methods}>
       <form
-        action={createPasteAction}
-        onSubmit={methods.handleSubmit((data) => mutation.mutate(data))}
+        onSubmit={methods.handleSubmit((data) => handleSubmit(data))}
         className="flex flex-col gap-6"
       >
         <FormField
@@ -227,9 +232,9 @@ const PasteForm = (
             <Button
               type="submit"
               className="px-10"
-              disabled={mutation.status === 'loading'}
+              disabled={methods.formState.isSubmitting}
             >
-              {mutation.status === 'loading' ? (
+              {methods.formState.isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Submitting...

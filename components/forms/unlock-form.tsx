@@ -18,7 +18,7 @@ type FormValues = {
   password: string
 }
 
-const UnlockForm = ({ id }: { id: string }) => {
+const UnlockForm = () => {
   const router = useRouter()
 
   const methods = useForm<FormValues>({ defaultValues: { password: '' } })

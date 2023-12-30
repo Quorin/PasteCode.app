@@ -20,14 +20,14 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { z } from 'zod'
-import { removeAccountSchema } from '@/server/trpc/schema'
+import { removeAccountSchema } from '@/server/schema'
 import { removeAccountAction } from '@/actions/remove-account'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
-import { errorHandler } from '@/utils/errorHandler'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
-import { useAction } from '@/app/api-client'
+
+import { handleActionError } from '@/utils/errorHandler'
 
 type FormValues = z.infer<typeof removeAccountSchema>
 
@@ -39,25 +39,29 @@ const DeletionDialog = (props: ButtonProps) => {
     },
   })
 
-  const mutation = useAction(removeAccountAction, {
-    onError: (error) => {
-      errorHandler(methods.setError, error)
-    },
+  const handleDelete = async (values: FormValues) => {
+    const action = await removeAccountAction(values)
+    if (!action) {
+      return
+    }
 
-    onSuccess: () => {
-      methods.reset()
-      router.replace('/')
+    if (!action.success) {
+      handleActionError(methods.setError, action.errors)
+      return
+    }
 
-      toast.custom(
-        () => (
-          <div className="text-white bg-red-700 px-5 py-2.5 rounded-lg">
-            <p>Account has been removed</p>
-          </div>
-        ),
-        { position: 'bottom-center' },
-      )
-    },
-  })
+    methods.reset()
+    router.replace('/')
+
+    toast.custom(
+      () => (
+        <div className="text-white bg-red-700 px-5 py-2.5 rounded-lg">
+          <p>Account has been removed</p>
+        </div>
+      ),
+      { position: 'bottom-center' },
+    )
+  }
 
   return (
     <Dialog>
@@ -75,7 +79,7 @@ const DeletionDialog = (props: ButtonProps) => {
           </DialogDescription>
           <Form {...methods}>
             <form
-              onSubmit={methods.handleSubmit((data) => mutation.mutate(data))}
+              onSubmit={methods.handleSubmit(handleDelete)}
               className="flex flex-col gap-6"
             >
               <FormField
@@ -102,9 +106,9 @@ const DeletionDialog = (props: ButtonProps) => {
               <Button
                 type="submit"
                 className="px-10"
-                disabled={mutation.status === 'loading'}
+                disabled={methods.formState.isSubmitting}
               >
-                {mutation.status === 'loading' ? (
+                {methods.formState.isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Removing...

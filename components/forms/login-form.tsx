@@ -1,11 +1,9 @@
 'use client'
 
 import { z } from 'zod'
-import { loginSchema } from '@/server/trpc/schema'
+import { loginSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { useAction } from '@/app/api-client'
 import { loginAction } from '@/actions/login'
-import { errorHandler } from '@/utils/errorHandler'
 import {
   Form,
   FormControl,
@@ -15,17 +13,20 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useRouter } from 'next/navigation'
 import { routes } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { resendConfirmationCodeAction } from '@/actions/resend-confirmation-code'
 import toast from 'react-hot-toast'
+import { handleActionError } from '@/utils/errorHandler'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 type FormValues = z.infer<typeof loginSchema>
 
 const LoginForm = () => {
+  const [formType, setFormType] = useState<'login' | 'resend'>('login')
   const router = useRouter()
 
   const methods = useForm<FormValues>({
@@ -35,38 +36,63 @@ const LoginForm = () => {
     },
   })
 
-  const loginMutation = useAction(loginAction, {
-    onSuccess: () => {
-      methods.reset()
-      router.push(routes.HOME)
-    },
-    onError: (error) => {
-      errorHandler(methods.setError, error)
-    },
-  })
+  const handleLogin = async (values: FormValues) => {
+    setFormType('login')
 
-  const resendCodeMutation = useAction(resendConfirmationCodeAction, {
-    onSuccess: () => {
-      methods.reset()
+    const login = await loginAction(values)
 
-      toast.custom(
-        () => (
-          <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
-            <p>Confirmation code has been sent to your email.</p>
-          </div>
-        ),
-        { position: 'bottom-center' },
-      )
-    },
-    onError: (error) => {
-      errorHandler(methods.setError, error)
-    },
-  })
+    if (!login) {
+      return
+    }
+
+    if (!login.success) {
+      handleActionError(methods.setError, login.errors)
+      return
+    }
+
+    toast.custom(
+      () => (
+        <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
+          <p>Successfully logged in.</p>
+        </div>
+      ),
+      { position: 'bottom-center' },
+    )
+
+    router.push(routes.HOME)
+  }
+
+  const handleResendCode = async (values: FormValues) => {
+    setFormType('resend')
+
+    methods.clearErrors()
+
+    const resendCode = await resendConfirmationCodeAction(values)
+    if (!resendCode) {
+      return
+    }
+
+    if (!resendCode.success) {
+      handleActionError(methods.setError, resendCode.errors)
+      return
+    }
+
+    methods.reset()
+
+    toast.custom(
+      () => (
+        <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
+          <p>Confirmation code has been sent to your email.</p>
+        </div>
+      ),
+      { position: 'bottom-center' },
+    )
+  }
 
   return (
     <Form {...methods}>
       <form
-        onSubmit={methods.handleSubmit((data) => loginMutation.mutate(data))}
+        onSubmit={methods.handleSubmit(handleLogin)}
         className="flex flex-col gap-6"
       >
         <FormField
@@ -110,9 +136,9 @@ const LoginForm = () => {
           <Button
             type="submit"
             className="px-20 md:self-start"
-            disabled={loginMutation.status === 'loading'}
+            disabled={methods.formState.isSubmitting}
           >
-            {loginMutation.status === 'loading' ? (
+            {methods.formState.isSubmitting && formType === 'login' ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Logging in...
@@ -124,15 +150,12 @@ const LoginForm = () => {
 
           <Button
             type="button"
-            onClick={() => {
-              methods.clearErrors()
-              resendCodeMutation.mutate({ email: methods.getValues('email') })
-            }}
+            onClick={methods.handleSubmit(handleResendCode)}
             className="px-20 md:self-start"
-            disabled={resendCodeMutation.status === 'loading'}
+            disabled={methods.formState.isSubmitting}
             variant={'secondary'}
           >
-            {resendCodeMutation.status === 'loading' ? (
+            {methods.formState.isSubmitting && formType === 'resend' ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Sending...

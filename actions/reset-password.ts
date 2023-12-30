@@ -6,78 +6,88 @@ import {
   resetPasswordsTable,
   usersTable,
 } from '@/db/schema'
-import { createAction, publicProcedure } from '@/server/trpc/context'
-import { resetPasswordSchema } from '@/server/trpc/schema'
+import { resetPasswordSchema } from '@/server/schema'
 import { sendResetPasswordEmail } from '@/utils/email'
 import { generateRandomString } from '@/utils/random'
-import { TRPCError } from '@trpc/server'
-import { ZodError } from 'zod'
+import { ZodError, z } from 'zod'
 import { eq } from 'drizzle-orm'
+import { db } from '@/db/db'
+import {
+  ActionResult,
+  successResult,
+  validationErrorResult,
+} from '@/utils/errorHandler'
 
-export const resetPasswordAction = createAction(
-  publicProcedure
-    .input(resetPasswordSchema)
-    .mutation(async ({ ctx, input }) => {
-      const [user] = await ctx.db
-        .select({
-          id: usersTable.id,
-          email: usersTable.email,
-          resetPassword: {
-            id: resetPasswordsTable.id,
-            code: resetPasswordsTable.code,
-            expiresAt: resetPasswordsTable.expiresAt,
-          },
-        })
-        .from(usersTable)
-        .leftJoin(
-          resetPasswordsTable,
-          eq(resetPasswordsTable.userId, usersTable.id),
-        )
-        .where(eq(usersTable.email, input.email))
-        .limit(1)
-        .execute()
+export const resetPasswordAction = async <
+  TInput extends z.infer<typeof resetPasswordSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<undefined, TInput>> => {
+  const validation = resetPasswordSchema.safeParse(input)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
 
-      if (!user) {
-        return
-      }
+  const { email } = validation.data
 
-      if (user.resetPassword) {
-        if (user.resetPassword.expiresAt > new Date()) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            cause: new ZodError([
-              {
-                path: ['email'],
-                message: 'You need to wait few minutes for another try',
-                code: 'custom',
-              },
-            ]),
-          })
-        }
-      }
+  const [user] = await db
+    .select({
+      id: usersTable.id,
+      email: usersTable.email,
+      resetPassword: {
+        id: resetPasswordsTable.id,
+        code: resetPasswordsTable.code,
+        expiresAt: resetPasswordsTable.expiresAt,
+      },
+    })
+    .from(usersTable)
+    .leftJoin(
+      resetPasswordsTable,
+      eq(resetPasswordsTable.userId, usersTable.id),
+    )
+    .where(eq(usersTable.email, email))
+    .limit(1)
+    .execute()
 
-      const code = generateRandomString(confirmationCodeLength)
-      const expiresAt = dayjs().add(10, 'minute').toDate()
+  if (!user) {
+    return
+  }
 
-      const [rp] = await ctx.db
-        .insert(resetPasswordsTable)
-        .values({
-          code,
-          expiresAt,
-          userId: user.id,
-        })
-        .onConflictDoUpdate({
-          set: {
-            code,
-            expiresAt,
-          },
-          target: resetPasswordsTable.id,
-        })
-        .returning({
-          id: resetPasswordsTable.id,
-        })
-        .execute()
+  if (user.resetPassword && user.resetPassword.expiresAt > new Date()) {
+    return validationErrorResult(
+      new ZodError([
+        {
+          path: ['email'],
+          message: 'You need to wait few minutes for another try',
+          code: 'custom',
+        },
+      ]),
+    )
+  }
 
-      await sendResetPasswordEmail(input.email, rp!.id, code)
-    }),
-)
+  const code = generateRandomString(confirmationCodeLength)
+  const expiresAt = dayjs().add(10, 'minute').toDate()
+
+  const [rp] = await db
+    .insert(resetPasswordsTable)
+    .values({
+      code,
+      expiresAt,
+      userId: user.id,
+    })
+    .onConflictDoUpdate({
+      set: {
+        code,
+        expiresAt,
+      },
+      target: resetPasswordsTable.id,
+    })
+    .returning({
+      id: resetPasswordsTable.id,
+    })
+    .execute()
+
+  await sendResetPasswordEmail(email, rp!.id, code)
+
+  return successResult(undefined)
+}

@@ -1,7 +1,7 @@
 'use client'
 
 import { z } from 'zod'
-import { registerSchema } from '@/server/trpc/schema'
+import { registerSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
 import {
   Form,
@@ -17,10 +17,9 @@ import Link from 'next/link'
 import { routes } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
-import { useAction } from '@/app/api-client'
 import { registerAction } from '@/actions/register'
-import { errorHandler } from '@/utils/errorHandler'
 import toast from 'react-hot-toast'
+import { handleActionError } from '@/utils/errorHandler'
 
 type FormValues = z.infer<typeof registerSchema>
 
@@ -35,27 +34,32 @@ const RegisterForm = () => {
     mode: 'onBlur',
   })
 
-  const mutation = useAction(registerAction, {
-    onError: (error) => {
-      errorHandler(methods.setError, error)
-    },
-    onSuccess: () => {
-      methods.reset()
-      toast.custom(
-        () => (
-          <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
-            <p>Check your inbox to confirm account</p>
-          </div>
-        ),
-        { position: 'bottom-center' },
-      )
-    },
-  })
+  const handleRegister = async (values: FormValues) => {
+    const action = await registerAction(values)
+    if (!action) {
+      return
+    }
+
+    if (!action.success) {
+      handleActionError(methods.setError, action.errors)
+      return
+    }
+
+    methods.reset()
+    toast.custom(
+      () => (
+        <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
+          <p>Check your inbox to confirm account</p>
+        </div>
+      ),
+      { position: 'bottom-center' },
+    )
+  }
 
   return (
     <Form {...methods}>
       <form
-        onSubmit={methods.handleSubmit((data) => mutation.mutate(data))}
+        onSubmit={methods.handleSubmit(handleRegister)}
         className="flex flex-col gap-6"
       >
         <FormField
@@ -154,9 +158,9 @@ const RegisterForm = () => {
         <Button
           type="submit"
           className="px-20 md:self-start"
-          disabled={mutation.status === 'loading'}
+          disabled={methods.formState.isSubmitting}
         >
-          {mutation.status === 'loading' ? (
+          {methods.formState.isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Registering...

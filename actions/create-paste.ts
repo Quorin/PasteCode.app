@@ -1,34 +1,54 @@
 'use server'
 
 import Cryptr from 'cryptr'
-import { createAction, publicProcedure } from '@/server/trpc/context'
-import { createPasteSchema } from '@/server/trpc/schema'
+import { createPasteSchema } from '@/server/schema'
 import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
 import { hash } from 'argon2'
 import { pastesTable } from '@/db/schema'
+import { db } from '@/db/db'
+import { auth } from '@/utils/auth'
+import {
+  ActionResult,
+  validationErrorResult,
+  successResult,
+} from '@/utils/errorHandler'
+import { z } from 'zod'
 
-export const createPasteAction = createAction(
-  publicProcedure.input(createPasteSchema).mutation(async ({ input, ctx }) => {
-    const [paste] = await ctx.db
-      .insert(pastesTable)
-      .values({
-        title: input.title,
-        content: input.password
-          ? new Cryptr(input.password).encrypt(input.content)
-          : input.content,
-        style: input.style,
-        description: input.description,
-        expiresAt: getExpirationDate(input.expiration),
-        password: input.password ? await hash(input.password) : null,
-        userId: ctx.session?.user?.id ?? null,
-      })
-      .returning({
-        id: pastesTable.id,
-      })
-      .execute()
+export const createPasteAction = async <
+  TInput extends z.infer<typeof createPasteSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<{ id: string }, TInput>> => {
+  const validation = createPasteSchema.safeParse(input)
 
-    await upsertTagsOnPaste(ctx.db, input.tags, paste!.id)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
 
-    return paste!.id
-  }),
-)
+  const { title, content, style, description, expiration, password, tags } =
+    validation.data
+
+  const session = await auth()
+
+  const [paste] = await db
+    .insert(pastesTable)
+    .values({
+      title,
+      content: password ? new Cryptr(password).encrypt(content) : content,
+      style,
+      description,
+      expiresAt: getExpirationDate(expiration),
+      password: password ? await hash(password) : null,
+      userId: session?.user?.id ?? null,
+    })
+    .returning({
+      id: pastesTable.id,
+    })
+    .execute()
+
+  await upsertTagsOnPaste(db, tags, paste!.id)
+
+  return successResult({
+    id: paste!.id,
+  })
+}

@@ -2,16 +2,32 @@
 
 import { db } from '@/db/db'
 import { confirmationCodesTable, usersTable } from '@/db/schema'
+import {
+  ActionResult,
+  successResult,
+  validationErrorResult,
+} from '@/utils/errorHandler'
 import dayjs from 'dayjs'
 import { and, eq } from 'drizzle-orm'
+import { z } from 'zod'
 
-export const confirmAccountAction = async ({
-  id,
-  code,
-}: {
-  id: string
-  code: string
-}) => {
+const inputSchema = z.object({
+  id: z.string(),
+  code: z.string(),
+})
+
+export const confirmAccountAction = async <
+  TInput extends z.infer<typeof inputSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<boolean, TInput>> => {
+  const validation = inputSchema.safeParse(input)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
+
+  const { id, code } = validation.data
+
   const [confirmation] = await db
     .select({
       id: confirmationCodesTable.id,
@@ -29,7 +45,7 @@ export const confirmAccountAction = async ({
     .execute()
 
   if (!confirmation || dayjs().isAfter(confirmation.expiresAt)) {
-    return false
+    return successResult(false)
   }
 
   await db
@@ -45,5 +61,5 @@ export const confirmAccountAction = async ({
     .where(eq(confirmationCodesTable.id, confirmation.id))
     .execute()
 
-  return true
+  return successResult(true)
 }

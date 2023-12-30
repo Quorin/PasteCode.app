@@ -2,43 +2,64 @@
 
 import { eq } from 'drizzle-orm'
 import { usersTable } from '@/db/schema'
-import { createAction, protectedProcedure } from '@/server/trpc/context'
-import { ZodError } from 'zod'
-import { TRPCError } from '@trpc/server'
+import { ZodError, z } from 'zod'
 import { verify } from 'argon2'
-import { removeAccountSchema } from '@/server/trpc/schema'
+import { removeAccountSchema } from '@/server/schema'
+import { db } from '@/db/db'
+import { auth } from '@/utils/auth'
+import { redirect } from 'next/navigation'
+import { routes } from '@/constants/routes'
+import {
+  ActionResult,
+  successResult,
+  validationErrorResult,
+} from '@/utils/errorHandler'
 
-export const removeAccountAction = createAction(
-  protectedProcedure
-    .input(removeAccountSchema)
-    .mutation(async ({ ctx, input }) => {
-      const [user] = await ctx.db
-        .select({
-          password: usersTable.password,
-        })
-        .from(usersTable)
-        .where(eq(usersTable.id, ctx.session.user.id))
-        .limit(1)
-        .execute()
+export const removeAccountAction = async <
+  TInput extends z.infer<typeof removeAccountSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<undefined, TInput>> => {
+  const session = await auth()
 
-      if (!user?.password || !(await verify(user.password, input.password))) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          cause: new ZodError([
-            {
-              path: ['password'],
-              message: 'Password is incorrect',
-              code: 'custom',
-            },
-          ]),
-        })
-      }
+  if (!session.user) {
+    redirect(routes.AUTH.LOGIN)
+  }
 
-      await ctx.db
-        .delete(usersTable)
-        .where(eq(usersTable.id, ctx.session.user.id))
-        .execute()
+  const validation = removeAccountSchema.safeParse(input)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
 
-      ctx.session.destroy()
-    }),
-)
+  const { password } = validation.data
+
+  const [user] = await db
+    .select({
+      password: usersTable.password,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, session.user.id))
+    .limit(1)
+    .execute()
+
+  if (!user?.password || !(await verify(user.password, password))) {
+    return validationErrorResult(
+      new ZodError([
+        {
+          path: ['password'],
+          message: 'Password is incorrect',
+          code: 'custom',
+        },
+      ]),
+    )
+  }
+
+  await db
+    .delete(usersTable)
+    .where(eq(usersTable.id, session.user.id))
+    .execute()
+
+  session.destroy()
+
+  return successResult(undefined)
+}

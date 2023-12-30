@@ -1,82 +1,101 @@
 'use server'
 
-import { TRPCError } from '@trpc/server'
 import { pastesTable } from '@/db/schema'
-import { createAction, protectedProcedure } from '@/server/trpc/context'
-import { updatePasteSchema } from '@/server/trpc/schema'
+import { updatePasteSchema } from '@/server/schema'
 import { eq } from 'drizzle-orm'
 import { hash, verify } from 'argon2'
 import Cryptr from 'cryptr'
 import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
 import { revalidateTag } from 'next/cache'
+import { z } from 'zod'
+import { db } from '@/db/db'
+import { auth } from '@/utils/auth'
+import { notFound, redirect } from 'next/navigation'
+import { routes } from '@/constants/routes'
+import {
+  ActionResult,
+  successResult,
+  validationErrorResult,
+} from '@/utils/errorHandler'
 
-export const editPasteAction = createAction(
-  protectedProcedure
-    .input(updatePasteSchema)
-    .mutation(async ({ input, ctx }) => {
-      const [paste] = await ctx.db
-        .select({
-          id: pastesTable.id,
-          userId: pastesTable.userId,
-          password: pastesTable.password,
-          expiresAt: pastesTable.expiresAt,
-        })
-        .from(pastesTable)
-        .where(eq(pastesTable.id, input.id))
-        .limit(1)
-        .execute()
+export const editPasteAction = async <
+  TInput extends z.infer<typeof updatePasteSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<undefined, TInput>> => {
+  const session = await auth()
 
-      if (!paste) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Paste not found',
-        })
-      }
+  if (!session.user) {
+    redirect(routes.AUTH.LOGIN)
+  }
 
-      if (paste.userId !== ctx.session?.user?.id) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'You are not authorized to edit this paste',
-        })
-      }
+  const validation = updatePasteSchema.safeParse(input)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
 
-      if (paste.password) {
-        if (!input.currentPassword) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'Password is required',
-          })
-        }
+  const {
+    id,
+    content,
+    description,
+    expiration,
+    style,
+    title,
+    currentPassword,
+    password,
+    tags,
+  } = validation.data
 
-        const valid = await verify(paste.password, input.currentPassword)
-        if (!valid) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'Password is incorrect',
-          })
-        }
-      }
+  const [paste] = await db
+    .select({
+      id: pastesTable.id,
+      userId: pastesTable.userId,
+      password: pastesTable.password,
+      expiresAt: pastesTable.expiresAt,
+    })
+    .from(pastesTable)
+    .where(eq(pastesTable.id, id))
+    .limit(1)
+    .execute()
 
-      await ctx.db
-        .update(pastesTable)
-        .set({
-          title: input.title,
-          content: input.password
-            ? new Cryptr(input.password).encrypt(input.content)
-            : input.content,
-          style: input.style,
-          description: input.description,
-          expiresAt: getExpirationDate(
-            input.expiration,
-            paste.expiresAt ? new Date(paste.expiresAt) : null,
-          ),
-          password: input.password ? await hash(input.password) : null,
-        })
-        .where(eq(pastesTable.id, input.id))
-        .execute()
+  if (!paste) {
+    notFound()
+  }
 
-      await upsertTagsOnPaste(ctx.db, input.tags, input.id)
+  if (paste.userId !== session?.user?.id) {
+    redirect('/401')
+  }
 
-      revalidateTag(`paste:${input.id}`)
-    }),
-)
+  if (paste.password) {
+    if (!currentPassword) {
+      redirect('/401')
+    }
+
+    const valid = await verify(paste.password, currentPassword)
+    if (!valid) {
+      redirect('/401')
+    }
+  }
+
+  await db
+    .update(pastesTable)
+    .set({
+      title,
+      content: password ? new Cryptr(password).encrypt(content) : content,
+      style,
+      description,
+      expiresAt: getExpirationDate(
+        expiration,
+        paste.expiresAt ? new Date(paste.expiresAt) : null,
+      ),
+      password: password ? await hash(password) : null,
+    })
+    .where(eq(pastesTable.id, id))
+    .execute()
+
+  await upsertTagsOnPaste(db, tags, id)
+
+  revalidateTag(`paste:${id}`)
+
+  redirect(`/pastes/${id}`)
+}

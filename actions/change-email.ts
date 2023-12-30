@@ -6,49 +6,71 @@ import {
   confirmationCodesTable,
   usersTable,
 } from '@/db/schema'
-import { createAction, protectedProcedure } from '@/server/trpc/context'
-import { changeEmailSchema } from '@/server/trpc/schema'
+import { changeEmailSchema } from '@/server/schema'
 import { generateRandomString } from '@/utils/random'
 import dayjs from 'dayjs'
 import { sendConfirmationEmail } from '@/utils/email'
+import { z } from 'zod'
+import { auth } from '@/utils/auth'
+import { redirect } from 'next/navigation'
+import { routes } from '@/constants/routes'
+import { db } from '@/db/db'
+import {
+  ActionErrorKind,
+  ActionResult,
+  errorResult,
+  validationErrorResult,
+} from '@/utils/errorHandler'
 
-export const changeEmailAction = createAction(
-  protectedProcedure
-    .input(changeEmailSchema)
-    .mutation(async ({ ctx, input }) => {
-      const code = generateRandomString(confirmationCodeLength)
+export const changeEmailAction = async <
+  TInput extends z.infer<typeof changeEmailSchema>,
+>(
+  input: TInput,
+): Promise<ActionResult<undefined, TInput>> => {
+  const session = await auth()
 
-      await ctx.db
-        .update(usersTable)
-        .set({
-          email: input.email,
-          confirmed: false,
-          credentialsUpdatedAt: new Date(),
-        })
-        .where(eq(usersTable.id, ctx.session.user.id))
-        .execute()
+  if (!session.user) {
+    redirect(routes.AUTH.LOGIN)
+  }
 
-      const [confirmationCode] = await ctx.db
-        .insert(confirmationCodesTable)
-        .values({
-          code,
-          expiresAt: dayjs().add(48, 'hours').toDate(),
-          userId: ctx.session.user.id,
-        })
-        .onConflictDoUpdate({
-          set: {
-            code,
-            expiresAt: dayjs().add(48, 'hours').toDate(),
-          },
-          target: confirmationCodesTable.id,
-        })
-        .returning({
-          id: confirmationCodesTable.id,
-        })
-        .execute()
+  const validation = changeEmailSchema.safeParse(input)
 
-      await sendConfirmationEmail(input.email, confirmationCode!.id, code)
+  if (!validation.success) {
+    return validationErrorResult(validation.error)
+  }
 
-      ctx.session.destroy()
-    }),
-)
+  const code = generateRandomString(confirmationCodeLength)
+
+  await db
+    .update(usersTable)
+    .set({
+      email: validation.data.email,
+      confirmed: false,
+      credentialsUpdatedAt: new Date(),
+    })
+    .where(eq(usersTable.id, session.user.id))
+    .execute()
+
+  const [confirmationCode] = await db
+    .insert(confirmationCodesTable)
+    .values({
+      code,
+      expiresAt: dayjs().add(48, 'hours').toDate(),
+      userId: session.user.id,
+    })
+    .onConflictDoUpdate({
+      set: {
+        code,
+        expiresAt: dayjs().add(48, 'hours').toDate(),
+      },
+      target: confirmationCodesTable.id,
+    })
+    .returning({
+      id: confirmationCodesTable.id,
+    })
+    .execute()
+
+  await sendConfirmationEmail(validation.data.email, confirmationCode!.id, code)
+
+  session.destroy()
+}

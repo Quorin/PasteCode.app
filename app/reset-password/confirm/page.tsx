@@ -29,9 +29,9 @@ const ConfirmResetPasswordPage = async ({
     notFound()
   }
 
-  const valid = await checkResetPassword(id, code)
+  const action = await checkResetPassword({ id, code })
 
-  if (!valid) {
+  if (!action?.success) {
     return (
       <div className="flex flex-col justify-center items-center gap-10">
         <PageTitle title="Reset password" />

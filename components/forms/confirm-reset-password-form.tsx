@@ -1,13 +1,9 @@
 'use client'
 
 import { z } from 'zod'
-import { resetPasswordConfirmationSchema } from '@/server/trpc/schema'
+import { resetPasswordConfirmationSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { useAction } from '@/app/api-client'
 import { resetPasswordConfirmationAction } from '@/actions/reset-password-confirmation'
-import { errorHandler } from '@/utils/errorHandler'
-import { useRouter } from 'next/navigation'
-import { routes } from '@/constants/routes'
 import {
   Form,
   FormControl,
@@ -19,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
+import { handleActionError } from '@/utils/errorHandler'
 
 type FormValues = z.infer<typeof resetPasswordConfirmationSchema>
 
@@ -29,7 +26,6 @@ const ConfirmResetPasswordForm = ({
   id: string
   code: string
 }) => {
-  const router = useRouter()
   const methods = useForm<FormValues>({
     defaultValues: {
       id,
@@ -39,21 +35,22 @@ const ConfirmResetPasswordForm = ({
     },
   })
 
-  const mutation = useAction(resetPasswordConfirmationAction, {
-    onError: (error) => {
-      errorHandler(methods.setError, error)
-    },
-    onSuccess: () => {
-      methods.reset()
+  const handleReset = async (values: FormValues) => {
+    const action = await resetPasswordConfirmationAction(values)
+    if (!action) {
+      return
+    }
 
-      router.replace(routes.AUTH.LOGIN)
-    },
-  })
+    if (!action.success) {
+      handleActionError(methods.setError, action.errors)
+      return
+    }
+  }
 
   return (
     <Form {...methods}>
       <form
-        onSubmit={methods.handleSubmit((data) => mutation.mutate(data))}
+        onSubmit={methods.handleSubmit(handleReset)}
         className="flex flex-col gap-6"
       >
         <FormField
@@ -95,9 +92,9 @@ const ConfirmResetPasswordForm = ({
         <Button
           type="submit"
           className="px-20 md:self-start"
-          disabled={mutation.status === 'loading'}
+          disabled={methods.formState.isSubmitting}
         >
-          {mutation.status === 'loading' ? (
+          {methods.formState.isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Changing...

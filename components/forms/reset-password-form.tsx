@@ -1,11 +1,9 @@
 'use client'
 
 import { z } from 'zod'
-import { resetPasswordSchema } from '@/server/trpc/schema'
+import { resetPasswordSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { useAction } from '@/app/api-client'
 import { resetPasswordAction } from '@/actions/reset-password'
-import { errorHandler } from '@/utils/errorHandler'
 import toast from 'react-hot-toast'
 import {
   Form,
@@ -18,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { handleActionError } from '@/utils/errorHandler'
 
 type FormFields = z.infer<typeof resetPasswordSchema>
 
@@ -28,28 +27,33 @@ const ResetPasswordForm = () => {
     },
   })
 
-  const mutation = useAction(resetPasswordAction, {
-    onSuccess: () => {
-      methods.reset()
+  const handleResetPassword = async (values: FormFields) => {
+    const action = await resetPasswordAction(values)
+    if (!action) {
+      return
+    }
 
-      toast.custom(
-        () => (
-          <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
-            <p>Email has been sent if we found your account</p>
-          </div>
-        ),
-        { position: 'bottom-center' },
-      )
-    },
-    onError: (error) => {
-      errorHandler(methods.setError, error)
-    },
-  })
+    if (!action.success) {
+      handleActionError(methods.setError, action.errors)
+      return
+    }
+
+    methods.reset()
+
+    toast.custom(
+      () => (
+        <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
+          <p>Email has been sent if we found your account</p>
+        </div>
+      ),
+      { position: 'bottom-center' },
+    )
+  }
 
   return (
     <Form {...methods}>
       <form
-        onSubmit={methods.handleSubmit((data) => mutation.mutate(data))}
+        onSubmit={methods.handleSubmit(handleResetPassword)}
         className="flex flex-col gap-6"
       >
         <FormField
@@ -73,9 +77,9 @@ const ResetPasswordForm = () => {
         <Button
           type="submit"
           className="px-20 md:self-start"
-          disabled={mutation.status === 'loading'}
+          disabled={methods.formState.isSubmitting}
         >
-          {mutation.status === 'loading' ? (
+          {methods.formState.isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Submitting...

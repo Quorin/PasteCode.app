@@ -1,11 +1,10 @@
 'use client'
 
 import { z } from 'zod'
-import { changeEmailSchema } from '@/server/trpc/schema'
+import { changeEmailSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { useAction } from '@/app/api-client'
 import { changeEmailAction } from '@/actions/change-email'
-import { errorHandler } from '@/utils/errorHandler'
+import { handleActionError } from '@/utils/errorHandler'
 import toast from 'react-hot-toast'
 import {
   Form,
@@ -21,8 +20,6 @@ import { Loader2 } from 'lucide-react'
 
 type FormValues = z.infer<typeof changeEmailSchema>
 
-// todo: auth check on upper level
-
 const ChangeEmailForm = () => {
   const methods = useForm<FormValues>({
     defaultValues: {
@@ -31,9 +28,16 @@ const ChangeEmailForm = () => {
     },
   })
 
-  const changeEmailMutation = useAction(changeEmailAction, {
-    onSuccess: () => {
+  const handleSubmit = async (values: FormValues) => {
+    const action = await changeEmailAction(values)
+
+    if (!action) {
+      return
+    }
+
+    if (action.success) {
       methods.reset()
+
       toast.custom(
         () => (
           <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
@@ -42,18 +46,35 @@ const ChangeEmailForm = () => {
         ),
         { position: 'bottom-center' },
       )
-    },
-    onError: (error) => {
-      errorHandler(methods.setError, error)
-    },
-  })
+
+      return
+    }
+
+    handleActionError(methods.setError, action.errors)
+  }
+
+  // const changeEmailMutation = useMutation({
+  //   mutationFn: changeEmailAction,
+  //   onSuccess: () => {
+  //     methods.reset()
+  //     toast.custom(
+  //       () => (
+  //         <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
+  //           <p>Email has been changed, please confirm new email address</p>
+  //         </div>
+  //       ),
+  //       { position: 'bottom-center' },
+  //     )
+  //   },
+  //   onError: (error) => {
+  //     errorHandler(methods.setError, error)
+  //   },
+  // })
 
   return (
     <Form {...methods}>
       <form
-        onSubmit={methods.handleSubmit((data) =>
-          changeEmailMutation.mutate(data),
-        )}
+        onSubmit={methods.handleSubmit(handleSubmit)}
         className="flex flex-col gap-6"
       >
         <FormField
@@ -95,9 +116,9 @@ const ChangeEmailForm = () => {
         <Button
           type="submit"
           className="px-20 md:self-start"
-          disabled={changeEmailMutation.status === 'loading'}
+          disabled={methods.formState.isSubmitting}
         >
-          {changeEmailMutation.status === 'loading' ? (
+          {methods.formState.isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Submitting...

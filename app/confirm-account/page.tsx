@@ -29,13 +29,16 @@ const ConfirmAccountPage = async ({
     notFound()
   }
 
-  const valid = await confirmAccountAction({ id, code })
+  const action = await confirmAccountAction({ id, code })
+  if (!action) {
+    return
+  }
 
   return (
     <div className="flex flex-col justify-center items-center gap-10">
       <PageTitle title="Confirm Account" />
 
-      {valid ? (
+      {action.success ? (
         <Image
           src="/images/confirmed.svg"
           alt="Confirmed"
@@ -55,7 +58,7 @@ const ConfirmAccountPage = async ({
 
       <div className="text-center flex flex-col gap-10">
         <p>
-          {valid
+          {action
             ? 'Account has been confirmed.'
             : 'Link is incorrect or expired.'}
         </p>
