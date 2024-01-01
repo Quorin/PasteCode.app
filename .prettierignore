@@ -1,5 +1,7 @@
 node_modules/
+.husky/
 .next/
 dist/
-prisma/
+drizzle/
 coverage/
+pnpm-lock.yaml
