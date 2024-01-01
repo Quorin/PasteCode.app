@@ -48,18 +48,14 @@ export const removePasteAction = async <
     redirect('/401')
   }
 
-  // todo: refactor to return error instead of redirect
-  if (paste.password) {
-    if (password) {
-      const valid = await verify(paste.password, password)
-      if (!valid) {
-        redirect(routes.HOME)
-      }
-    } else {
-      redirect(routes.HOME)
-    }
+  if (
+    paste.password &&
+    (!password || !(await verify(paste.password, password)))
+  ) {
+    redirect(routes.HOME)
   }
 
   await db.delete(pastesTable).where(eq(pastesTable.id, id)).execute()
+
   redirect(routes.HOME)
 }
