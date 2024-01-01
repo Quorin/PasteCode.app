@@ -71,14 +71,11 @@ const ChangeNameForm = () => {
         />
         <Button
           type="submit"
-          className="px-20 md:self-start"
+          className="md:w-44 md:self-start"
           disabled={methods.formState.isSubmitting}
         >
           {methods.formState.isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
-            </>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             'Submit'
           )}

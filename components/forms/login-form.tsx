@@ -135,14 +135,11 @@ const LoginForm = () => {
         <div className="flex flex-col md:flex-row md:self-start gap-2 md:gap-6">
           <Button
             type="submit"
-            className="px-20 md:self-start"
+            className="md:w-44 md:self-start"
             disabled={methods.formState.isSubmitting}
           >
             {methods.formState.isSubmitting && formType === 'login' ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Logging in...
-              </>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               'Login'
             )}
@@ -151,15 +148,12 @@ const LoginForm = () => {
           <Button
             type="button"
             onClick={methods.handleSubmit(handleResendCode)}
-            className="px-20 md:self-start"
+            className="md:w-72 md:self-start"
             disabled={methods.formState.isSubmitting}
             variant={'secondary'}
           >
             {methods.formState.isSubmitting && formType === 'resend' ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
-              </>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               'Send Confirmation'
             )}

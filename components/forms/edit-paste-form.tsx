@@ -209,14 +209,11 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
           <div className="flex flex-col md:flex-row md:self-end gap-2 md:gap-6">
             <Button
               type="submit"
-              className="px-10"
+              className="md:w-28"
               disabled={methods.formState.isSubmitting}
             >
               {methods.formState.isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 'Save'
               )}

@@ -231,14 +231,11 @@ const PasteForm = (
           <div className="flex flex-col md:flex-row md:self-end gap-2 md:gap-6">
             <Button
               type="submit"
-              className="px-10"
+              className="md:w-32"
               disabled={methods.formState.isSubmitting}
             >
               {methods.formState.isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 'Submit'
               )}

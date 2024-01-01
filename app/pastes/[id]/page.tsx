@@ -30,6 +30,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { removePasteAction } from '@/actions/remove-paste'
+import IncorrectPassword from '@/components/forms/incorrect-password'
 
 dayjs.extend(relativeTime)
 
@@ -53,6 +54,15 @@ const PasteIndex = async ({
   }
 
   if (secure) {
+    if (pastePassword) {
+      return (
+        <>
+          <IncorrectPassword password={pastePassword} />
+          <UnlockForm />
+        </>
+      )
+    }
+
     return <UnlockForm />
   }
 

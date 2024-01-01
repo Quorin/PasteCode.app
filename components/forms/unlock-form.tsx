@@ -70,42 +70,6 @@ const UnlockForm = () => {
       </form>
     </Form>
   )
-
-  // return (
-  //   <div className="flex flex-col justify-center items-center">
-  //     <Image
-  //       src="/images/secure.svg"
-  //       alt="Paste is secure"
-  //       width={500}
-  //       height={400}
-  //     />
-  //     <h3 className="text-lg text-red-300">Paste is secured with a password</h3>
-  //     <div className="flex flex-col gap-6 mt-6">
-  //       <FormProvider {...unlockPasteMethods}>
-  //         <form
-  //           onSubmit={unlockPasteMethods.handleSubmit((data) =>
-  //             handleUnlockPaste(data),
-  //           )}
-  //         >
-  //           <div className="mb-6">
-  //             {' '}
-  //             <Input
-  //               id="password"
-  //               name="password"
-  //               type={'password'}
-  //               placeholder="*********"
-  //               required={true}
-  //             />
-  //           </div>
-
-  //           <Button type="submit" className="px-20">
-  //             Decrypt Paste
-  //           </Button>
-  //         </form>
-  //       </FormProvider>
-  //     </div>
-  //   </div>
-  // )
 }
 
 export default UnlockForm

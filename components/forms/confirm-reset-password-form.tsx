@@ -91,14 +91,11 @@ const ConfirmResetPasswordForm = ({
         />
         <Button
           type="submit"
-          className="px-20 md:self-start"
+          className="md:w-72 md:self-start"
           disabled={methods.formState.isSubmitting}
         >
           {methods.formState.isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Changing...
-            </>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             'Change Password'
           )}

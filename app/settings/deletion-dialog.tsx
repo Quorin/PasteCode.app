@@ -103,16 +103,9 @@ const DeletionDialog = (props: ButtonProps) => {
                   </FormItem>
                 )}
               />
-              <Button
-                type="submit"
-                className="px-10"
-                disabled={methods.formState.isSubmitting}
-              >
+              <Button type="submit" disabled={methods.formState.isSubmitting}>
                 {methods.formState.isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Removing...
-                  </>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   'Remove Account & Data'
                 )}
