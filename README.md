@@ -7,8 +7,8 @@ _Pastebin_ alternative for sharing and saving text & code.
 ## Built with
 
 - TypeScript
-- Next.js
-- tRPC
+- Next.js (with RSC)
+- Shadcn
 - TailwindCSS
 - DrizzleORM
 - NeonDB
