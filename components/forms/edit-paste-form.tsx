@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/form'
 import { Loader2 } from 'lucide-react'
 import { editPasteAction } from '@/actions/edit-paste'
-import { handleActionError } from '@/utils/errorHandler'
+import { handleActionError } from '@/utils/error-handler'
 
 export type FormValues = z.infer<typeof updatePasteSchema> & { tag: string }
 

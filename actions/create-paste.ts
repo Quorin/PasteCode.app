@@ -11,7 +11,7 @@ import {
   ActionResult,
   validationErrorResult,
   successResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 import { z } from 'zod'
 
 export const createPasteAction = async <

@@ -6,7 +6,7 @@ import {
   ActionResult,
   successResult,
   validationErrorResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 import dayjs from 'dayjs'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'

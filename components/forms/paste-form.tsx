@@ -25,7 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { handleActionError } from '@/utils/errorHandler'
+import { handleActionError } from '@/utils/error-handler'
 import { Loader2 } from 'lucide-react'
 
 export type FormValues = z.infer<typeof createPasteSchema> & { tag: string }

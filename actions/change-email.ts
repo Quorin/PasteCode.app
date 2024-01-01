@@ -20,7 +20,7 @@ import {
   ActionResult,
   errorResult,
   validationErrorResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 
 export const changeEmailAction = async <
   TInput extends z.infer<typeof changeEmailSchema>,

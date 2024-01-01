@@ -8,7 +8,7 @@ import {
   ActionResult,
   successResult,
   validationErrorResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 import { z } from 'zod'
 
 const inputSchema = z.object({

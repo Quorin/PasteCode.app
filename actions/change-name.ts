@@ -12,7 +12,7 @@ import {
   ActionResult,
   successResult,
   validationErrorResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 
 export const changeNameAction = async <
   TInput extends z.infer<typeof changeNameSchema>,

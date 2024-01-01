@@ -11,7 +11,7 @@ import {
   ActionResult,
   successResult,
   validationErrorResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 
 export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
   input: TInput,
@@ -47,6 +47,11 @@ export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
           message: 'Invalid email or password.',
           code: 'custom',
         },
+        {
+          path: ['email'],
+          message: 'Invalid email or password.',
+          code: 'custom',
+        },
       ]),
     )
   }
@@ -69,6 +74,11 @@ export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
         {
           message: 'Invalid email or password.',
           path: ['password'],
+          code: 'custom',
+        },
+        {
+          path: ['email'],
+          message: 'Invalid email or password.',
           code: 'custom',
         },
       ]),

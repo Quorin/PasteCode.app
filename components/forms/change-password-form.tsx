@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { handleActionError } from '@/utils/errorHandler'
+import { handleActionError } from '@/utils/error-handler'
 
 type FormValues = z.infer<typeof changePasswordSchema>
 

@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { changeEmailSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
 import { changeEmailAction } from '@/actions/change-email'
-import { handleActionError } from '@/utils/errorHandler'
+import { handleActionError } from '@/utils/error-handler'
 import toast from 'react-hot-toast'
 import {
   Form,

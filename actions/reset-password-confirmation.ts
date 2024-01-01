@@ -11,7 +11,7 @@ import {
   ActionResult,
   successResult,
   validationErrorResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 import { redirect } from 'next/navigation'
 import { routes } from '@/constants/routes'
 

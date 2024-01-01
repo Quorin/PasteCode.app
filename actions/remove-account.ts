@@ -13,7 +13,7 @@ import {
   ActionResult,
   successResult,
   validationErrorResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 
 export const removeAccountAction = async <
   TInput extends z.infer<typeof removeAccountSchema>,

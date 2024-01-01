@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
-import { handleActionError } from '@/utils/errorHandler'
+import { handleActionError } from '@/utils/error-handler'
 
 type FormValues = z.infer<typeof changeNameSchema>
 

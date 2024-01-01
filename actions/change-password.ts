@@ -13,7 +13,7 @@ import {
   ActionResult,
   successResult,
   validationErrorResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 
 export const changePasswordAction = async <
   TInput extends z.infer<typeof changePasswordSchema>,

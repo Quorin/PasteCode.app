@@ -19,7 +19,7 @@ import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { resendConfirmationCodeAction } from '@/actions/resend-confirmation-code'
 import toast from 'react-hot-toast'
-import { handleActionError } from '@/utils/errorHandler'
+import { handleActionError } from '@/utils/error-handler'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 

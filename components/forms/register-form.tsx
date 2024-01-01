@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { registerAction } from '@/actions/register'
 import toast from 'react-hot-toast'
-import { handleActionError } from '@/utils/errorHandler'
+import { handleActionError } from '@/utils/error-handler'
 
 type FormValues = z.infer<typeof registerSchema>
 

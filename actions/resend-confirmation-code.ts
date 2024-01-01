@@ -15,7 +15,7 @@ import {
   ActionResult,
   successResult,
   validationErrorResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 
 const resendInput = z.object({
   email: z.string().email('Invalid email'),

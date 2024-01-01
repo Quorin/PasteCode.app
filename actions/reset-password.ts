@@ -16,7 +16,7 @@ import {
   ActionResult,
   successResult,
   validationErrorResult,
-} from '@/utils/errorHandler'
+} from '@/utils/error-handler'
 
 export const resetPasswordAction = async <
   TInput extends z.infer<typeof resetPasswordSchema>,
