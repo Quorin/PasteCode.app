@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 const RootLayout = ({ children }: Props) => {
   return (
     <html lang="en" className={GeistMono.className}>
-      <body>
+      <body className="scrollbar-w-2 scrollbar scrollbar-track-background scrollbar-thumb-secondary-foreground overflow-y-scroll scrollbar-thumb-rounded-md">
         <div className="flex flex-col justify-between min-h-screen gap-6">
           <Providers>
             <Navbar />
