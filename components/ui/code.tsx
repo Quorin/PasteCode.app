@@ -28,10 +28,10 @@ const generateHtml = async ({
         theme: 'material-theme-darker',
       })
     },
-    [`code-${id}`],
+    [`code:${id}`],
     {
-      revalidate: 3600,
-      tags: [`paste:${id}`, `code:${id}`],
+      revalidate: false,
+      tags: [`code:${id}`],
     },
   )()
 

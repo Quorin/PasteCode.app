@@ -64,9 +64,9 @@ export const getPaste = async (id: string, password: string | null = null) =>
 
       return { paste, secure: false }
     },
-    [`paste-${id}-${password ?? ''}`],
+    [`paste:${id}:${password ?? ''}`],
     {
-      revalidate: 1,
-      tags: ['paste', `paste-${id}`],
+      revalidate: false,
+      tags: ['paste', `paste:${id}`],
     },
   )(id, password)

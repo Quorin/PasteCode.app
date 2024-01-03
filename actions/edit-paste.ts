@@ -95,6 +95,7 @@ export const editPasteAction = async <
 
   await upsertTagsOnPaste(db, tags, id)
 
+  revalidateTag(`code:${id}`)
   revalidateTag(`paste:${id}`)
 
   redirect(`/pastes/${id}`)
