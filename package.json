@@ -15,7 +15,6 @@
   "dependencies": {
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.1.1",
-    "@hookform/error-message": "^2.0.1",
     "@hookform/resolvers": "^3.3.4",
     "@neondatabase/serverless": "^0.6.1",
     "@radix-ui/react-alert-dialog": "^1.0.5",
@@ -45,7 +44,6 @@
     "react-infinite-scroll-component": "^6.1.0",
     "shikiji": "^0.9.17",
     "sonner": "^1.3.1",
-    "superjson": "^2.2.1",
     "tailwind-merge": "^2.2.0",
     "zod": "^3.22.4"
   },
