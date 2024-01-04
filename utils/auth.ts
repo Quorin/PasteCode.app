@@ -12,3 +12,7 @@ export type SessionUser = {
 
 export const auth = () =>
   getIronSession<{ user: SessionUser | null }>(cookies(), sessionOptions)
+
+export const getUser = async () => {
+  return (await auth()).user
+}

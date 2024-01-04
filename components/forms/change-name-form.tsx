@@ -17,10 +17,12 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { handleActionError } from '@/utils/error-handler'
+import { useAuth } from '@/utils/useAuth'
 
 type FormValues = z.infer<typeof changeNameSchema>
 
 const ChangeNameForm = () => {
+  const { refresh: refreshSession } = useAuth()
   const methods = useForm<FormValues>({
     defaultValues: {
       name: '',
@@ -39,6 +41,8 @@ const ChangeNameForm = () => {
     }
 
     methods.reset()
+
+    await refreshSession()
 
     toast.custom(
       () => (

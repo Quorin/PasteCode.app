@@ -120,16 +120,15 @@ const PasteIndex = async ({
         </Link>
         <Link
           href={{
-            pathname: routes.HOME,
+            pathname: `/pastes/${paste.id}/fork`,
             query: {
-              fork: paste?.id,
               password,
             },
           }}
         >
           <Button className="gap-2" variant={'secondary'}>
             <DocumentDuplicateIcon className="w-6" />
-            Duplicate
+            Fork
           </Button>
         </Link>
         {canEdit && (

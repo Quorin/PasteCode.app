@@ -28,11 +28,14 @@ import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 
 import { handleActionError } from '@/utils/error-handler'
+import { routes } from '@/constants/routes'
+import { useAuth } from '@/utils/useAuth'
 
 type FormValues = z.infer<typeof removeAccountSchema>
 
 const DeletionDialog = (props: ButtonProps) => {
   const router = useRouter()
+  const { logout } = useAuth()
   const methods = useForm<FormValues>({
     defaultValues: {
       password: '',
@@ -51,7 +54,8 @@ const DeletionDialog = (props: ButtonProps) => {
     }
 
     methods.reset()
-    router.replace('/')
+
+    router.replace(routes.HOME)
 
     toast.custom(
       () => (
@@ -61,6 +65,8 @@ const DeletionDialog = (props: ButtonProps) => {
       ),
       { position: 'bottom-center' },
     )
+
+    logout()
   }
 
   return (

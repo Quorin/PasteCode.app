@@ -1,9 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import PageTitle from '@/components/ui/page-title'
 import { routes } from '@/constants/routes'
 import { Button, ButtonVariants } from '@/components/ui/button'
 import { logoutAction } from '@/actions/logout'
 import DeletionDialog from '@/app/settings/deletion-dialog'
+import { useAuth } from '@/utils/useAuth'
 
 type Route = {
   title: string
@@ -30,6 +33,13 @@ const settingRoutes: Array<Route> = [
 ]
 
 const SettingsPage = () => {
+  const { logout } = useAuth()
+
+  const handleLogout = async () => {
+    await logoutAction()
+    logout()
+  }
+
   return (
     <div className="text-center">
       <PageTitle title="Settings" />
@@ -51,16 +61,14 @@ const SettingsPage = () => {
 
         <div></div>
 
-        <form>
-          <Button
-            className="w-full md:w-1/2 transition-colors mx-auto"
-            variant="outline"
-            formAction={logoutAction}
-            type="submit"
-          >
-            Logout
-          </Button>
-        </form>
+        <Button
+          className="w-full md:w-1/2 transition-colors mx-auto"
+          variant="outline"
+          onClick={handleLogout}
+          type="submit"
+        >
+          Logout
+        </Button>
       </div>
     </div>
   )

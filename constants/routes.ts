@@ -17,6 +17,7 @@ export const routes = {
     INDEX: '/pastes/[id]',
     RAW: '/pastes/[id]/raw',
     EDIT: '/pastes/[id]/edit',
+    FORK: '/pastes/[id]/fork',
   },
   PRIVACY_POLICY: '/policy',
   TERMS_AND_CONDITIONS: '/terms',

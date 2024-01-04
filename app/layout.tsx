@@ -1,10 +1,10 @@
 import { Toaster } from 'react-hot-toast'
 import Footer from '@/components/ui/footer'
-import Navbar from '@/components/ui/navbar'
 import { Metadata, Viewport } from 'next'
 import { GeistMono } from 'geist/font/mono'
 import Providers from '@/app/providers'
 import './globals.css'
+import Navbar from '@/components/ui/navbar'
 
 type Props = {
   children: React.ReactNode

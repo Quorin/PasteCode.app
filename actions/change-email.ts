@@ -16,9 +16,8 @@ import { redirect } from 'next/navigation'
 import { routes } from '@/constants/routes'
 import { db } from '@/db/db'
 import {
-  ActionErrorKind,
   ActionResult,
-  errorResult,
+  successResult,
   validationErrorResult,
 } from '@/utils/error-handler'
 
@@ -73,4 +72,6 @@ export const changeEmailAction = async <
   await sendConfirmationEmail(validation.data.email, confirmationCode!.id, code)
 
   session.destroy()
+
+  return successResult(undefined)
 }

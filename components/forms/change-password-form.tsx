@@ -17,10 +17,15 @@ import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { handleActionError } from '@/utils/error-handler'
+import { useRouter } from 'next/navigation'
+import { routes } from '@/constants/routes'
+import { useAuth } from '@/utils/useAuth'
 
 type FormValues = z.infer<typeof changePasswordSchema>
 
 const ChangePasswordForm = () => {
+  const router = useRouter()
+  const { logout } = useAuth()
   const methods = useForm<FormValues>({
     defaultValues: {
       password: '',
@@ -42,6 +47,8 @@ const ChangePasswordForm = () => {
 
     methods.reset()
 
+    router.replace(routes.HOME)
+
     toast.custom(
       () => (
         <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
@@ -50,6 +57,8 @@ const ChangePasswordForm = () => {
       ),
       { position: 'bottom-center' },
     )
+
+    logout()
   }
 
   return (

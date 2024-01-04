@@ -22,10 +22,12 @@ import toast from 'react-hot-toast'
 import { handleActionError } from '@/utils/error-handler'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/utils/useAuth'
 
 type FormValues = z.infer<typeof loginSchema>
 
 const LoginForm = () => {
+  const { refresh: refreshAuth } = useAuth()
   const [formType, setFormType] = useState<'login' | 'resend'>('login')
   const router = useRouter()
 
@@ -58,6 +60,8 @@ const LoginForm = () => {
       ),
       { position: 'bottom-center' },
     )
+
+    await refreshAuth()
 
     router.push(routes.HOME)
   }
