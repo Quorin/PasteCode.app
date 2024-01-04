@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { resendConfirmationCodeAction } from '@/actions/resend-confirmation-code'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import { handleActionError } from '@/utils/error-handler'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -52,14 +52,7 @@ const LoginForm = () => {
       return
     }
 
-    toast.custom(
-      () => (
-        <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
-          <p>Successfully logged in.</p>
-        </div>
-      ),
-      { position: 'bottom-center' },
-    )
+    toast.success('Logged in successfully')
 
     await refreshAuth()
 
@@ -83,14 +76,7 @@ const LoginForm = () => {
 
     methods.reset()
 
-    toast.custom(
-      () => (
-        <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
-          <p>Confirmation code has been sent to your email.</p>
-        </div>
-      ),
-      { position: 'bottom-center' },
-    )
+    toast.info('Confirmation code has been sent to your email')
   }
 
   return (

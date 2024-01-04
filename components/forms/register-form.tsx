@@ -18,7 +18,7 @@ import { routes } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { registerAction } from '@/actions/register'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import { handleActionError } from '@/utils/error-handler'
 
 type FormValues = z.infer<typeof registerSchema>
@@ -46,14 +46,7 @@ const RegisterForm = () => {
     }
 
     methods.reset()
-    toast.custom(
-      () => (
-        <div className="text-white bg-green-500 px-5 py-2.5 rounded-lg">
-          <p>Check your inbox to confirm account</p>
-        </div>
-      ),
-      { position: 'bottom-center' },
-    )
+    toast.success('Check your inbox to confirm account')
   }
 
   return (

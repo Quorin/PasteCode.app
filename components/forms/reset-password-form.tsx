@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { resetPasswordSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
 import { resetPasswordAction } from '@/actions/reset-password'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import {
   Form,
   FormControl,
@@ -40,14 +40,7 @@ const ResetPasswordForm = () => {
 
     methods.reset()
 
-    toast.custom(
-      () => (
-        <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
-          <p>Email has been sent if we found your account</p>
-        </div>
-      ),
-      { position: 'bottom-center' },
-    )
+    toast.info('Check your inbox to reset password')
   }
 
   return (

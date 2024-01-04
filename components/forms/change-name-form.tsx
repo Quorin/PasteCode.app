@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { changeNameSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
 import { changeNameAction } from '@/actions/change-name'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import {
   Form,
   FormControl,
@@ -44,14 +44,7 @@ const ChangeNameForm = () => {
 
     await refreshSession()
 
-    toast.custom(
-      () => (
-        <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
-          <p>Name has been changed</p>
-        </div>
-      ),
-      { position: 'bottom-center' },
-    )
+    toast.success('Your name has been changed')
   }
 
   return (

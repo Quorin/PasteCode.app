@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { changePasswordSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
 import { changePasswordAction } from '@/actions/change-password'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import {
   Form,
   FormControl,
@@ -49,14 +49,7 @@ const ChangePasswordForm = () => {
 
     router.replace(routes.HOME)
 
-    toast.custom(
-      () => (
-        <div className="text-white bg-blue-700 px-5 py-2.5 rounded-lg">
-          <p>Password has been changed</p>
-        </div>
-      ),
-      { position: 'bottom-center' },
-    )
+    toast.success('Your password has been changed')
 
     logout()
   }

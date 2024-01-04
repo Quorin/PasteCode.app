@@ -1,4 +1,3 @@
-import { Toaster } from 'react-hot-toast'
 import Footer from '@/components/ui/footer'
 import { Metadata, Viewport } from 'next'
 import { GeistMono } from 'geist/font/mono'
@@ -6,6 +5,7 @@ import Providers from '@/app/providers'
 import './globals.css'
 import Navbar from '@/components/ui/navbar'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Toaster } from 'sonner'
 
 type Props = {
   children: React.ReactNode
@@ -34,9 +34,10 @@ const RootLayout = ({ children }: Props) => {
               {children}
             </main>
             <Footer />
-            <Toaster />
           </Providers>
         </div>
+
+        <Toaster richColors />
         <SpeedInsights />
       </body>
     </html>

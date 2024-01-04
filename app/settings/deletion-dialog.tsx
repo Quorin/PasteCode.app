@@ -22,7 +22,7 @@ import {
 import { z } from 'zod'
 import { removeAccountSchema } from '@/server/schema'
 import { removeAccountAction } from '@/actions/remove-account'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
@@ -57,14 +57,7 @@ const DeletionDialog = (props: ButtonProps) => {
 
     router.replace(routes.HOME)
 
-    toast.custom(
-      () => (
-        <div className="text-white bg-red-700 px-5 py-2.5 rounded-lg">
-          <p>Account has been removed</p>
-        </div>
-      ),
-      { position: 'bottom-center' },
-    )
+    toast.warning('Account has been removed')
 
     logout()
   }
