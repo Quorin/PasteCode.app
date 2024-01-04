@@ -24,7 +24,7 @@ const Menu = () => {
     <ul
       className={cn(
         'transition-opacity duration-300 ease-in hover:opacity-100 flex flex-col p-4 mt-4 border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 text-center',
-        status === 'loading' ? 'opacity-0' : 'opacity-100',
+        status === 'pending' ? 'opacity-0' : 'opacity-100',
       )}
     >
       <>

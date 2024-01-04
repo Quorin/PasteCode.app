@@ -21,16 +21,15 @@ const PasteList = () => {
     fetchNextPage,
     hasNextPage,
     data,
-  } = useInfiniteQuery<Awaited<ReturnType<typeof getUsersPastes>>>(
-    ['pastes'],
-    async ({ pageParam }) => {
+  } = useInfiniteQuery({
+    queryKey: ['pastes'],
+    queryFn: async ({ pageParam }) => {
       return await getUsersPastes(25, pageParam)
     },
-    {
-      refetchOnWindowFocus: false,
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    },
-  )
+    refetchOnWindowFocus: false,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    initialPageParam: undefined as string | undefined,
+  })
 
   const count = () => {
     return (

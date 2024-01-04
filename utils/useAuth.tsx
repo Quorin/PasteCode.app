@@ -20,17 +20,15 @@ const useAuth = () => {
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<SessionUser | null>(null)
 
-  const query = useQuery(
-    ['user'],
-    async () => {
+  const query = useQuery({
+    queryKey: ['user'],
+    queryFn: async () => {
       const user = await getUser()
       setUser(user)
       return user
     },
-    {
-      refetchOnWindowFocus: false,
-    },
-  )
+    refetchOnWindowFocus: false,
+  })
 
   const logout = async () => {
     setUser(null)
