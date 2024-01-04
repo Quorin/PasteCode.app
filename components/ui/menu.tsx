@@ -23,7 +23,7 @@ const Menu = () => {
   return (
     <ul
       className={cn(
-        'transition-opacity duration-300 ease-in hover:opacity-100 flex flex-col p-4 mt-4 border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 text-center',
+        'transition-opacity duration-300 ease-in flex flex-col p-4 mt-4 border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 text-center',
         status === 'pending' ? 'opacity-0' : 'opacity-100',
       )}
     >
@@ -34,7 +34,7 @@ const Menu = () => {
               passHref
               href={path}
               key={path}
-              className="block py-2 pr-4 pl-3 rounded md:border-0 md:p-0 text-muted-foreground hover:text-foreground hover:bg-muted md:hover:bg-background"
+              className="block py-2 pr-4 pl-3 rounded transition-colors duration-150 md:border-0 md:p-0 text-muted-foreground hover:text-foreground hover:bg-muted md:hover:bg-background"
             >
               <li>{name}</li>
             </Link>
