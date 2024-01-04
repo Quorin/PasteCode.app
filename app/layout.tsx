@@ -5,6 +5,7 @@ import { GeistMono } from 'geist/font/mono'
 import Providers from '@/app/providers'
 import './globals.css'
 import Navbar from '@/components/ui/navbar'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 type Props = {
   children: React.ReactNode
@@ -36,6 +37,7 @@ const RootLayout = ({ children }: Props) => {
             <Toaster />
           </Providers>
         </div>
+        <SpeedInsights />
       </body>
     </html>
   )
