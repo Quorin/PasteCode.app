@@ -30,7 +30,8 @@
     @apply bg-muted !important;
     @apply p-4;
     @apply rounded-lg;
-    @apply overflow-x-auto;
+    @apply overflow-x-scroll;
+    @apply scrollbar-thin scrollbar-track-secondary scrollbar-thumb-primary;
     @apply min-h-[25vh];
   }
 }
