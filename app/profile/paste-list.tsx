@@ -96,6 +96,7 @@ const PasteList = () => {
         {(data?.pages ?? []).map(({ pastes }) =>
           pastes.map((p) => (
             <Link
+              prefetch={false}
               href={`/pastes/${p.id}`}
               key={p.id}
               className="hover:brightness-125 transition cursor-pointer p-6 rounded-lg border shadow-md bg-background"
