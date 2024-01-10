@@ -12,11 +12,7 @@ import { db } from '@/db/db'
 import { auth } from '@/utils/auth'
 import { notFound, redirect } from 'next/navigation'
 import { routes } from '@/constants/routes'
-import {
-  ActionResult,
-  successResult,
-  validationErrorResult,
-} from '@/utils/error-handler'
+import { ActionResult, validationErrorResult } from '@/utils/error-handler'
 
 export const editPasteAction = async <
   TInput extends z.infer<typeof updatePasteSchema>,

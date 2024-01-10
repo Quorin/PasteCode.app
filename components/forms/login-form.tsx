@@ -22,14 +22,12 @@ import { toast } from 'sonner'
 import { handleActionError } from '@/utils/error-handler'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/utils/useAuth'
 
 type FormValues = z.infer<typeof loginSchema>
 
 const LoginForm = () => {
-  const { refresh: refreshAuth } = useAuth()
-  const [formType, setFormType] = useState<'login' | 'resend'>('login')
   const router = useRouter()
+  const [formType, setFormType] = useState<'login' | 'resend'>('login')
 
   const methods = useForm<FormValues>({
     defaultValues: {
@@ -53,8 +51,6 @@ const LoginForm = () => {
     }
 
     toast.success('Logged in successfully')
-
-    await refreshAuth()
 
     router.push(routes.HOME)
   }

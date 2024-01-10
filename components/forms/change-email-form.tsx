@@ -19,13 +19,12 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/constants/routes'
-import { useAuth } from '@/utils/useAuth'
+import { logoutAction } from '@/actions/logout'
 
 type FormValues = z.infer<typeof changeEmailSchema>
 
 const ChangeEmailForm = () => {
   const router = useRouter()
-  const { logout } = useAuth()
   const methods = useForm<FormValues>({
     defaultValues: {
       email: '',
@@ -47,7 +46,7 @@ const ChangeEmailForm = () => {
 
       toast.info('Email has been changed, please confirm new email address')
 
-      logout()
+      await logoutAction()
 
       return
     }
