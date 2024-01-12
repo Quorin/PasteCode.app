@@ -1,7 +1,7 @@
 import Footer from '@/components/ui/footer'
 import { Metadata, Viewport } from 'next'
 import { GeistMono } from 'geist/font/mono'
-import Providers from './(root)/providers'
+import Providers from '@/app/providers'
 import './globals.css'
 import Navbar from '@/components/ui/navbar'
 import { SpeedInsights } from '@vercel/speed-insights/next'

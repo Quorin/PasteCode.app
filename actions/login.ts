@@ -12,7 +12,6 @@ import {
   successResult,
   validationErrorResult,
 } from '@/utils/error-handler'
-// import { revalidateTag } from 'next/cache'
 
 export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
   input: TInput,
@@ -95,8 +94,6 @@ export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
 
     await session.save()
   }
-
-  // revalidateTag('auth')
 
   return successResult(undefined)
 }
