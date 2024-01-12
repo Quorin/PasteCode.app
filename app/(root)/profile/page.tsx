@@ -1,4 +1,4 @@
-import PasteList from '@/app/profile/paste-list'
+import PasteList from '@/app/(root)/profile/paste-list'
 import PageTitle from '@/components/ui/page-title'
 
 const ProfilePage = () => {

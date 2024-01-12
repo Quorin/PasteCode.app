@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import CollapsableButton from '@/components/ui/collapsable-button'
-import Menu from '@/components/ui/menu'
+import { Menu, LoggedOutMenu } from '@/components/ui/menu'
+import { Suspense } from 'react'
 
 const Navbar = () => {
   return (
@@ -19,7 +20,13 @@ const Navbar = () => {
           className="hidden w-full md:block md:w-auto"
           id="collapsable-navbar-btn"
         >
-          <Menu />
+          <Suspense
+            fallback={
+              <LoggedOutMenu className="opacity-0 pointer-events-none" />
+            }
+          >
+            <Menu className="animate-fade" />
+          </Suspense>
         </div>
       </div>
     </div>

@@ -19,13 +19,12 @@ import { Button } from '@/components/ui/button'
 import { handleActionError } from '@/utils/error-handler'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/constants/routes'
-import { useAuth } from '@/utils/useAuth'
+import { logoutAction } from '@/actions/logout'
 
 type FormValues = z.infer<typeof changePasswordSchema>
 
 const ChangePasswordForm = () => {
   const router = useRouter()
-  const { logout } = useAuth()
   const methods = useForm<FormValues>({
     defaultValues: {
       password: '',
@@ -51,7 +50,7 @@ const ChangePasswordForm = () => {
 
     toast.success('Your password has been changed')
 
-    logout()
+    await logoutAction()
   }
 
   return (

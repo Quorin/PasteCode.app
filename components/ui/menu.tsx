@@ -1,8 +1,7 @@
-'use client'
-
 import { routes } from '@/constants/routes'
 import { cn } from '@/lib/utils'
-import { useAuth } from '@/utils/useAuth'
+import { auth } from '@/utils/auth'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 
 const authorizedPaths = (name: string) => [
@@ -17,32 +16,56 @@ const defaultPaths = [
   { path: routes.REGISTER, name: 'Register' },
 ]
 
-const Menu = () => {
-  const { user, status } = useAuth()
+const LoggedOutMenu = ({ className }: { className?: string }) => {
+  return (
+    <ul
+      className={cn(
+        'flex flex-col p-4 mt-4 border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 text-center',
+        className,
+      )}
+    >
+      {defaultPaths.map(({ path, name }) => (
+        <Link
+          passHref
+          href={path}
+          key={path}
+          className="block py-2 pr-4 pl-3 rounded transition-colors duration-150 md:border-0 md:p-0 text-muted-foreground hover:text-foreground hover:bg-muted md:hover:bg-background"
+        >
+          <li>{name}</li>
+        </Link>
+      ))}
+    </ul>
+  )
+}
+
+const Menu = async ({ className }: { className?: string }) => {
+  if (!cookies().getAll().length) <LoggedOutMenu />
+
+  const { user } = await auth()
+
+  if (!user) return <LoggedOutMenu />
 
   return (
     <ul
       className={cn(
-        'transition-opacity duration-300 ease-in flex flex-col p-4 mt-4 border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 text-center',
-        status === 'pending' ? 'opacity-0' : 'opacity-100',
+        'flex flex-col p-4 mt-4 border md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 text-center',
+        className,
       )}
     >
       <>
-        {(user ? authorizedPaths(user.name) : defaultPaths).map(
-          ({ path, name }) => (
-            <Link
-              passHref
-              href={path}
-              key={path}
-              className="block py-2 pr-4 pl-3 rounded transition-colors duration-150 md:border-0 md:p-0 text-muted-foreground hover:text-foreground hover:bg-muted md:hover:bg-background"
-            >
-              <li>{name}</li>
-            </Link>
-          ),
-        )}
+        {authorizedPaths(user.name).map(({ path, name }) => (
+          <Link
+            passHref
+            href={path}
+            key={path}
+            className="block py-2 pr-4 pl-3 rounded transition-colors duration-150 md:border-0 md:p-0 text-muted-foreground hover:text-foreground hover:bg-muted md:hover:bg-background"
+          >
+            <li>{name}</li>
+          </Link>
+        ))}
       </>
     </ul>
   )
 }
 
-export default Menu
+export { Menu, LoggedOutMenu }
