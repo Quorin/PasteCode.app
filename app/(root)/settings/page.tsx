@@ -5,7 +5,7 @@ import PageTitle from '@/components/ui/page-title'
 import { routes } from '@/constants/routes'
 import { Button, ButtonVariants } from '@/components/ui/button'
 import { logoutAction } from '@/actions/logout'
-import DeletionDialog from '@/app/settings/deletion-dialog'
+import DeletionDialog from '@/app/(root)/settings/deletion-dialog'
 import { toast } from 'sonner'
 
 type Route = {

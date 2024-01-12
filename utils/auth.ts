@@ -40,12 +40,5 @@ export const auth = async () => {
     return session
   }
 
-  // if (dbUser.credentialsUpdatedAt !== session.user.credentialsUpdatedAt) {
-  //   // todo: destroy session
-  //   session.user = null
-
-  //   return session
-  // }
-
   return session
 }

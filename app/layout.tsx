@@ -1,10 +1,11 @@
 import Footer from '@/components/ui/footer'
 import { Metadata, Viewport } from 'next'
 import { GeistMono } from 'geist/font/mono'
-import Providers from '@/app/providers'
+import Providers from './(root)/providers'
 import './globals.css'
 import Navbar from '@/components/ui/navbar'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/react'
 import { Toaster } from 'sonner'
 
 type Props = {
@@ -38,6 +39,7 @@ const RootLayout = ({ children }: Props) => {
         </div>
 
         <Toaster richColors />
+        <Analytics />
         <SpeedInsights />
       </body>
     </html>
