@@ -8,7 +8,6 @@ export const routes = {
   PROFILE: '/profile',
   SETTINGS: {
     INDEX: '/settings',
-    CHANGE_NAME: '/settings/change-name',
     CHANGE_PASSWORD: '/settings/change-password',
     CHANGE_EMAIL: '/settings/change-email',
     REMOVE_ACCOUNT: '/settings/remove-account',

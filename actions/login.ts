@@ -31,7 +31,6 @@ export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
       confirmed: usersTable.confirmed,
       email: usersTable.email,
       password: usersTable.password,
-      name: usersTable.name,
       credentialsUpdatedAt: usersTable.credentialsUpdatedAt,
     })
     .from(usersTable)
@@ -88,7 +87,6 @@ export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
   if (session) {
     session.user = {
       id: user.id,
-      name: user.name,
       credentialsUpdatedAt: user.credentialsUpdatedAt,
     }
 

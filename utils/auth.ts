@@ -9,7 +9,6 @@ import { eq } from 'drizzle-orm'
 
 export type SessionUser = {
   id: string
-  name: string
   credentialsUpdatedAt?: Date | null
 }
 
@@ -26,7 +25,6 @@ export const auth = async () => {
   const [dbUser] = await db
     .select({
       id: usersTable.id,
-      name: usersTable.name,
       credentialsUpdatedAt: usersTable.credentialsUpdatedAt,
     })
     .from(usersTable)

@@ -26,7 +26,6 @@ type FormValues = z.infer<typeof registerSchema>
 const RegisterForm = () => {
   const methods = useForm<FormValues>({
     defaultValues: {
-      name: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -68,19 +67,6 @@ const RegisterForm = () => {
                   placeholder="hello@world.localhost"
                   {...field}
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={methods.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel required={true}>Name</FormLabel>
-              <FormControl>
-                <Input required placeholder="John Doe" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
