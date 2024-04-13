@@ -19,10 +19,6 @@ export const changeEmailSchema = z
     path: ['confirmEmail'],
   })
 
-export const changeNameSchema = z.object({
-  name: z.string().max(24, 'Name must be shorter or equal 24'),
-})
-
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string(),
@@ -81,7 +77,6 @@ export const resetPasswordSchema = z.object({
 export const registerSchema = z
   .object({
     email: z.string().email('Email is not valid'),
-    name: z.string().max(24, 'Name must be shorter or equal 24'),
     password: z
       .string()
       .regex(

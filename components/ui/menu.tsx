@@ -4,9 +4,9 @@ import { auth } from '@/utils/auth'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 
-const authorizedPaths = (name: string) => [
+const authorizedPaths = [
   { path: routes.HOME, name: 'Home' },
-  { path: routes.PROFILE, name },
+  { path: routes.PROFILE, name: 'Profile' },
   { path: routes.SETTINGS.INDEX, name: 'Settings' },
 ]
 
@@ -53,7 +53,7 @@ const Menu = async ({ className }: { className?: string }) => {
       )}
     >
       <>
-        {authorizedPaths(user.name).map(({ path, name }) => (
+        {authorizedPaths.map(({ path, name }) => (
           <Link
             passHref
             href={path}

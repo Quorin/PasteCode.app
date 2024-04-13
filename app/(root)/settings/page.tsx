@@ -14,7 +14,7 @@ type Route = {
   variant?: ButtonVariants['variant']
 }
 
-const settingRoutes: Array<Route> = [
+const settingRoutes = [
   {
     title: 'Change Password',
     route: routes.SETTINGS.CHANGE_PASSWORD,
@@ -25,12 +25,7 @@ const settingRoutes: Array<Route> = [
     route: routes.SETTINGS.CHANGE_EMAIL,
     variant: 'secondary',
   },
-  {
-    title: 'Change Name',
-    route: routes.SETTINGS.CHANGE_NAME,
-    variant: 'secondary',
-  },
-]
+] satisfies Array<Route>
 
 const SettingsPage = () => {
   const handleLogout = async () => {
@@ -52,7 +47,11 @@ const SettingsPage = () => {
             className="w-full md:w-1/2 transition-colors mx-auto"
             variant={settingRoute.variant}
           >
-            <Link href={settingRoute.route} key={settingRoute.title}>
+            <Link
+              href={settingRoute.route}
+              prefetch={false}
+              key={settingRoute.title}
+            >
               {settingRoute.title}
             </Link>
           </Button>

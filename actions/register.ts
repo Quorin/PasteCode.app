@@ -7,7 +7,7 @@ import {
   confirmationCodesTable,
   usersTable,
 } from '@/db/schema'
-import { eq, or } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { generateRandomString } from '@/utils/random'
 import { hash } from 'argon2'
 import dayjs from 'dayjs'
@@ -29,34 +29,25 @@ export const registerAction = async <
     return validationErrorResult(validation.error)
   }
 
-  const { email, name, password } = validation.data
+  const { email, password } = validation.data
 
   const [user] = await db
     .select({
       id: usersTable.id,
       email: usersTable.email,
-      name: usersTable.name,
     })
     .from(usersTable)
-    .where(or(eq(usersTable.email, email), eq(usersTable.name, name)))
+    .where(eq(usersTable.email, email))
     .limit(1)
     .execute()
 
   if (user) {
-    let errors: ZodIssue[] = []
+    const errors: ZodIssue[] = []
 
     if (user.email === email) {
       errors.push({
         message: 'Provided email is already in use',
         path: ['email'],
-        code: 'custom',
-      })
-    }
-
-    if (user.name === name) {
-      errors.push({
-        message: 'Provided name is already in use',
-        path: ['name'],
         code: 'custom',
       })
     }
@@ -70,7 +61,6 @@ export const registerAction = async <
     .insert(usersTable)
     .values({
       email,
-      name,
       password: await hash(password),
       acceptTerms: true,
       confirmed: false,
