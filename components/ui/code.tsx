@@ -1,5 +1,6 @@
+import { languageOptions } from '@/utils/lang'
 import { unstable_cache } from 'next/cache'
-import { bundledLanguages, getHighlighter } from 'shikiji/index.mjs'
+import { getHighlighter } from 'shiki'
 
 type CodeProps = {
   id: string
@@ -20,7 +21,7 @@ const generateHtml = async ({
     async () => {
       const shiki = await getHighlighter({
         themes: ['material-theme-darker'],
-        langs: Object.keys(bundledLanguages),
+        langs: languageOptions,
       })
 
       return shiki.codeToHtml(code, {
