@@ -30,6 +30,7 @@ import { Loader2 } from 'lucide-react'
 import { handleActionError } from '@/utils/error-handler'
 import { routes } from '@/constants/routes'
 import { logoutAction } from '@/actions/logout'
+import { useAuth } from '@/utils/useAuth'
 
 type FormValues = z.infer<typeof removeAccountSchema>
 
@@ -40,6 +41,7 @@ const DeletionDialog = (props: ButtonProps) => {
       password: '',
     },
   })
+  const { refetchUser } = useAuth()
 
   const handleDelete = async (values: FormValues) => {
     const action = await removeAccountAction(values)
@@ -59,6 +61,8 @@ const DeletionDialog = (props: ButtonProps) => {
     toast.warning('Account has been removed')
 
     await logoutAction()
+
+    refetchUser()
   }
 
   return (

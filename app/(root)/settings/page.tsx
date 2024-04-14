@@ -7,6 +7,7 @@ import { Button, ButtonVariants } from '@/components/ui/button'
 import { logoutAction } from '@/actions/logout'
 import DeletionDialog from '@/app/(root)/settings/deletion-dialog'
 import { toast } from 'sonner'
+import { useAuth } from '@/utils/useAuth'
 
 type Route = {
   title: string
@@ -28,12 +29,14 @@ const settingRoutes = [
 ] satisfies Array<Route>
 
 const SettingsPage = () => {
+  const { refetchUser } = useAuth()
+
   const handleLogout = async () => {
     await logoutAction()
 
     toast.info('Logged out successfully')
 
-    await logoutAction()
+    refetchUser()
   }
 
   return (

@@ -6,7 +6,7 @@ import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
 import { hash } from 'argon2'
 import { pastesTable } from '@/db/schema'
 import { db } from '@/db/db'
-import { auth } from '@/utils/auth'
+import { getSession } from '@/utils/auth'
 import {
   ActionResult,
   validationErrorResult,
@@ -28,7 +28,7 @@ export const createPasteAction = async <
   const { title, content, style, description, expiration, password, tags } =
     validation.data
 
-  const session = await auth()
+  const session = await getSession()
 
   const [paste] = await db
     .insert(pastesTable)

@@ -6,7 +6,7 @@ import { ZodError, z } from 'zod'
 import { verify } from 'argon2'
 import { removeAccountSchema } from '@/server/schema'
 import { db } from '@/db/db'
-import { auth } from '@/utils/auth'
+import { getSession } from '@/utils/auth'
 import { redirect } from 'next/navigation'
 import { routes } from '@/constants/routes'
 import {
@@ -20,7 +20,7 @@ export const removeAccountAction = async <
 >(
   input: TInput,
 ): Promise<ActionResult<undefined, TInput>> => {
-  const session = await auth()
+  const session = await getSession()
 
   if (!session.user) {
     redirect(routes.AUTH.LOGIN)

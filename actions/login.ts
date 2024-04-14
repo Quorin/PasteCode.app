@@ -6,7 +6,7 @@ import { loginSchema } from '@/server/schema'
 import { ZodError, z } from 'zod'
 import { verify } from 'argon2'
 import { db } from '@/db/db'
-import { auth } from '@/utils/auth'
+import { getSession } from '@/utils/auth'
 import {
   ActionResult,
   successResult,
@@ -16,7 +16,7 @@ import {
 export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
   input: TInput,
 ): Promise<ActionResult<undefined, TInput>> => {
-  const session = await auth()
+  const session = await getSession()
 
   const validation = loginSchema.safeParse(input)
   if (!validation.success) {

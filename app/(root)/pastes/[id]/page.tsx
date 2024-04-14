@@ -18,7 +18,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tag, TagList } from '@/components/ui/tag'
 import { routes } from '@/constants/routes'
-import { auth } from '@/utils/auth'
+import { getSession } from '@/utils/auth'
 import {
   Dialog,
   DialogClose,
@@ -41,7 +41,7 @@ const PasteIndex = async ({
   params: { id: string }
   searchParams: { password?: string | string[] }
 }) => {
-  const { user } = await auth()
+  const { user } = await getSession()
 
   const pastePassword = Array.isArray(password) ? password[0] : password
 

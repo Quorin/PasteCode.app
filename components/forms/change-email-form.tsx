@@ -20,6 +20,7 @@ import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/constants/routes'
 import { logoutAction } from '@/actions/logout'
+import { useAuth } from '@/utils/useAuth'
 
 type FormValues = z.infer<typeof changeEmailSchema>
 
@@ -31,6 +32,8 @@ const ChangeEmailForm = () => {
       confirmEmail: '',
     },
   })
+
+  const { refetchUser } = useAuth()
 
   const handleSubmit = async (values: FormValues) => {
     const action = await changeEmailAction(values)
@@ -47,6 +50,8 @@ const ChangeEmailForm = () => {
       toast.info('Email has been changed, please confirm new email address')
 
       await logoutAction()
+
+      refetchUser()
 
       return
     }

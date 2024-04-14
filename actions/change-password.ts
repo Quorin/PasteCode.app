@@ -5,7 +5,7 @@ import { usersTable } from '@/db/schema'
 import { changePasswordSchema } from '@/server/schema'
 import { hash, verify } from 'argon2'
 import { ZodError, z } from 'zod'
-import { auth } from '@/utils/auth'
+import { getSession } from '@/utils/auth'
 import { redirect } from 'next/navigation'
 import { routes } from '@/constants/routes'
 import { db } from '@/db/db'
@@ -20,7 +20,7 @@ export const changePasswordAction = async <
 >(
   input: TInput,
 ): Promise<ActionResult<undefined, TInput>> => {
-  const session = await auth()
+  const session = await getSession()
 
   if (!session.user) {
     redirect(routes.AUTH.LOGIN)

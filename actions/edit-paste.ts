@@ -9,7 +9,7 @@ import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
 import { revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/db/db'
-import { auth } from '@/utils/auth'
+import { getSession } from '@/utils/auth'
 import { notFound, redirect } from 'next/navigation'
 import { routes } from '@/constants/routes'
 import { ActionResult, validationErrorResult } from '@/utils/error-handler'
@@ -19,7 +19,7 @@ export const editPasteAction = async <
 >(
   input: TInput,
 ): Promise<ActionResult<undefined, TInput>> => {
-  const session = await auth()
+  const session = await getSession()
 
   if (!session.user) {
     redirect(routes.AUTH.LOGIN)

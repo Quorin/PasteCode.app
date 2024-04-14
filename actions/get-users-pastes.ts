@@ -3,14 +3,14 @@
 import { and, desc, eq, gt, gte, isNull, or, sql } from 'drizzle-orm'
 import { db } from '@/db/db'
 import { pastesTable, tagsOnPastesTable, tagsTable } from '@/db/schema'
-import { auth } from '@/utils/auth'
+import { getSession } from '@/utils/auth'
 import { redirect } from 'next/navigation'
 import { routes } from '@/constants/routes'
 
 export const getUsersPastes = async (limit?: number, cursor?: string) => {
   limit = limit ?? 50
 
-  const { user } = await auth()
+  const { user } = await getSession()
 
   if (!user) {
     redirect(routes.AUTH.LOGIN)

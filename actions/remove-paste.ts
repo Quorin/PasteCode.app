@@ -4,7 +4,7 @@ import { routes } from '@/constants/routes'
 import { db } from '@/db/db'
 import { pastesTable } from '@/db/schema'
 import { removePasteSchema } from '@/server/schema'
-import { auth } from '@/utils/auth'
+import { getSession } from '@/utils/auth'
 import { ActionResult, validationErrorResult } from '@/utils/error-handler'
 import { verify } from 'argon2'
 import { eq } from 'drizzle-orm'
@@ -16,7 +16,7 @@ export const removePasteAction = async <
 >(
   input: TInput,
 ): Promise<ActionResult<undefined, TInput>> => {
-  const { user } = await auth()
+  const { user } = await getSession()
 
   if (!user) {
     redirect(routes.AUTH.LOGIN)

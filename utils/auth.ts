@@ -12,7 +12,7 @@ export type SessionUser = {
   credentialsUpdatedAt?: Date | null
 }
 
-export const auth = async () => {
+export const getSession = async () => {
   const session = await getIronSession<{ user: SessionUser | null }>(
     cookies(),
     sessionOptions,
@@ -39,4 +39,27 @@ export const auth = async () => {
   }
 
   return session
+}
+
+export const getUser = async () => {
+  const session = await getIronSession<{ user: SessionUser | null }>(
+    cookies(),
+    sessionOptions,
+  )
+
+  if (!session.user) {
+    return null
+  }
+
+  const [dbUser] = await db
+    .select({
+      id: usersTable.id,
+      credentialsUpdatedAt: usersTable.credentialsUpdatedAt,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, session.user.id))
+    .limit(1)
+    .execute()
+
+  return dbUser || null
 }
