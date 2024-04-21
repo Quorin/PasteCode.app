@@ -4,7 +4,7 @@ import { Menu } from '@/components/ui/menu'
 
 const Navbar = () => {
   return (
-    <div className="pr-5 py-5">
+    <div className="py-5">
       <div className="container flex flex-wrap justify-between items-center mx-auto">
         <Link href="/">
           <div className="text-3xl whitespace-nowrap text-white cursor-pointer">
