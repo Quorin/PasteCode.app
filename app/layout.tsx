@@ -31,7 +31,7 @@ const RootLayout = ({ children }: Props) => {
         <div className="flex flex-col justify-between min-h-screen gap-6">
           <Providers>
             <Navbar />
-            <main className="container mx-auto px-10 md:px-20 lg:px-40 xl:px-52 ">
+            <main className="container mx-auto px-8 md:px-20 lg:px-40 xl:px-52 ">
               {children}
             </main>
             <Footer />

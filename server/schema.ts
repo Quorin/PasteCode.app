@@ -141,3 +141,14 @@ export const updatePasteSchema = z.object({
   currentPassword: z.string().optional(),
   password: z.string().optional(),
 })
+
+export const pastesSortBySchema = z.enum([
+  'createdAt.asc',
+  'createdAt.desc',
+  'expiresAt.asc',
+  'expiresAt.desc',
+  'title.asc',
+  'title.desc',
+])
+
+export type PastesSortBy = z.infer<typeof pastesSortBySchema>
