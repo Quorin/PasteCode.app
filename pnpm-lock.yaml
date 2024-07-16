@@ -60,8 +60,8 @@ dependencies:
     specifier: ^1.0.10
     version: 1.0.10(next@14.2.1-canary.7)(react@18.3.1)
   argon2:
-    specifier: ^0.40.1
-    version: 0.40.1
+    specifier: ^0.40.3
+    version: 0.40.3
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -2221,13 +2221,13 @@ packages:
     resolution: {integrity: sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg==}
     dev: true
 
-  /argon2@0.40.1:
-    resolution: {integrity: sha512-DjtHDwd7pm12qeWyfihHoM8Bn5vGcgH6sKwgPqwNYroRmxlrzadHEvMyuvQxN/V8YSyRRKD5x6ito09q1e9OyA==}
+  /argon2@0.40.3:
+    resolution: {integrity: sha512-FrSmz4VeM91jwFvvjsQv9GYp6o/kARWoYKjbjDB2U5io1H3e5X67PYGclFDeQff6UXIhUd4aHR3mxCdBbMMuQw==}
     engines: {node: '>=16.17.0'}
     requiresBuild: true
     dependencies:
       '@phc/format': 1.0.0
-      node-addon-api: 7.1.0
+      node-addon-api: 8.1.0
       node-gyp-build: 4.8.1
     dev: false
 
@@ -4398,9 +4398,9 @@ packages:
       - babel-plugin-macros
     dev: false
 
-  /node-addon-api@7.1.0:
-    resolution: {integrity: sha512-mNcltoe1R8o7STTegSOHdnJNN7s5EUvhoS7ShnTHDyOSd+8H+UdWODq6qSv67PjC8Zc5JRT8+oLAMCr0SIXw7g==}
-    engines: {node: ^16 || ^18 || >= 20}
+  /node-addon-api@8.1.0:
+    resolution: {integrity: sha512-yBY+qqWSv3dWKGODD6OGE6GnTX7Q2r+4+DfpqxHSHh8x0B4EKP9+wVGLS6U/AM1vxSNNmUEuIV5EGhYwPpfOwQ==}
+    engines: {node: ^18 || ^20 || >= 21}
     dev: false
 
   /node-gyp-build@4.8.1:
