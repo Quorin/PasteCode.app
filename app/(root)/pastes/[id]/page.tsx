@@ -17,20 +17,11 @@ import { Button } from '@/components/ui/button'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tag, TagList } from '@/components/ui/tag'
-import { routes } from '@/constants/routes'
 import { getSession } from '@/utils/auth'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import { removePasteAction } from '@/actions/remove-paste'
 import IncorrectPassword from '@/components/forms/incorrect-password'
+import { PasteDeletionDialog } from '@/components/common/paste-deletion-dialog'
 
 dayjs.extend(relativeTime)
 
@@ -139,28 +130,7 @@ const PasteIndex = async ({
                 Delete
               </Button>
             </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Delete paste</DialogTitle>
-                <DialogDescription>
-                  {
-                    "Are you sure you want to delete this paste? It can't be undone."
-                  }
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant={'secondary'}>
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <form action={handleDelete}>
-                  <Button type="submit" variant={'destructive'}>
-                    Delete
-                  </Button>
-                </form>
-              </DialogFooter>
-            </DialogContent>
+            <PasteDeletionDialog handleDelete={handleDelete} />
           </Dialog>
         )}
       </div>
