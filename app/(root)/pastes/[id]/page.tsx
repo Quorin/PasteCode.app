@@ -25,13 +25,18 @@ import { PasteDeletionDialog } from '@/components/common/paste-deletion-dialog'
 
 dayjs.extend(relativeTime)
 
-const PasteIndex = async ({
-  params: { id },
-  searchParams: { password },
-}: {
-  params: { id: string }
-  searchParams: { password?: string | string[] }
+const PasteIndex = async (props: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ password?: string | string[] }>
 }) => {
+  const searchParams = await props.searchParams
+
+  const { password } = searchParams
+
+  const params = await props.params
+
+  const { id } = params
+
   const { user } = await getSession()
 
   const pastePassword = Array.isArray(password) ? password[0] : password
@@ -135,9 +140,7 @@ const PasteIndex = async ({
         )}
       </div>
       <div className="py-4">
-        <Suspense fallback={<Skeleton className="shiki"></Skeleton>}>
-          <Code id={paste.id} code={paste.content} style={paste.style} />
-        </Suspense>
+        <Code code={paste.content} style={paste.style ?? ''} />
       </div>
       <div>
         <p className="font-normal text-sm text-muted-foreground">

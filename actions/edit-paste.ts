@@ -6,7 +6,6 @@ import { eq } from 'drizzle-orm'
 import { hash, verify } from 'argon2'
 import Cryptr from 'cryptr'
 import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
-import { revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/db/db'
 import { getSession } from '@/utils/auth'
@@ -90,9 +89,6 @@ export const editPasteAction = async <
     .execute()
 
   await upsertTagsOnPaste(db, tags, id)
-
-  revalidateTag(`code:${id}`)
-  revalidateTag(`paste:${id}`)
 
   redirect(`/pastes/${id}`)
 }

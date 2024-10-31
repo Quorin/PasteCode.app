@@ -3,14 +3,16 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
-const TagList = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ children, className, ...props }, ref) => (
+const TagList = ({
+  ref,
+  children,
+  className,
+  ...props
+}: React.ComponentPropsWithRef<'div'>) => (
   <div ref={ref} className={cn('flex flex-wrap gap-2', className)} {...props}>
     {children}
   </div>
-))
+)
 
 TagList.displayName = 'TagList'
 
@@ -18,25 +20,30 @@ type TagProps = React.HTMLAttributes<HTMLSpanElement> & {
   value: string
 }
 
-const Tag = React.forwardRef<HTMLSpanElement, TagProps>(
-  ({ children, className, value, ...props }, ref) => (
-    <span
-      ref={ref}
-      className={cn('bg-secondary text-xs px-2.5 py-1.5 rounded-lg', className)}
-      {...props}
-    >
-      {value}
-      {children}
-    </span>
-  ),
+const Tag = ({
+  ref,
+  children,
+  className,
+  value,
+  ...props
+}: TagProps & React.ComponentPropsWithRef<'span'>) => (
+  <span
+    ref={ref}
+    className={cn('bg-secondary text-xs px-2.5 py-1.5 rounded-lg', className)}
+    {...props}
+  >
+    {value}
+    {children}
+  </span>
 )
 
 Tag.displayName = 'Tag'
 
-const TagRemoveAction = React.forwardRef<
-  HTMLSpanElement,
-  React.HTMLAttributes<HTMLSpanElement>
->(({ className, ...props }, ref) => (
+const TagRemoveAction = ({
+  ref,
+  className,
+  ...props
+}: React.ComponentPropsWithRef<'span'>) => (
   <span
     ref={ref}
     className={cn(
@@ -47,7 +54,7 @@ const TagRemoveAction = React.forwardRef<
   >
     x
   </span>
-))
+)
 
 TagRemoveAction.displayName = 'TagRemoveAction'
 

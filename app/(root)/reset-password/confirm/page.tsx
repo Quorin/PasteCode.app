@@ -8,14 +8,13 @@ import Link from 'next/link'
 import ConfirmResetPasswordForm from '@/components/forms/confirm-reset-password-form'
 import { unstable_noStore } from 'next/cache'
 
-const ConfirmResetPasswordPage = async ({
-  searchParams,
-}: {
-  searchParams: {
+const ConfirmResetPasswordPage = async (props: {
+  searchParams: Promise<{
     id?: string | string[]
     code?: string | string[]
-  }
+  }>
 }) => {
+  const searchParams = await props.searchParams
   unstable_noStore()
 
   const id = Array.isArray(searchParams.id)

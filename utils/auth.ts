@@ -14,7 +14,7 @@ export type SessionUser = {
 
 export const getSession = async () => {
   const session = await getIronSession<{ user: SessionUser | null }>(
-    cookies(),
+    await cookies(),
     sessionOptions,
   )
 
@@ -43,7 +43,7 @@ export const getSession = async () => {
 
 export const getUser = async () => {
   const session = await getIronSession<{ user: SessionUser | null }>(
-    cookies(),
+    await cookies(),
     sessionOptions,
   )
 
