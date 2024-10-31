@@ -141,7 +141,7 @@ const PasteIndex = async (props: {
       </div>
       <div className="py-4">
         <Suspense fallback={<Skeleton className="shiki"></Skeleton>}>
-          <Code id={paste.id} code={paste.content} style={paste.style} />
+          <Code code={paste.content} style={paste.style} />
         </Suspense>
       </div>
       <div>

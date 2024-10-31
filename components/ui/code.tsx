@@ -1,9 +1,7 @@
 import { languageOptions } from '@/utils/lang'
-import { unstable_cache } from 'next/cache'
-import { getHighlighter } from 'shiki'
+import { getSingletonHighlighter } from 'shiki'
 
 type CodeProps = {
-  id: string
   code: string
   style: string | null
 }
@@ -11,34 +9,23 @@ type CodeProps = {
 const generateHtml = async ({
   code,
   style,
-  id,
 }: {
-  id: string
   code: string
   style: string
-}) =>
-  unstable_cache(
-    async () => {
-      const shiki = await getHighlighter({
-        themes: ['material-theme-darker'],
-        langs: languageOptions,
-      })
+}) => {
+  const shiki = await getSingletonHighlighter({
+    themes: ['material-theme-darker'],
+    langs: languageOptions,
+  })
 
-      return shiki.codeToHtml(code, {
-        lang: style ?? 'txt',
-        theme: 'material-theme-darker',
-      })
-    },
-    [`code:${id}`],
-    {
-      revalidate: false,
-      tags: [`code:${id}`],
-    },
-  )()
+  return shiki.codeToHtml(code, {
+    lang: style ?? 'txt',
+    theme: 'material-theme-darker',
+  })
+}
 
-const Code = async ({ id, code, style }: CodeProps) => {
+const Code = async ({ code, style }: CodeProps) => {
   const html = await generateHtml({
-    id,
     code,
     style: style ?? '',
   })
