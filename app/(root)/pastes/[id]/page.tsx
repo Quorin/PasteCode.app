@@ -140,7 +140,7 @@ const PasteIndex = async (props: {
         )}
       </div>
       <div className="py-4">
-        <Code code={paste.content} />
+        <Code code={paste.content} style={paste.style ?? ''} />
       </div>
       <div>
         <p className="font-normal text-sm text-muted-foreground">

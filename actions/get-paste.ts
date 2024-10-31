@@ -5,20 +5,6 @@ import { pastesTable, tagsOnPastesTable, tagsTable } from '@/db/schema'
 import { verify } from 'argon2'
 import Cryptr from 'cryptr'
 import { db } from '@/db/db'
-import { codeToHtml } from 'shiki'
-
-const generateHtml = async ({
-  code,
-  style,
-}: {
-  code: string
-  style: string
-}) => {
-  return codeToHtml(code, {
-    lang: style ?? 'txt',
-    theme: 'material-theme-darker',
-  })
-}
 
 export const getPaste = async (id: string, password: string | null = null) => {
   const [paste] = await db
@@ -60,10 +46,7 @@ export const getPaste = async (id: string, password: string | null = null) => {
         return {
           paste: {
             ...paste,
-            content: await generateHtml({
-              code: new Cryptr(password).decrypt(paste.content),
-              style: paste.style ?? '',
-            }),
+            content: new Cryptr(password).decrypt(paste.content),
           },
           secure: false,
         }
@@ -74,19 +57,6 @@ export const getPaste = async (id: string, password: string | null = null) => {
     paste.password = ''
 
     return { paste, secure: true }
-  }
-
-  if (paste) {
-    return {
-      secure: false,
-      paste: {
-        ...paste,
-        content: await generateHtml({
-          code: paste.content,
-          style: paste.style ?? '',
-        }),
-      },
-    }
   }
 
   return { paste, secure: false }
