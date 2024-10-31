@@ -25,13 +25,18 @@ import { PasteDeletionDialog } from '@/components/common/paste-deletion-dialog'
 
 dayjs.extend(relativeTime)
 
-const PasteIndex = async ({
-  params: { id },
-  searchParams: { password },
-}: {
-  params: { id: string }
-  searchParams: { password?: string | string[] }
+const PasteIndex = async (props: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ password?: string | string[] }>
 }) => {
+  const searchParams = await props.searchParams
+
+  const { password } = searchParams
+
+  const params = await props.params
+
+  const { id } = params
+
   const { user } = await getSession()
 
   const pastePassword = Array.isArray(password) ? password[0] : password

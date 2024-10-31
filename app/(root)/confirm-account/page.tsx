@@ -7,14 +7,13 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { confirmAccountAction } from '@/actions/confirm-account'
 
-const ConfirmAccountPage = async ({
-  searchParams,
-}: {
-  searchParams: {
+const ConfirmAccountPage = async (props: {
+  searchParams: Promise<{
     id?: string | string[]
     code?: string | string[]
-  }
+  }>
 }) => {
+  const searchParams = await props.searchParams
   unstable_noStore()
 
   const id = Array.isArray(searchParams.id)

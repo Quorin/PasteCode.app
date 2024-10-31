@@ -1,7 +1,7 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
-import { Button, ButtonProps } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -31,10 +31,11 @@ import { handleActionError } from '@/utils/error-handler'
 import { routes } from '@/constants/routes'
 import { logoutAction } from '@/actions/logout'
 import { useAuth } from '@/utils/useAuth'
+import type React from 'react'
 
 type FormValues = z.infer<typeof removeAccountSchema>
 
-const DeletionDialog = (props: ButtonProps) => {
+const DeletionDialog = (props: React.ComponentProps<typeof Button>) => {
   const router = useRouter()
   const methods = useForm<FormValues>({
     defaultValues: {

@@ -14,13 +14,12 @@ const searchParamsSchema = z.object({
   per_page: z.coerce.number().int().optional().default(defaultPerPage),
 })
 
-const ProfilePage = async ({
-  searchParams,
-}: {
-  searchParams: {
+const ProfilePage = async (props: {
+  searchParams: Promise<{
     [key: string]: string | string[] | undefined
-  }
+  }>
 }) => {
+  const searchParams = await props.searchParams
   unstable_noStore()
 
   const searchParamsData = searchParamsSchema.safeParse(searchParams)

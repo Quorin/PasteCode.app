@@ -3,10 +3,10 @@ import { getPaste } from '@/actions/get-paste'
 
 export async function GET(
   request: Request,
-  context: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
   const password = new URL(request.url).searchParams.get('password')
-  const { paste, secure } = await getPaste(context.params.id, password)
+  const { paste, secure } = await getPaste((await context.params).id, password)
 
   if (!paste) {
     redirect('/not-found')
