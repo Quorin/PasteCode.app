@@ -5,8 +5,7 @@ import { pastesTable, tagsOnPastesTable, tagsTable } from '@/db/schema'
 import { verify } from 'argon2'
 import Cryptr from 'cryptr'
 import { db } from '@/db/db'
-import { getSingletonHighlighter } from 'shiki'
-import { languageOptions } from '@/utils/lang'
+import { codeToHtml } from 'shiki'
 
 const generateHtml = async ({
   code,
@@ -15,12 +14,7 @@ const generateHtml = async ({
   code: string
   style: string
 }) => {
-  const shiki = await getSingletonHighlighter({
-    themes: ['material-theme-darker'],
-    langs: languageOptions,
-  })
-
-  return shiki.codeToHtml(code, {
+  return codeToHtml(code, {
     lang: style ?? 'txt',
     theme: 'material-theme-darker',
   })
