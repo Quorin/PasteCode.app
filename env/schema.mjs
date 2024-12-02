@@ -6,7 +6,7 @@ import { z } from 'zod'
  * This way you can ensure the app isn't built with invalid env vars.
  */
 export const serverSchema = z.object({
-  POSTGRES_URL: z.string().url(),
+  DATABASE_URL: z.string().url(),
   URL: z.string().url().optional(),
   SESSION_SECRET: z.string(),
   SENDGRID_API_KEY: z.string().startsWith('SG.'),
