@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 
 import postgres from 'postgres'
 
-const sql = postgres(process.env.POSTGRES_URL!, { max: 1 })
+const sql = postgres(process.env.DATABASE_URL!, { max: 1 })
 
 const db = drizzle(sql)
 

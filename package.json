@@ -10,7 +10,7 @@
     "lint": "next lint",
     "format": "prettier --write ./",
     "prepare": "husky",
-    "migrate": "pnpm with-env tsx ./db/migrate.ts",
+    "migrate": "bun with-env tsx ./db/migrate.ts",
     "with-env": "dotenv -e ./.env --"
   },
   "dependencies": {
