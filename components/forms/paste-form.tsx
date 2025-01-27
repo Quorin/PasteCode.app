@@ -26,7 +26,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { handleActionError } from '@/utils/error-handler'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Eye, EyeOff } from 'lucide-react'
+import { useState } from 'react'
 
 export type FormValues = z.infer<typeof createPasteSchema> & { tag: string }
 
@@ -47,6 +48,7 @@ const PasteForm = (
   },
 ) => {
   const router = useRouter()
+  const [showPassword, setShowPassword] = useState(false)
   const methods = useForm<FormValues>({
     defaultValues: {
       ...defaultValues,
@@ -151,7 +153,27 @@ const PasteForm = (
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="Secure your paste" {...field} />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Secure your paste"
+                    className="pr-10"
+                    {...field}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent hover:text-muted-foreground/70"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {!showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
