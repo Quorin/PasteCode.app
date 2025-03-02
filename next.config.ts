@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   experimental: {
     ppr: true,
   },
+  outputFileTracingIncludes: {
+    '/login': ['./node_modules/argon2/prebuilds/linux-x64/*'],
+    '/register': ['./node_modules/argon2/prebuilds/linux-x64/*'],
+  },
 }
 
 export default nextConfig
