@@ -6,8 +6,7 @@ const nextConfig: NextConfig = {
     ppr: true,
   },
   outputFileTracingIncludes: {
-    '/login': ['./node_modules/argon2/prebuilds/linux-x64/*'],
-    '/register': ['./node_modules/argon2/prebuilds/linux-x64/*'],
+    '/*': ['./node_modules/argon2/prebuilds/linux-x64/*'],
   },
 }
 
