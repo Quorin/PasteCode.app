@@ -10,7 +10,7 @@ const CollapsableButton = ({ id }: { id: string }) => {
       onClick={handleCollapse}
       data-collapse-toggle="navbar-default"
       type="button"
-      className="transition-all inline-flex items-center p-2 ml-3 text-sm rounded-lg md:hidden focus:outline-none text-muted-foreground hover:bg-muted"
+      className="transition-all inline-flex items-center p-2 ml-3 text-sm rounded-lg md:hidden focus:outline-hidden text-muted-foreground hover:bg-muted"
       aria-controls="navbar-default"
       aria-expanded="false"
     >

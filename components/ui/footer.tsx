@@ -3,7 +3,7 @@ import { routes } from '@/constants/routes'
 
 const Footer = () => {
   return (
-    <div className="p-4 rounded-lg shadow md:px-6 md:py-8 ">
+    <div className="p-4 rounded-lg shadow-sm md:px-6 md:py-8 ">
       <footer className="container mx-auto">
         <ul className="flex flex-col md:flex-row md:gap-8 gap-2 flex-wrap items-center justify-center mb-6 text-sm sm:mb-0 text-muted-foreground [&_li:hover_a]:underline">
           <li>

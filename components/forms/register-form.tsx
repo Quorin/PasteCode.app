@@ -112,7 +112,7 @@ const RegisterForm = () => {
           control={methods.control}
           name="agree"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md shadow">
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md shadow-sm">
               <FormControl>
                 <Checkbox
                   checked={field.value}

@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   experimental: {
     ppr: true,
   },
+  outputFileTracingIncludes: {
+    '/*': ['./node_modules/argon2/prebuilds/linux-x64/*'],
+  },
 }
 
 export default nextConfig
