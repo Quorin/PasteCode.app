@@ -9,8 +9,13 @@ export const serverSchema = z.object({
   DATABASE_URL: z.string().url(),
   URL: z.string().url().optional(),
   SESSION_SECRET: z.string(),
-  SENDGRID_API_KEY: z.string().startsWith('SG.'),
-  SENDGRID_FROM_EMAIL: z.string(),
+  SMTP_HOST: z.string(),
+  SMTP_PORT: z.coerce.number(),
+  SMTP_USER: z.string(),
+  SMTP_PASSWORD: z.string(),
+  FROM_EMAIL: z.string(),
+  REPLY_TO_EMAIL: z.string(),
+  REPLY_TO_NAME: z.string(),
 })
 
 /**
