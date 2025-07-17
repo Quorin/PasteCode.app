@@ -1,7 +1,6 @@
-'use server'
-
-import sendGrid from '@sendgrid/mail'
 import { getBaseUrl } from '@/utils/url'
+import { mailer } from './mailer'
+import { env } from '@/env/server.mjs'
 
 enum EmailType {
   ResetPassword,
@@ -13,10 +12,12 @@ export const sendConfirmationEmail = async (
   id: string,
   code: string,
 ) => {
-  sendGrid.setApiKey(process.env.SENDGRID_API_KEY!)
-
-  await sendGrid.send({
-    from: process.env.SENDGRID_FROM_EMAIL!,
+  await mailer.sendMail({
+    from: env.FROM_EMAIL,
+    replyTo: {
+      address: env.REPLY_TO_EMAIL,
+      name: env.REPLY_TO_NAME,
+    },
     to: email,
     subject: getSubject(EmailType.ConfirmAccount),
     html: `<a href="${getBaseUrl()}/confirm-account?id=${id}&code=${code}">Click here to confirm your account.</a>`,
@@ -28,10 +29,12 @@ export const sendResetPasswordEmail = async (
   id: string,
   code: string,
 ) => {
-  sendGrid.setApiKey(process.env.SENDGRID_API_KEY!)
-
-  await sendGrid.send({
-    from: process.env.SENDGRID_FROM_EMAIL!,
+  await mailer.sendMail({
+    from: env.FROM_EMAIL,
+    replyTo: {
+      address: env.REPLY_TO_EMAIL,
+      name: env.REPLY_TO_NAME,
+    },
     to: email,
     subject: getSubject(EmailType.ResetPassword),
     html: `<a href="${getBaseUrl()}/reset-password/confirm?id=${id}&code=${code}">Click here to reset your password.</a>`,

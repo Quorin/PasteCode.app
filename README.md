@@ -13,4 +13,3 @@ _Pastebin_ alternative for sharing and saving text & code.
 - DrizzleORM
 - NeonDB
 - Shiki
-- SendGrid
