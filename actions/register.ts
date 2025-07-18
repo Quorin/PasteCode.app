@@ -49,6 +49,7 @@ export const registerAction = async <
         message: 'Provided email is already in use',
         path: ['email'],
         code: 'custom',
+        input: email,
       })
     }
 

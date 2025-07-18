@@ -49,6 +49,7 @@ export const removeAccountAction = async <
           path: ['password'],
           message: 'Password is incorrect',
           code: 'custom',
+          input: password,
         },
       ]),
     )

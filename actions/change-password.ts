@@ -54,6 +54,7 @@ export const changePasswordAction = async <
           path: ['currentPassword'],
           message: 'Current password is incorrect',
           code: 'custom',
+          input: currentPassword,
         },
       ]),
     )

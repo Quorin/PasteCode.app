@@ -6,8 +6,8 @@ import { z } from 'zod'
  * This way you can ensure the app isn't built with invalid env vars.
  */
 export const serverSchema = z.object({
-  DATABASE_URL: z.string().url(),
-  URL: z.string().url().optional(),
+  DATABASE_URL: z.url(),
+  URL: z.url().optional(),
   SESSION_SECRET: z.string(),
   SMTP_HOST: z.string(),
   SMTP_PORT: z.coerce.number(),

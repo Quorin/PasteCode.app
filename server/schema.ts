@@ -11,8 +11,8 @@ export const removeAccountSchema = z.object({
 
 export const changeEmailSchema = z
   .object({
-    email: z.string().email('Email is not valid'),
-    confirmEmail: z.string().email('Email is not valid'),
+    email: z.email('Email is not valid'),
+    confirmEmail: z.email('Email is not valid'),
   })
   .refine((data) => data.email === data.confirmEmail, {
     message: 'Emails do not match',
@@ -42,7 +42,7 @@ export const changePasswordSchema = z
  */
 
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.email('Invalid email'),
   password: z.string(),
 })
 
@@ -71,12 +71,12 @@ export const resetPasswordConfirmationSchema = z
   })
 
 export const resetPasswordSchema = z.object({
-  email: z.string().email('Email is not valid'),
+  email: z.email('Email is not valid'),
 })
 
 export const registerSchema = z
   .object({
-    email: z.string().email('Email is not valid'),
+    email: z.email('Email is not valid'),
     password: z
       .string()
       .regex(

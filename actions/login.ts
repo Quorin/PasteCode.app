@@ -45,11 +45,13 @@ export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
           path: ['password'],
           message: 'Invalid email or password.',
           code: 'custom',
+          input: password,
         },
         {
           path: ['email'],
           message: 'Invalid email or password.',
           code: 'custom',
+          input: email,
         },
       ]),
     )
@@ -62,6 +64,7 @@ export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
           code: 'custom',
           message: 'Email is not confirmed',
           path: ['email'],
+          input: email,
         },
       ]),
     )
@@ -74,11 +77,13 @@ export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
           message: 'Invalid email or password.',
           path: ['password'],
           code: 'custom',
+          input: password,
         },
         {
           path: ['email'],
           message: 'Invalid email or password.',
           code: 'custom',
+          input: email,
         },
       ]),
     )
