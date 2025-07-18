@@ -22,14 +22,15 @@ import { toast } from 'sonner'
 import { handleActionError } from '@/utils/error-handler'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/utils/useAuth'
+import { useQueryClient } from '@tanstack/react-query'
+import { userQueryOptions } from '@/utils/logout'
 
 type FormValues = z.infer<typeof loginSchema>
 
 const LoginForm = () => {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [formType, setFormType] = useState<'login' | 'resend'>('login')
-  const { refetchUser } = useAuth()
 
   const methods = useForm<FormValues>({
     defaultValues: {
@@ -42,7 +43,6 @@ const LoginForm = () => {
     setFormType('login')
 
     const login = await loginAction(values)
-
     if (!login) {
       return
     }
@@ -52,11 +52,10 @@ const LoginForm = () => {
       return
     }
 
-    toast.success('Logged in successfully')
+    await queryClient.invalidateQueries(userQueryOptions)
 
     router.push(routes.HOME)
-
-    refetchUser()
+    toast.success('Logged in successfully')
   }
 
   const handleResendCode = async (values: FormValues) => {

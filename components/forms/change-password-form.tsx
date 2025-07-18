@@ -17,15 +17,12 @@ import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { handleActionError } from '@/utils/error-handler'
-import { useRouter } from 'next/navigation'
-import { routes } from '@/constants/routes'
-import { logoutAction } from '@/actions/logout'
-import { useAuth } from '@/utils/useAuth'
+import { useLogout } from '@/utils/logout'
 
 type FormValues = z.infer<typeof changePasswordSchema>
 
 const ChangePasswordForm = () => {
-  const router = useRouter()
+  const logout = useLogout()
   const methods = useForm<FormValues>({
     defaultValues: {
       password: '',
@@ -33,7 +30,6 @@ const ChangePasswordForm = () => {
       currentPassword: '',
     },
   })
-  const { refetchUser } = useAuth()
 
   const handleChange = async (values: FormValues) => {
     const action = await changePasswordAction(values)
@@ -47,14 +43,9 @@ const ChangePasswordForm = () => {
     }
 
     methods.reset()
-
-    router.replace(routes.HOME)
+    await logout()
 
     toast.success('Your password has been changed')
-
-    await logoutAction()
-
-    refetchUser()
   }
 
   return (

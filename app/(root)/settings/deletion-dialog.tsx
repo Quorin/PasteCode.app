@@ -23,26 +23,22 @@ import { z } from 'zod'
 import { removeAccountSchema } from '@/server/schema'
 import { removeAccountAction } from '@/actions/remove-account'
 import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 
 import { handleActionError } from '@/utils/error-handler'
-import { routes } from '@/constants/routes'
-import { logoutAction } from '@/actions/logout'
-import { useAuth } from '@/utils/useAuth'
 import type React from 'react'
+import { useLogout } from '@/utils/logout'
 
 type FormValues = z.infer<typeof removeAccountSchema>
 
 const DeletionDialog = (props: React.ComponentProps<typeof Button>) => {
-  const router = useRouter()
+  const logout = useLogout()
   const methods = useForm<FormValues>({
     defaultValues: {
       password: '',
     },
   })
-  const { refetchUser } = useAuth()
 
   const handleDelete = async (values: FormValues) => {
     const action = await removeAccountAction(values)
@@ -57,13 +53,8 @@ const DeletionDialog = (props: React.ComponentProps<typeof Button>) => {
 
     methods.reset()
 
-    router.replace(routes.HOME)
-
+    await logout()
     toast.warning('Account has been removed')
-
-    await logoutAction()
-
-    refetchUser()
   }
 
   return (
