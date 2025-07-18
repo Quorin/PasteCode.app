@@ -4,10 +4,9 @@ import Link from 'next/link'
 import PageTitle from '@/components/ui/page-title'
 import { routes } from '@/constants/routes'
 import { Button, ButtonVariants } from '@/components/ui/button'
-import { logoutAction } from '@/actions/logout'
 import DeletionDialog from '@/app/(root)/settings/deletion-dialog'
 import { toast } from 'sonner'
-import { useAuth } from '@/utils/useAuth'
+import { useLogout } from '@/utils/logout'
 
 type Route = {
   title: string
@@ -29,14 +28,11 @@ const settingRoutes = [
 ] satisfies Array<Route>
 
 const SettingsPage = () => {
-  const { refetchUser } = useAuth()
+  const logout = useLogout()
 
   const handleLogout = async () => {
-    await logoutAction()
-
+    await logout()
     toast.info('Logged out successfully')
-
-    refetchUser()
   }
 
   return (

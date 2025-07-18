@@ -3,7 +3,8 @@
 import { routes } from '@/constants/routes'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { useAuth } from '@/utils/useAuth'
+import { userQueryOptions } from '@/utils/logout'
+import { useQuery } from '@tanstack/react-query'
 
 const authorizedPaths = [
   { path: routes.HOME, name: 'Home' },
@@ -46,18 +47,15 @@ const MenuList = ({
 }
 
 const Menu = () => {
-  const auth = useAuth()
-
-  if (auth.isLoading) {
+  const { isLoading, data: user } = useQuery(userQueryOptions)
+  if (isLoading || !user) {
     return (
       <MenuList
         paths={defaultPaths}
-        className="opacity-0 pointer-events-none"
+        className={isLoading ? 'opacity-0 pointer-events-none' : ''}
       />
     )
   }
-
-  if (!auth.user) return <MenuList paths={defaultPaths} />
 
   return <MenuList paths={authorizedPaths} />
 }
