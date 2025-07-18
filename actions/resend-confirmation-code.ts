@@ -18,7 +18,7 @@ import {
 } from '@/utils/error-handler'
 
 const resendInput = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.email('Invalid email'),
 })
 
 export const resendConfirmationCodeAction = async <
@@ -51,6 +51,7 @@ export const resendConfirmationCodeAction = async <
           path: ['email'],
           message: 'Account with this email does not exist. Please sign up.',
           code: 'custom',
+          input: email,
         },
       ]),
     )
@@ -63,6 +64,7 @@ export const resendConfirmationCodeAction = async <
           path: ['email'],
           message: 'Account is already confirmed. Please sign in.',
           code: 'custom',
+          input: email,
         },
       ]),
     )
@@ -92,6 +94,7 @@ export const resendConfirmationCodeAction = async <
           message:
             'You have to wait 10 minutes before requesting a new confirmation code',
           code: 'custom',
+          input: email,
         },
       ]),
     )

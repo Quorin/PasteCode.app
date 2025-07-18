@@ -52,6 +52,7 @@ export const resetPasswordConfirmationAction = async <
           path: ['password'],
           message: 'Code is incorrect or expired',
           code: 'custom',
+          input: password,
         },
       ]),
     )

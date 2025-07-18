@@ -60,6 +60,7 @@ export const resetPasswordAction = async <
           path: ['email'],
           message: 'You need to wait few minutes for another try',
           code: 'custom',
+          input: email,
         },
       ]),
     )
