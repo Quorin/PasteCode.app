@@ -52,7 +52,7 @@ const LoginForm = () => {
       return
     }
 
-    queryClient.invalidateQueries(userQueryOptions)
+    await queryClient.invalidateQueries(userQueryOptions)
 
     router.push(routes.HOME)
     toast.success('Logged in successfully')
