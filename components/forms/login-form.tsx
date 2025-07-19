@@ -3,7 +3,6 @@
 import { z } from 'zod'
 import { loginSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { loginAction } from '@/actions/login'
 import {
   Form,
   FormControl,
@@ -24,6 +23,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { userQueryOptions } from '@/utils/logout'
+import { client } from '@/lib/orpc'
+import { safe } from '@orpc/client'
 
 type FormValues = z.infer<typeof loginSchema>
 
@@ -42,13 +43,12 @@ const LoginForm = () => {
   const handleLogin = async (values: FormValues) => {
     setFormType('login')
 
-    const login = await loginAction(values)
-    if (!login) {
-      return
-    }
-
-    if (!login.success) {
-      handleActionError(methods.setError, login.errors)
+    const { error, isDefined } = await safe(client.auth.login(values))
+    if (isDefined) {
+      error.data.email &&
+        methods.setError('email', { message: error.data.email })
+      error.data.password &&
+        methods.setError('password', { message: error.data.password })
       return
     }
 

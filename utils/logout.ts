@@ -1,8 +1,8 @@
 import { queryOptions, useQueryClient } from '@tanstack/react-query'
 import { getUser } from './auth'
-import { logoutAction } from '@/actions/logout'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/constants/routes'
+import { client } from '@/lib/orpc'
 
 export const userQueryOptions = queryOptions({
   queryKey: ['user'],
@@ -15,7 +15,7 @@ export const useLogout = () => {
   const router = useRouter()
 
   return async () => {
-    await logoutAction()
+    await client.auth.logout()
 
     queryClient.clear()
     router.push(routes.HOME)
