@@ -7,6 +7,7 @@ import Navbar from '@/components/ui/navbar'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/react'
 import { Toaster } from 'sonner'
+import '../lib/orpc.server'
 
 type Props = {
   children: React.ReactNode
