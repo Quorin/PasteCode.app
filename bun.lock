@@ -9,6 +9,7 @@
         "@hookform/resolvers": "^5.1.1",
         "@neondatabase/serverless": "^1.0.1",
         "@orpc/client": "^1.7.4",
+        "@orpc/react": "^1.7.4",
         "@orpc/server": "^1.7.4",
         "@orpc/tanstack-query": "^1.7.4",
         "@orpc/zod": "^1.7.4",
@@ -277,6 +278,8 @@
     "@orpc/openapi": ["@orpc/openapi@1.7.4", "", { "dependencies": { "@orpc/client": "1.7.4", "@orpc/contract": "1.7.4", "@orpc/openapi-client": "1.7.4", "@orpc/server": "1.7.4", "@orpc/shared": "1.7.4", "@orpc/standard-server": "1.7.4", "json-schema-typed": "^8.0.1", "rou3": "^0.7.3" } }, "sha512-m1ipxYv7sx0LlaWyL6tO5tZM+0GSW3215kLdVVUHFYkjOBICm1M2juxsM+G7Ce89/os+cCzqqXTrldxitVSFJQ=="],
 
     "@orpc/openapi-client": ["@orpc/openapi-client@1.7.4", "", { "dependencies": { "@orpc/client": "1.7.4", "@orpc/contract": "1.7.4", "@orpc/shared": "1.7.4", "@orpc/standard-server": "1.7.4" } }, "sha512-G587hb4L3fSMvQY3R5151YZ0PqM23JSfEhUmZsq9QpLiARrDmnUfSKsrGQbv2WZRulX8l1A3fLbZp/lAJ5iLkg=="],
+
+    "@orpc/react": ["@orpc/react@1.7.4", "", { "dependencies": { "@orpc/client": "1.7.4", "@orpc/contract": "1.7.4", "@orpc/openapi-client": "1.7.4", "@orpc/server": "1.7.4", "@orpc/shared": "1.7.4" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-tyq0WsXKkkiIiHonPYp/cN0u+oIY31fGo224duoijQPZkuNZeoWdOwfUSAjyEx3IFP6rU3T+X6SFhxzHC5qXDQ=="],
 
     "@orpc/server": ["@orpc/server@1.7.4", "", { "dependencies": { "@orpc/client": "1.7.4", "@orpc/contract": "1.7.4", "@orpc/shared": "1.7.4", "@orpc/standard-server": "1.7.4", "@orpc/standard-server-aws-lambda": "1.7.4", "@orpc/standard-server-fetch": "1.7.4", "@orpc/standard-server-node": "1.7.4", "@orpc/standard-server-peer": "1.7.4" }, "peerDependencies": { "crossws": ">=0.3.4", "ws": ">=8.18.1" }, "optionalPeers": ["crossws", "ws"] }, "sha512-J1+09abwzLjSVP46/2hDGW/835WLFacX1rfGuBpJPD2cCxVUEQOrzhoIuxezFYhW5u2Y4PPrqanLjayuo673sw=="],
 

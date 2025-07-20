@@ -96,6 +96,10 @@ export const registerSchema = z
     path: ['confirmPassword'],
   })
 
+export const resendConfirmationCodeSchema = z.object({
+  email: z.email('Email is not valid'),
+})
+
 /**
  * Paste
  */

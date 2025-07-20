@@ -19,6 +19,7 @@
     "@hookform/resolvers": "^5.1.1",
     "@neondatabase/serverless": "^1.0.1",
     "@orpc/client": "^1.7.4",
+    "@orpc/react": "^1.7.4",
     "@orpc/server": "^1.7.4",
     "@orpc/tanstack-query": "^1.7.4",
     "@orpc/zod": "^1.7.4",

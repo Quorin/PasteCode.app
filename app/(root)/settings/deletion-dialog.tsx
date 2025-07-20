@@ -21,39 +21,33 @@ import {
 } from '@/components/ui/form'
 import { z } from 'zod'
 import { removeAccountSchema } from '@/server/schema'
-import { removeAccountAction } from '@/actions/remove-account'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 
-import { handleActionError } from '@/utils/error-handler'
 import type React from 'react'
-import { useLogout } from '@/utils/logout'
+import { handleAction } from '@/utils/form-handler'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useServerAction } from '@orpc/react/hooks'
+import { removeAccount } from '@/actions/orpc/remove-account'
 
 type FormValues = z.infer<typeof removeAccountSchema>
 
 const DeletionDialog = (props: React.ComponentProps<typeof Button>) => {
-  const logout = useLogout()
-  const methods = useForm<FormValues>({
+  const { execute } = useServerAction(removeAccount)
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(removeAccountSchema),
     defaultValues: {
       password: '',
     },
   })
 
   const handleDelete = async (values: FormValues) => {
-    const action = await removeAccountAction(values)
-    if (!action) {
-      return
-    }
+    const { error } = await handleAction(execute, values, form.setError)
+    if (error) return
 
-    if (!action.success) {
-      handleActionError(methods.setError, action.errors)
-      return
-    }
-
-    methods.reset()
-
-    await logout()
+    form.reset()
     toast.warning('Account has been removed')
   }
 
@@ -71,13 +65,13 @@ const DeletionDialog = (props: React.ComponentProps<typeof Button>) => {
             Are you sure you want to deactivate your account? All of your data
             will be permanently removed. This action cannot be undone.
           </DialogDescription>
-          <Form {...methods}>
+          <Form {...form}>
             <form
-              onSubmit={methods.handleSubmit(handleDelete)}
+              onSubmit={form.handleSubmit(handleDelete)}
               className="flex flex-col gap-6"
             >
               <FormField
-                control={methods.control}
+                control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
@@ -97,8 +91,8 @@ const DeletionDialog = (props: React.ComponentProps<typeof Button>) => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={methods.formState.isSubmitting}>
-                {methods.formState.isSubmitting ? (
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   'Remove Account & Data'

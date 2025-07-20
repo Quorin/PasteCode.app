@@ -17,14 +17,18 @@ import Link from 'next/link'
 import { routes } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
-import { registerAction } from '@/actions/register'
 import { toast } from 'sonner'
-import { handleActionError } from '@/utils/error-handler'
+import { handleAction } from '@/utils/form-handler'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useServerAction } from '@orpc/react/hooks'
+import { register } from '@/actions/orpc/register'
 
 type FormValues = z.infer<typeof registerSchema>
 
 const RegisterForm = () => {
+  const { execute } = useServerAction(register)
   const methods = useForm<FormValues>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',
       password: '',
@@ -34,13 +38,8 @@ const RegisterForm = () => {
   })
 
   const handleRegister = async (values: FormValues) => {
-    const action = await registerAction(values)
-    if (!action) {
-      return
-    }
-
-    if (!action.success) {
-      handleActionError(methods.setError, action.errors)
+    const { error } = await handleAction(execute, values, methods.setError)
+    if (error) {
       return
     }
 
