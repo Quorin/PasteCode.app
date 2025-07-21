@@ -27,7 +27,7 @@ type FormValues = z.infer<typeof registerSchema>
 
 const RegisterForm = () => {
   const { execute } = useServerAction(register)
-  const methods = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',
@@ -38,23 +38,23 @@ const RegisterForm = () => {
   })
 
   const handleRegister = async (values: FormValues) => {
-    const { error } = await handleAction(execute, values, methods.setError)
+    const { error } = await handleAction(execute, values, form.setError)
     if (error) {
       return
     }
 
-    methods.reset()
+    form.reset()
     toast.success('Check your inbox to confirm account')
   }
 
   return (
-    <Form {...methods}>
+    <Form {...form}>
       <form
-        onSubmit={methods.handleSubmit(handleRegister)}
+        onSubmit={form.handleSubmit(handleRegister)}
         className="flex flex-col gap-6"
       >
         <FormField
-          control={methods.control}
+          control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
@@ -72,7 +72,7 @@ const RegisterForm = () => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -90,7 +90,7 @@ const RegisterForm = () => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
@@ -108,7 +108,7 @@ const RegisterForm = () => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="agree"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md shadow-sm">
@@ -136,9 +136,9 @@ const RegisterForm = () => {
         <Button
           type="submit"
           className="md:w-60 md:self-start"
-          disabled={methods.formState.isSubmitting}
+          disabled={form.formState.isSubmitting}
         >
-          {methods.formState.isSubmitting ? (
+          {form.formState.isSubmitting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             'Register'

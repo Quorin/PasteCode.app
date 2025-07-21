@@ -1,17 +1,17 @@
 'use client'
 
-import { getUsersPastes } from '@/actions/get-users-pastes'
 import { DataTable } from '@/components/data-table/data-table'
 import { getColumns } from '@/components/pastes-table/pastes-table-columns'
 import { useDataTable } from '@/lib/hooks/use-data-table'
 import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import type { getUserPastes } from '@/actions/orpc/get-user-pastes'
 
 export const PastesTable = ({
   data,
   defaultPerPage,
 }: {
-  data: Awaited<ReturnType<typeof getUsersPastes>>
+  data: Awaited<ReturnType<typeof getUserPastes>>
   defaultPerPage: number
 }) => {
   const router = useRouter()

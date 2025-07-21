@@ -1,5 +1,3 @@
-import { getPaste } from '@/actions/get-paste'
-import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import Code from '@/components/ui/code'
 import FormTitle from '@/components/ui/form-title'
@@ -15,13 +13,13 @@ import {
 import UnlockForm from '@/components/forms/unlock-form'
 import { Button } from '@/components/ui/button'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Tag, TagList } from '@/components/ui/tag'
 import { getSession } from '@/utils/auth'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
-import { removePasteAction } from '@/actions/remove-paste'
 import IncorrectPassword from '@/components/forms/incorrect-password'
 import { PasteDeletionDialog } from '@/components/common/paste-deletion-dialog'
+import { getPaste } from '@/actions/orpc/get-paste'
+import { safe } from '@orpc/client'
 
 dayjs.extend(relativeTime)
 
@@ -29,42 +27,35 @@ const PasteIndex = async (props: {
   params: Promise<{ id: string }>
   searchParams: Promise<{ password?: string | string[] }>
 }) => {
-  const searchParams = await props.searchParams
-
-  const { password } = searchParams
-
-  const params = await props.params
-
-  const { id } = params
-
+  const { id } = await props.params
+  const { password } = await props.searchParams
   const { user } = await getSession()
-
   const pastePassword = Array.isArray(password) ? password[0] : password
 
-  const { paste, secure } = await getPaste(id, pastePassword)
+  const { error, data } = await safe(
+    getPaste({ id, password: pastePassword ?? null }),
+  )
 
-  const canEdit = user?.id === paste?.userId
+  if (error) return
 
+  const { paste, secure } = data
   if (!paste) {
     notFound()
   }
 
+  const canEdit = user?.id === paste.userId
+
   if (secure) {
-    if (pastePassword) {
-      return (
-        <>
-          <IncorrectPassword password={pastePassword} />
-          <UnlockForm />
-        </>
-      )
+    if (!pastePassword) {
+      return <UnlockForm />
     }
 
-    return <UnlockForm />
-  }
-
-  const handleDelete = async () => {
-    'use server'
-    await removePasteAction({ id, password: pastePassword })
+    return (
+      <>
+        <IncorrectPassword password={pastePassword} />
+        <UnlockForm />
+      </>
+    )
   }
 
   return (
@@ -135,7 +126,7 @@ const PasteIndex = async (props: {
                 Delete
               </Button>
             </DialogTrigger>
-            <PasteDeletionDialog handleDelete={handleDelete} />
+            <PasteDeletionDialog pasteId={paste.id} password={pastePassword} />
           </Dialog>
         )}
       </div>

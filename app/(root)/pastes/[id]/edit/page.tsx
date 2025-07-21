@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
 import EditPasteForm from '@/components/forms/edit-paste-form'
 import PageTitle from '@/components/ui/page-title'
-import { getPaste } from '@/actions/get-paste'
 import UnlockForm from '@/components/forms/unlock-form'
+import { getPaste } from '@/actions/orpc/get-paste'
+import { safe } from '@orpc/client'
 
 const EditPastePage = async (props: {
   params: Promise<{ id: string }>
@@ -10,16 +11,20 @@ const EditPastePage = async (props: {
     password?: Array<string> | string
   }>
 }) => {
-  const searchParams = await props.searchParams
-
-  const { password } = searchParams
-
-  const params = await props.params
-
-  const { id } = params
-
+  const { id } = await props.params
+  const { password } = await props.searchParams
   const currentPassword = Array.isArray(password) ? password[0] : password
-  const { paste, secure } = await getPaste(id, currentPassword)
+
+  const { error, data } = await safe(
+    getPaste({
+      id,
+      password: currentPassword ?? null,
+    }),
+  )
+
+  if (error) return
+
+  const { paste, secure } = data
 
   if (!paste) {
     notFound()

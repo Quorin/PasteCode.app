@@ -20,21 +20,20 @@ type FormValues = {
 
 const UnlockForm = () => {
   const router = useRouter()
-
-  const methods = useForm<FormValues>({ defaultValues: { password: '' } })
+  const form = useForm<FormValues>({ defaultValues: { password: '' } })
 
   const handleSubmit = (data: FormValues) => {
     const url = new URL(window.location.href)
     url.searchParams.set('password', data.password)
 
     router.push(url.href)
-    methods.reset()
+    form.reset()
   }
 
   return (
-    <Form {...methods}>
+    <Form {...form}>
       <form
-        onSubmit={methods.handleSubmit((data) => handleSubmit(data))}
+        onSubmit={form.handleSubmit((data) => handleSubmit(data))}
         className="flex flex-col justify-center items-center gap-6"
       >
         <Image
@@ -47,7 +46,7 @@ const UnlockForm = () => {
           Paste is password protected
         </p>
         <FormField
-          control={methods.control}
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>

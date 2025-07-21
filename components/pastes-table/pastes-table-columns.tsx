@@ -1,4 +1,4 @@
-import { getUsersPastes } from '@/actions/get-users-pastes'
+import type { getUserPastes } from '@/actions/orpc/get-user-pastes'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Tag } from '@/components/ui/tag'
 import {
@@ -15,7 +15,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
-type Paste = Awaited<ReturnType<typeof getUsersPastes>>['pastes'][0]
+type Paste = Awaited<ReturnType<typeof getUserPastes>>['pastes'][number]
 
 export const getColumns = (): Array<ColumnDef<Paste>> => {
   return [
