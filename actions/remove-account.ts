@@ -1,15 +1,15 @@
 'use server'
 
-import { routes } from '@/constants/routes'
 import { db } from '@/db/db'
 import { usersTable } from '@/db/schema'
 import { removeAccountSchema } from '@/server/schema'
 import { os } from '@orpc/server'
 import { verify } from 'argon2'
 import { eq } from 'drizzle-orm'
-import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { loggedIn } from './middlewares/logged-in'
+import { cookies } from 'next/headers'
+import { sessionOptions } from '@/server/auth/config'
 
 export const removeAccount = os
   .use(loggedIn)
@@ -43,8 +43,7 @@ export const removeAccount = os
       .where(eq(usersTable.id, session.user.id))
       .execute()
 
-    session.destroy()
-
-    redirect(routes.HOME)
+    const cookieStore = await cookies()
+    cookieStore.delete(sessionOptions.cookieName)
   })
   .actionable()

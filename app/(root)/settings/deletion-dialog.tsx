@@ -26,15 +26,34 @@ import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 
 import type React from 'react'
-import { handleAction } from '@/utils/form-handler'
+import { setFormErrors } from '@/utils/form-handler'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useServerAction } from '@orpc/react/hooks'
 import { removeAccount } from '@/actions/remove-account'
+import { onError, onSuccess } from '@orpc/client'
+import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
+import { userQueryOptions } from '@/utils/logout'
 
 type FormValues = z.infer<typeof removeAccountSchema>
 
 const DeletionDialog = (props: React.ComponentProps<typeof Button>) => {
-  const { execute } = useServerAction(removeAccount)
+  const router = useRouter()
+  const queryClient = useQueryClient()
+
+  const { execute } = useServerAction(removeAccount, {
+    interceptors: [
+      onSuccess(async () => {
+        toast.warning('Account has been removed')
+        await queryClient.invalidateQueries(userQueryOptions)
+        router.push('/')
+      }),
+      onError((error) => {
+        setFormErrors(error, form.setError)
+        toast.error('Could not remove account')
+      }),
+    ],
+  })
 
   const form = useForm<FormValues>({
     resolver: zodResolver(removeAccountSchema),
@@ -42,14 +61,6 @@ const DeletionDialog = (props: React.ComponentProps<typeof Button>) => {
       password: '',
     },
   })
-
-  const handleDelete = async (values: FormValues) => {
-    const { error } = await handleAction(execute, values, form.setError)
-    if (error) return
-
-    form.reset()
-    toast.warning('Account has been removed')
-  }
 
   return (
     <Dialog>
@@ -67,7 +78,7 @@ const DeletionDialog = (props: React.ComponentProps<typeof Button>) => {
           </DialogDescription>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(handleDelete)}
+              onSubmit={form.handleSubmit((values) => execute(values))}
               className="flex flex-col gap-6"
             >
               <FormField

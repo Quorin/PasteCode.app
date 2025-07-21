@@ -14,6 +14,8 @@ import dayjs from 'dayjs'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { loggedIn } from './middlewares/logged-in'
+import { cookies } from 'next/headers'
+import { sessionOptions } from '@/server/auth/config'
 
 export const changeEmail = os
   .use(loggedIn)
@@ -53,6 +55,7 @@ export const changeEmail = os
 
     await sendConfirmationEmail(email, confirmationCode!.id, code)
 
-    session.destroy()
+    const cookieStore = await cookies()
+    cookieStore.delete(sessionOptions.cookieName)
   })
   .actionable()

@@ -3,14 +3,9 @@ import { useRouter } from 'next/navigation'
 import { routes } from '@/constants/routes'
 import { useServerAction } from '@orpc/react/hooks'
 import { logout } from '@/actions/logout'
-import { getSessionAction } from '@/actions/get-session-action'
 
 export const userQueryOptions = queryOptions({
   queryKey: ['user'],
-  queryFn: async () => {
-    const [_, data] = await getSessionAction()
-    return data?.user || null
-  },
   refetchOnWindowFocus: false,
 })
 

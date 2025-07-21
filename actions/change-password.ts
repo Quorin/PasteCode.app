@@ -36,7 +36,8 @@ export const changePassword = os
         .execute()
 
       if (!user) {
-        session.destroy()
+        const cookieStore = await cookies()
+        cookieStore.delete(sessionOptions.cookieName)
         return
       }
 
