@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import ConfirmResetPasswordForm from '@/components/forms/confirm-reset-password-form'
 import { unstable_noStore } from 'next/cache'
-import { checkResetPassword } from '@/actions/orpc/check-reset-password'
+import { checkResetPassword } from '@/actions/check-reset-password'
 import { safe } from '@orpc/server'
 
 const ConfirmResetPasswordPage = async (props: {

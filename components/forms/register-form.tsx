@@ -21,7 +21,7 @@ import { toast } from 'sonner'
 import { handleAction } from '@/utils/form-handler'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useServerAction } from '@orpc/react/hooks'
-import { register } from '@/actions/orpc/register'
+import { register } from '@/actions/register'
 
 type FormValues = z.infer<typeof registerSchema>
 

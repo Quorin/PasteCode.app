@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import UnlockForm from '@/components/forms/unlock-form'
 import { defaultLanguage } from '@/utils/lang'
 import { safe } from '@orpc/client'
-import { getPaste } from '@/actions/orpc/get-paste'
+import { getPaste } from '@/actions/get-paste'
 
 const Fork = async (props: {
   params: Promise<{ id: string }>

@@ -5,7 +5,7 @@ import { getColumns } from '@/components/pastes-table/pastes-table-columns'
 import { useDataTable } from '@/lib/hooks/use-data-table'
 import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import type { getUserPastes } from '@/actions/orpc/get-user-pastes'
+import type { getUserPastes } from '@/actions/get-user-pastes'
 
 export const PastesTable = ({
   data,

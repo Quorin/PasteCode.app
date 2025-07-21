@@ -18,7 +18,7 @@ import { getSession } from '@/utils/auth'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import IncorrectPassword from '@/components/forms/incorrect-password'
 import { PasteDeletionDialog } from '@/components/common/paste-deletion-dialog'
-import { getPaste } from '@/actions/orpc/get-paste'
+import { getPaste } from '@/actions/get-paste'
 import { safe } from '@orpc/client'
 
 dayjs.extend(relativeTime)

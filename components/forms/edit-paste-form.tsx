@@ -24,7 +24,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Loader2 } from 'lucide-react'
-import { editPaste } from '@/actions/orpc/edit-paste'
+import { editPaste } from '@/actions/edit-paste'
 import { onError, onSuccess } from '@orpc/client'
 import { setFormErrors } from '@/utils/form-handler'
 import { useServerAction } from '@orpc/react/hooks'

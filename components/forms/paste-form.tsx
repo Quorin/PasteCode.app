@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/form'
 import { Loader2, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
-import { createPaste } from '@/actions/orpc/create-paste'
+import { createPaste } from '@/actions/create-paste'
 import { setFormErrors } from '@/utils/form-handler'
 import { onSuccess, onError } from '@orpc/client'
 import { useServerAction } from '@orpc/react/hooks'

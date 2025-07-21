@@ -1,4 +1,4 @@
-import { getUserPastes } from '@/actions/orpc/get-user-pastes'
+import { getUserPastes } from '@/actions/get-user-pastes'
 import { PastesTable } from '@/components/pastes-table/pastes-table'
 import PageTitle from '@/components/ui/page-title'
 import { type PastesSortBy, pastesSortBySchema } from '@/server/schema'

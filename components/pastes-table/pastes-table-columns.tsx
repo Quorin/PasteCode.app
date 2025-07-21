@@ -1,4 +1,4 @@
-import type { getUserPastes } from '@/actions/orpc/get-user-pastes'
+import type { getUserPastes } from '@/actions/get-user-pastes'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Tag } from '@/components/ui/tag'
 import {

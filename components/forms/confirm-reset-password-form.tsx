@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
-import { resetPasswordConfirmation } from '@/actions/orpc/reset-password-confirmation'
+import { resetPasswordConfirmation } from '@/actions/reset-password-confirmation'
 import { onError, onSuccess } from '@orpc/client'
 import { routes } from '@/constants/routes'
 import { setFormErrors } from '@/utils/form-handler'

@@ -1,6 +1,6 @@
 'use client'
 
-import { removePaste } from '@/actions/orpc/remove-paste'
+import { removePaste } from '@/actions/remove-paste'
 import { Button } from '@/components/ui/button'
 import {
   DialogHeader,

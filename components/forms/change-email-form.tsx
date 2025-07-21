@@ -19,7 +19,7 @@ import { userQueryOptions } from '@/utils/logout'
 import { handleAction } from '@/utils/form-handler'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useServerAction } from '@orpc/react/hooks'
-import { changeEmail } from '@/actions/orpc/change-email'
+import { changeEmail } from '@/actions/change-email'
 import { useQueryClient } from '@tanstack/react-query'
 
 type FormValues = z.infer<typeof changeEmailSchema>

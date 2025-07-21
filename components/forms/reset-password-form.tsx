@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { resetPassword } from '@/actions/orpc/reset-password'
+import { resetPassword } from '@/actions/reset-password'
 import { onError, onSuccess } from '@orpc/client'
 import { setFormErrors } from '@/utils/form-handler'
 import { zodResolver } from '@hookform/resolvers/zod'

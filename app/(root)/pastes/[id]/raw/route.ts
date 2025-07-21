@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getPaste } from '@/actions/orpc/get-paste'
+import { getPaste } from '@/actions/get-paste'
 import { safe } from '@orpc/client'
 
 export async function GET(

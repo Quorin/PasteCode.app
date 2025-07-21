@@ -29,7 +29,7 @@ import type React from 'react'
 import { handleAction } from '@/utils/form-handler'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useServerAction } from '@orpc/react/hooks'
-import { removeAccount } from '@/actions/orpc/remove-account'
+import { removeAccount } from '@/actions/remove-account'
 
 type FormValues = z.infer<typeof removeAccountSchema>
 

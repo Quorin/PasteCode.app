@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import EditPasteForm from '@/components/forms/edit-paste-form'
 import PageTitle from '@/components/ui/page-title'
 import UnlockForm from '@/components/forms/unlock-form'
-import { getPaste } from '@/actions/orpc/get-paste'
+import { getPaste } from '@/actions/get-paste'
 import { safe } from '@orpc/client'
 
 const EditPastePage = async (props: {

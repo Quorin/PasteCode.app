@@ -3,7 +3,7 @@ import { getUser } from './auth'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/constants/routes'
 import { useServerAction } from '@orpc/react/hooks'
-import { logout } from '@/actions/orpc/logout'
+import { logout } from '@/actions/logout'
 
 export const userQueryOptions = queryOptions({
   queryKey: ['user'],

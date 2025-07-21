@@ -23,8 +23,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { userQueryOptions } from '@/utils/logout'
 import { handleAction } from '@/utils/form-handler'
 import { useServerAction } from '@orpc/react/hooks'
-import { resendConfirmationCode } from '@/actions/orpc/resend-confirmation-code'
-import { login } from '@/actions/orpc/login'
+import { resendConfirmationCode } from '@/actions/resend-confirmation-code'
+import { login } from '@/actions/login'
 
 type FormValues = z.infer<typeof loginSchema>
 

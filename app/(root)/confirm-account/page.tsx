@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { routes } from '@/constants/routes'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { confirmAccount } from '@/actions/orpc/confirm-account'
+import { confirmAccount } from '@/actions/confirm-account'
 
 const ConfirmAccountPage = async (props: {
   searchParams: Promise<{
