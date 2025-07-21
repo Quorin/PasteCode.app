@@ -2,7 +2,6 @@
 
 import { db } from '@/db/db'
 import { usersTable } from '@/db/schema'
-import { loggedIn } from '@/lib/orpc'
 import { sessionOptions } from '@/server/auth/config'
 import { changePasswordSchema } from '@/server/schema'
 import { os } from '@orpc/server'
@@ -10,6 +9,7 @@ import { hash, verify } from 'argon2'
 import { eq } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
+import { loggedIn } from './middlewares/logged-in'
 
 export const changePassword = os
   .use(loggedIn)

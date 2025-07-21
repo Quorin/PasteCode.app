@@ -2,13 +2,13 @@
 
 import { db } from '@/db/db'
 import { pastesTable } from '@/db/schema'
-import { loggedIn } from '@/lib/orpc'
 import { removePasteSchema } from '@/server/schema'
 import { os } from '@orpc/server'
 import { verify } from 'argon2'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { forbidden, notFound } from 'next/navigation'
+import { loggedIn } from './middlewares/logged-in'
 
 export const removePaste = os
   .use(loggedIn)

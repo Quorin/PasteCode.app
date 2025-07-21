@@ -1,6 +1,5 @@
 'use server'
 
-import { getSession } from '@/utils/auth'
 import { db } from '@/db/db'
 import { usersTable } from '@/db/schema'
 import { loginSchema } from '@/server/schema'
@@ -8,6 +7,7 @@ import { verify } from 'argon2'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { os } from '@orpc/server'
+import { getSession } from './get-session'
 
 export const login = os
   .errors({
@@ -58,13 +58,11 @@ export const login = os
       })
     }
 
-    if (session) {
-      session.user = {
-        id: user.id,
-        credentialsUpdatedAt: user.credentialsUpdatedAt,
-      }
-
-      await session.save()
+    session.user = {
+      id: user.id,
+      credentialsUpdatedAt: user.credentialsUpdatedAt,
     }
+
+    await session.save()
   })
   .actionable()

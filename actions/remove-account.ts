@@ -3,13 +3,13 @@
 import { routes } from '@/constants/routes'
 import { db } from '@/db/db'
 import { usersTable } from '@/db/schema'
-import { loggedIn } from '@/lib/orpc'
 import { removeAccountSchema } from '@/server/schema'
 import { os } from '@orpc/server'
 import { verify } from 'argon2'
 import { eq } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { loggedIn } from './middlewares/logged-in'
 
 export const removeAccount = os
   .use(loggedIn)

@@ -1,26 +1,8 @@
-import { os, type RouterClient } from '@orpc/server'
+import type { RouterClient } from '@orpc/server'
 import { RPCLink } from '@orpc/client/fetch'
 import { createORPCClient } from '@orpc/client'
 import type { router } from './router'
 import { createTanstackQueryUtils } from '@orpc/tanstack-query'
-import { getSession } from '@/utils/auth'
-import { unauthorized } from 'next/navigation'
-
-export const loggedIn = os.middleware(async ({ next }) => {
-  const session = await getSession()
-  if (!session.user) {
-    throw unauthorized()
-  }
-
-  return next({
-    context: {
-      session: {
-        ...session,
-        user: session.user,
-      },
-    },
-  })
-})
 
 declare global {
   var $client: RouterClient<typeof router> | undefined

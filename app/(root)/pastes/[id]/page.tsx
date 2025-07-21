@@ -14,12 +14,12 @@ import UnlockForm from '@/components/forms/unlock-form'
 import { Button } from '@/components/ui/button'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { Tag, TagList } from '@/components/ui/tag'
-import { getSession } from '@/utils/auth'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import IncorrectPassword from '@/components/forms/incorrect-password'
 import { PasteDeletionDialog } from '@/components/common/paste-deletion-dialog'
 import { getPaste } from '@/actions/get-paste'
 import { safe } from '@orpc/client'
+import { getSession } from '@/actions/get-session'
 
 dayjs.extend(relativeTime)
 

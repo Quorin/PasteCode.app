@@ -3,12 +3,12 @@
 import { db } from '@/db/db'
 import { pastesTable } from '@/db/schema'
 import { createPasteSchema } from '@/server/schema'
-import { getSession } from '@/utils/auth'
 import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
 import { os } from '@orpc/server'
 import { hash } from 'argon2'
 import Cryptr from 'cryptr'
 import { z } from 'zod'
+import { getSession } from './get-session'
 
 export const createPaste = os
   .input(createPasteSchema)
@@ -21,7 +21,7 @@ export const createPaste = os
     async ({
       input: { title, content, style, description, expiration, password, tags },
     }) => {
-      const session = await getSession()
+      const { user } = await getSession()
 
       const [paste] = await db
         .insert(pastesTable)
@@ -32,7 +32,7 @@ export const createPaste = os
           description,
           expiresAt: getExpirationDate(expiration),
           password: password ? await hash(password) : null,
-          userId: session?.user?.id ?? null,
+          userId: user?.id ?? null,
         })
         .returning({
           id: pastesTable.id,

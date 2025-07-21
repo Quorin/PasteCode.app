@@ -1,8 +1,8 @@
 'use server'
 
-import { getSession } from '@/utils/auth'
 import { os } from '@orpc/server'
 import { z } from 'zod'
+import { getSession } from './get-session'
 
 export const logout = os
   .input(z.void())

@@ -2,7 +2,6 @@
 
 import { db } from '@/db/db'
 import { pastesTable } from '@/db/schema'
-import { loggedIn } from '@/lib/orpc'
 import { updatePasteSchema } from '@/server/schema'
 import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
 import { os } from '@orpc/server'
@@ -11,6 +10,7 @@ import Cryptr from 'cryptr'
 import { eq } from 'drizzle-orm'
 import { forbidden, notFound } from 'next/navigation'
 import { z } from 'zod'
+import { loggedIn } from './middlewares/logged-in'
 
 export const editPaste = os
   .use(loggedIn)

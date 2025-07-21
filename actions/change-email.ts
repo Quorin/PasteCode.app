@@ -6,7 +6,6 @@ import {
   confirmationCodesTable,
   usersTable,
 } from '@/db/schema'
-import { loggedIn } from '@/lib/orpc'
 import { changeEmailSchema } from '@/server/schema'
 import { sendConfirmationEmail } from '@/utils/email'
 import { generateRandomString } from '@/utils/random'
@@ -14,6 +13,7 @@ import { os } from '@orpc/server'
 import dayjs from 'dayjs'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { loggedIn } from './middlewares/logged-in'
 
 export const changeEmail = os
   .use(loggedIn)

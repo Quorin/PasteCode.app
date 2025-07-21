@@ -1,10 +1,10 @@
 import { db } from '@/db/db'
 import { pastesTable, tagsOnPastesTable, tagsTable } from '@/db/schema'
-import { loggedIn } from '@/lib/orpc'
 import { pastesSortBySchema } from '@/server/schema'
 import { os } from '@orpc/server'
 import { eq, isNull, or, sql, desc, gte, and, asc } from 'drizzle-orm'
 import { z } from 'zod'
+import { loggedIn } from './middlewares/logged-in'
 
 const metaQuery = db
   .select({
