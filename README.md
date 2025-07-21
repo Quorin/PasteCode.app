@@ -11,5 +11,6 @@ _Pastebin_ alternative for sharing and saving text & code.
 - Shadcn
 - TailwindCSS
 - DrizzleORM
-- NeonDB
+- oRPC
 - Shiki
+- NeonDB
