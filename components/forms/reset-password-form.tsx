@@ -3,7 +3,6 @@
 import { z } from 'zod'
 import { resetPasswordSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { resetPasswordAction } from '@/actions/reset-password'
 import { toast } from 'sonner'
 import {
   Form,
@@ -16,41 +15,42 @@ import {
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { handleActionError } from '@/utils/error-handler'
+import { resetPassword } from '@/actions/reset-password'
+import { onError, onSuccess } from '@orpc/client'
+import { setFormErrors } from '@/utils/form-handler'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useServerAction } from '@orpc/react/hooks'
 
 type FormFields = z.infer<typeof resetPasswordSchema>
 
 const ResetPasswordForm = () => {
-  const methods = useForm<FormFields>({
+  const { execute } = useServerAction(resetPassword, {
+    interceptors: [
+      onSuccess(async () => {
+        form.reset()
+        toast.info('Check your inbox to reset password')
+      }),
+      onError(async (error) => {
+        setFormErrors(error, form.setError)
+      }),
+    ],
+  })
+
+  const form = useForm<FormFields>({
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       email: '',
     },
   })
 
-  const handleResetPassword = async (values: FormFields) => {
-    const action = await resetPasswordAction(values)
-    if (!action) {
-      return
-    }
-
-    if (!action.success) {
-      handleActionError(methods.setError, action.errors)
-      return
-    }
-
-    methods.reset()
-
-    toast.info('Check your inbox to reset password')
-  }
-
   return (
-    <Form {...methods}>
+    <Form {...form}>
       <form
-        onSubmit={methods.handleSubmit(handleResetPassword)}
+        onSubmit={form.handleSubmit((data) => execute(data))}
         className="flex flex-col gap-6"
       >
         <FormField
-          control={methods.control}
+          control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
@@ -70,9 +70,9 @@ const ResetPasswordForm = () => {
         <Button
           type="submit"
           className="md:w-60 md:self-start"
-          disabled={methods.formState.isSubmitting}
+          disabled={form.formState.isSubmitting}
         >
-          {methods.formState.isSubmitting ? (
+          {form.formState.isSubmitting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             'Submit'

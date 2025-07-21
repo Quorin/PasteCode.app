@@ -1,90 +1,75 @@
 'use server'
 
-import { ZodError, ZodIssue, z } from 'zod'
-import { registerSchema } from '@/server/schema'
+import { db } from '@/db/db'
 import {
   confirmationCodeLength,
   confirmationCodesTable,
   usersTable,
 } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { registerSchema } from '@/server/schema'
+import { sendConfirmationEmail } from '@/utils/email'
 import { generateRandomString } from '@/utils/random'
+import { os } from '@orpc/server'
 import { hash } from 'argon2'
 import dayjs from 'dayjs'
-import { sendConfirmationEmail } from '@/utils/email'
-import { db } from '@/db/db'
-import {
-  ActionResult,
-  successResult,
-  validationErrorResult,
-} from '@/utils/error-handler'
+import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 
-export const registerAction = async <
-  TInput extends z.infer<typeof registerSchema>,
->(
-  input: TInput,
-): Promise<ActionResult<undefined, TInput>> => {
-  const validation = registerSchema.safeParse(input)
-  if (!validation.success) {
-    return validationErrorResult(validation.error)
-  }
+export const register = os
+  .errors({
+    BAD_REQUEST: {
+      data: z.partialRecord(registerSchema.keyof(), z.string()),
+    },
+  })
+  .input(registerSchema)
+  .output(z.void())
+  .handler(async ({ input: { email, password }, errors }) => {
+    const [user] = await db
+      .select({
+        id: usersTable.id,
+        email: usersTable.email,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.email, email))
+      .limit(1)
+      .execute()
 
-  const { email, password } = validation.data
-
-  const [user] = await db
-    .select({
-      id: usersTable.id,
-      email: usersTable.email,
-    })
-    .from(usersTable)
-    .where(eq(usersTable.email, email))
-    .limit(1)
-    .execute()
-
-  if (user) {
-    const errors: ZodIssue[] = []
-
-    if (user.email === email) {
-      errors.push({
-        message: 'Provided email is already in use',
-        path: ['email'],
-        code: 'custom',
-        input: email,
+    if (user) {
+      throw errors.BAD_REQUEST({
+        data: {
+          email: 'Provided email is already in use',
+        },
       })
     }
 
-    return validationErrorResult(new ZodError(errors))
-  }
+    const code = generateRandomString(confirmationCodeLength)
 
-  const code = generateRandomString(confirmationCodeLength)
+    const [createdUser] = await db
+      .insert(usersTable)
+      .values({
+        email,
+        password: await hash(password),
+        acceptTerms: true,
+        confirmed: false,
+      })
+      .returning({
+        id: usersTable.id,
+      })
+      .execute()
 
-  const [createdUser] = await db
-    .insert(usersTable)
-    .values({
-      email,
-      password: await hash(password),
-      acceptTerms: true,
-      confirmed: false,
-    })
-    .returning({
-      id: usersTable.id,
-    })
-    .execute()
+    const [confirmationCode] = await db
+      .insert(confirmationCodesTable)
+      .values({
+        code,
+        userId: createdUser!.id,
+        createdAt: new Date(),
+        expiresAt: dayjs().add(48, 'hours').toDate(),
+      })
+      .returning({
+        id: confirmationCodesTable.id,
+      })
+      .execute()
 
-  const [confirmationCode] = await db
-    .insert(confirmationCodesTable)
-    .values({
-      code,
-      userId: createdUser!.id,
-      createdAt: new Date(),
-      expiresAt: dayjs().add(48, 'hours').toDate(),
-    })
-    .returning({
-      id: confirmationCodesTable.id,
-    })
-    .execute()
-
-  await sendConfirmationEmail(email, confirmationCode!.id, code)
-
-  return successResult(undefined)
-}
+    await sendConfirmationEmail(email, confirmationCode!.id, code)
+  })
+  .actionable()

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { routes } from '@/constants/routes'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { confirmAccountAction } from '@/actions/confirm-account'
+import { confirmAccount } from '@/actions/confirm-account'
 
 const ConfirmAccountPage = async (props: {
   searchParams: Promise<{
@@ -28,16 +28,13 @@ const ConfirmAccountPage = async (props: {
     notFound()
   }
 
-  const action = await confirmAccountAction({ id, code })
-  if (!action) {
-    return
-  }
+  const [error] = await confirmAccount({ id, code })
 
   return (
     <div className="flex flex-col justify-center items-center gap-10">
       <PageTitle title="Confirm Account" />
 
-      {action.success ? (
+      {!error ? (
         <Image
           src="/images/confirmed.svg"
           alt="Confirmed"
@@ -57,7 +54,7 @@ const ConfirmAccountPage = async (props: {
 
       <div className="text-center flex flex-col gap-10">
         <p>
-          {action
+          {!error
             ? 'Account has been confirmed.'
             : 'Link is incorrect or expired.'}
         </p>

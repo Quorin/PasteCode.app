@@ -3,7 +3,6 @@
 import { z } from 'zod'
 import { loginSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { loginAction } from '@/actions/login'
 import {
   Form,
   FormControl,
@@ -17,22 +16,27 @@ import { routes } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { resendConfirmationCodeAction } from '@/actions/resend-confirmation-code'
 import { toast } from 'sonner'
-import { handleActionError } from '@/utils/error-handler'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { userQueryOptions } from '@/utils/logout'
+import { handleAction } from '@/utils/form-handler'
+import { useServerAction } from '@orpc/react/hooks'
+import { resendConfirmationCode } from '@/actions/resend-confirmation-code'
+import { login } from '@/actions/login'
 
 type FormValues = z.infer<typeof loginSchema>
 
 const LoginForm = () => {
+  const { execute: executeResendCode } = useServerAction(resendConfirmationCode)
+  const { execute: executeLogin } = useServerAction(login)
+
   const router = useRouter()
   const queryClient = useQueryClient()
   const [formType, setFormType] = useState<'login' | 'resend'>('login')
 
-  const methods = useForm<FormValues>({
+  const form = useForm<FormValues>({
     defaultValues: {
       email: '',
       password: '',
@@ -42,50 +46,41 @@ const LoginForm = () => {
   const handleLogin = async (values: FormValues) => {
     setFormType('login')
 
-    const login = await loginAction(values)
-    if (!login) {
-      return
-    }
-
-    if (!login.success) {
-      handleActionError(methods.setError, login.errors)
-      return
-    }
+    const { error } = await handleAction(executeLogin, values, form.setError)
+    if (error) return
 
     await queryClient.invalidateQueries(userQueryOptions)
 
     router.push(routes.HOME)
     toast.success('Logged in successfully')
+    return
   }
 
   const handleResendCode = async (values: FormValues) => {
     setFormType('resend')
 
-    methods.clearErrors()
+    form.clearErrors()
 
-    const resendCode = await resendConfirmationCodeAction(values)
-    if (!resendCode) {
-      return
-    }
+    const { error } = await handleAction(
+      executeResendCode,
+      values,
+      form.setError,
+    )
 
-    if (!resendCode.success) {
-      handleActionError(methods.setError, resendCode.errors)
-      return
-    }
+    if (error) return
 
-    methods.reset()
-
+    form.reset()
     toast.info('Confirmation code has been sent to your email')
   }
 
   return (
-    <Form {...methods}>
+    <Form {...form}>
       <form
-        onSubmit={methods.handleSubmit(handleLogin)}
+        onSubmit={form.handleSubmit(handleLogin)}
         className="flex flex-col gap-6"
       >
         <FormField
-          control={methods.control}
+          control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
@@ -103,7 +98,7 @@ const LoginForm = () => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -125,9 +120,9 @@ const LoginForm = () => {
           <Button
             type="submit"
             className="md:w-44 md:self-start"
-            disabled={methods.formState.isSubmitting}
+            disabled={form.formState.isSubmitting}
           >
-            {methods.formState.isSubmitting && formType === 'login' ? (
+            {form.formState.isSubmitting && formType === 'login' ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               'Login'
@@ -136,12 +131,12 @@ const LoginForm = () => {
 
           <Button
             type="button"
-            onClick={methods.handleSubmit(handleResendCode)}
+            onClick={form.handleSubmit(handleResendCode)}
             className="md:w-72 md:self-start"
-            disabled={methods.formState.isSubmitting}
+            disabled={form.formState.isSubmitting}
             variant={'secondary'}
           >
-            {methods.formState.isSubmitting && formType === 'resend' ? (
+            {form.formState.isSubmitting && formType === 'resend' ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               'Send Confirmation'

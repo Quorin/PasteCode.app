@@ -1,54 +1,49 @@
 'use server'
 
-import Cryptr from 'cryptr'
+import { db } from '@/db/db'
+import { pastesTable } from '@/db/schema'
 import { createPasteSchema } from '@/server/schema'
 import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
+import { os } from '@orpc/server'
 import { hash } from 'argon2'
-import { pastesTable } from '@/db/schema'
-import { db } from '@/db/db'
-import { getSession } from '@/utils/auth'
-import {
-  ActionResult,
-  validationErrorResult,
-  successResult,
-} from '@/utils/error-handler'
+import Cryptr from 'cryptr'
 import { z } from 'zod'
+import { getSession } from './get-session'
 
-export const createPasteAction = async <
-  TInput extends z.infer<typeof createPasteSchema>,
->(
-  input: TInput,
-): Promise<ActionResult<{ id: string }, TInput>> => {
-  const validation = createPasteSchema.safeParse(input)
+export const createPaste = os
+  .input(createPasteSchema)
+  .output(
+    z.object({
+      id: z.string(),
+    }),
+  )
+  .handler(
+    async ({
+      input: { title, content, style, description, expiration, password, tags },
+    }) => {
+      const { user } = await getSession()
 
-  if (!validation.success) {
-    return validationErrorResult(validation.error)
-  }
+      const [paste] = await db
+        .insert(pastesTable)
+        .values({
+          title,
+          content: password ? new Cryptr(password).encrypt(content) : content,
+          style,
+          description,
+          expiresAt: getExpirationDate(expiration),
+          password: password ? await hash(password) : null,
+          userId: user?.id ?? null,
+        })
+        .returning({
+          id: pastesTable.id,
+        })
+        .execute()
 
-  const { title, content, style, description, expiration, password, tags } =
-    validation.data
+      await upsertTagsOnPaste(db, tags, paste!.id)
 
-  const session = await getSession()
-
-  const [paste] = await db
-    .insert(pastesTable)
-    .values({
-      title,
-      content: password ? new Cryptr(password).encrypt(content) : content,
-      style,
-      description,
-      expiresAt: getExpirationDate(expiration),
-      password: password ? await hash(password) : null,
-      userId: session?.user?.id ?? null,
-    })
-    .returning({
-      id: pastesTable.id,
-    })
-    .execute()
-
-  await upsertTagsOnPaste(db, tags, paste!.id)
-
-  return successResult({
-    id: paste!.id,
-  })
-}
+      return {
+        id: paste!.id,
+      }
+    },
+  )
+  .actionable()

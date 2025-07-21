@@ -5,7 +5,6 @@ import { defaultLanguage, languageOptions } from '@/utils/lang'
 import { TagInput } from '@/components/ui/tag-input'
 import { z } from 'zod'
 import { createPasteSchema } from '@/server/schema'
-import { createPasteAction } from '@/actions/create-paste'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import {
@@ -25,9 +24,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { handleActionError } from '@/utils/error-handler'
 import { Loader2, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
+import { createPaste } from '@/actions/create-paste'
+import { setFormErrors } from '@/utils/form-handler'
+import { onSuccess, onError } from '@orpc/client'
+import { useServerAction } from '@orpc/react/hooks'
 
 export type FormValues = z.infer<typeof createPasteSchema> & { tag: string }
 
@@ -48,8 +50,22 @@ const PasteForm = (
   },
 ) => {
   const router = useRouter()
-  const [showPassword, setShowPassword] = useState(false)
-  const methods = useForm<FormValues>({
+  const { execute } = useServerAction(createPaste, {
+    interceptors: [
+      onSuccess(async ({ id }) => {
+        form.reset({
+          ...defaultValues,
+          ...initialValues,
+        })
+        router.push(`/pastes/${id}`)
+      }),
+      onError(async (error) => {
+        setFormErrors(error, form.setError)
+      }),
+    ],
+  })
+
+  const form = useForm<FormValues>({
     defaultValues: {
       ...defaultValues,
       ...initialValues,
@@ -58,34 +74,19 @@ const PasteForm = (
     mode: 'onBlur',
   })
 
-  const handleSubmit = async (values: FormValues) => {
-    const action = await createPasteAction(values)
-    if (!action) {
-      return
-    }
-
-    if (action.success) {
-      router.push(`/pastes/${action.data.id}`)
-      return
-    }
-
-    if (!action.success) {
-      handleActionError(methods.setError, action.errors)
-    }
-  }
-
-  const resetForm = () => {
-    methods.reset(defaultValues)
-  }
+  const [showPassword, setShowPassword] = useState(false)
 
   return (
-    <Form {...methods}>
+    <Form {...form}>
       <form
-        onSubmit={methods.handleSubmit((data) => handleSubmit(data))}
+        onSubmit={async (e) => {
+          e.preventDefault()
+          await form.handleSubmit((data) => execute(data))()
+        }}
         className="flex flex-col gap-6"
       >
         <FormField
-          control={methods.control}
+          control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
@@ -98,7 +99,7 @@ const PasteForm = (
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
@@ -111,7 +112,7 @@ const PasteForm = (
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="tag"
           render={({ field }) => (
             <FormItem>
@@ -130,7 +131,7 @@ const PasteForm = (
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="content"
           render={({ field }) => (
             <FormItem>
@@ -147,7 +148,7 @@ const PasteForm = (
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -183,7 +184,7 @@ const PasteForm = (
           <div className="flex gap-6 mb-6 md:mb-0">
             <div className="w-1/2 md:w-[150px]">
               <FormField
-                control={methods.control}
+                control={form.control}
                 name="expiration"
                 render={({ field }) => (
                   <FormItem>
@@ -221,7 +222,7 @@ const PasteForm = (
             </div>
             <div className="w-1/2 md:w-[150px]">
               <FormField
-                control={methods.control}
+                control={form.control}
                 name="style"
                 render={({ field }) => (
                   <FormItem>
@@ -254,9 +255,9 @@ const PasteForm = (
             <Button
               type="submit"
               className="md:w-32"
-              disabled={methods.formState.isSubmitting}
+              disabled={form.formState.isSubmitting}
             >
-              {methods.formState.isSubmitting ? (
+              {form.formState.isSubmitting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 'Submit'
@@ -264,8 +265,8 @@ const PasteForm = (
             </Button>
             <Button
               variant={'secondary'}
-              onClick={resetForm}
-              disabled={!methods.formState.isDirty}
+              onClick={() => form.reset(defaultValues)}
+              disabled={!form.formState.isDirty}
               type="button"
               className=" px-5"
             >

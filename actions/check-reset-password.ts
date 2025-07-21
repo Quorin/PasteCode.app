@@ -1,44 +1,31 @@
-'use server'
-
-import { and, eq } from 'drizzle-orm'
 import { db } from '@/db/db'
 import { resetPasswordsTable } from '@/db/schema'
+import { os } from '@orpc/server'
 import dayjs from 'dayjs'
-import {
-  ActionResult,
-  successResult,
-  validationErrorResult,
-} from '@/utils/error-handler'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
-const inputSchema = z.object({
-  id: z.string(),
-  code: z.string(),
-})
+export const checkResetPassword = os
+  .input(
+    z.object({
+      id: z.string(),
+      code: z.string(),
+    }),
+  )
+  .output(z.boolean())
+  .handler(async ({ input: { id, code } }) => {
+    const [rp] = await db
+      .select({
+        id: resetPasswordsTable.id,
+        expiresAt: resetPasswordsTable.expiresAt,
+      })
+      .from(resetPasswordsTable)
+      .where(
+        and(eq(resetPasswordsTable.id, id), eq(resetPasswordsTable.code, code)),
+      )
+      .limit(1)
+      .execute()
 
-export const checkResetPassword = async <
-  TInput extends z.infer<typeof inputSchema>,
->(
-  input: TInput,
-): Promise<ActionResult<boolean, TInput>> => {
-  const validation = inputSchema.safeParse(input)
-  if (!validation.success) {
-    return validationErrorResult(validation.error)
-  }
-
-  const { id, code } = validation.data
-
-  const [rp] = await db
-    .select({
-      id: resetPasswordsTable.id,
-      expiresAt: resetPasswordsTable.expiresAt,
-    })
-    .from(resetPasswordsTable)
-    .where(
-      and(eq(resetPasswordsTable.id, id), eq(resetPasswordsTable.code, code)),
-    )
-    .limit(1)
-    .execute()
-
-  return successResult(!!(rp && dayjs().isBefore(rp.expiresAt)))
-}
+    return !!(rp && dayjs().isBefore(rp.expiresAt))
+  })
+  .callable()

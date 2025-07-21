@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation'
 import PageTitle from '@/components/ui/page-title'
-import { checkResetPassword } from '@/actions/check-reset-password'
 import Image from 'next/image'
 import { routes } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import ConfirmResetPasswordForm from '@/components/forms/confirm-reset-password-form'
 import { unstable_noStore } from 'next/cache'
+import { checkResetPassword } from '@/actions/check-reset-password'
+import { safe } from '@orpc/server'
 
 const ConfirmResetPasswordPage = async (props: {
   searchParams: Promise<{
@@ -28,9 +29,11 @@ const ConfirmResetPasswordPage = async (props: {
     notFound()
   }
 
-  const action = await checkResetPassword({ id, code })
+  const { isSuccess, data: result } = await safe(
+    checkResetPassword({ id, code }),
+  )
 
-  if (!action?.success) {
+  if (!isSuccess || !result) {
     return (
       <div className="flex flex-col justify-center items-center gap-10">
         <PageTitle title="Reset password" />

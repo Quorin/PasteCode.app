@@ -1,128 +1,102 @@
 'use server'
 
-import { ZodError, z } from 'zod'
+import { db } from '@/db/db'
 import {
   confirmationCodeLength,
   confirmationCodesTable,
   usersTable,
 } from '@/db/schema'
-import dayjs from 'dayjs'
-import { eq } from 'drizzle-orm'
+import { resendConfirmationCodeSchema } from '@/server/schema'
 import { sendConfirmationEmail } from '@/utils/email'
 import { generateRandomString } from '@/utils/random'
-import { db } from '@/db/db'
-import {
-  ActionResult,
-  successResult,
-  validationErrorResult,
-} from '@/utils/error-handler'
+import { os } from '@orpc/server'
+import dayjs from 'dayjs'
+import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 
-const resendInput = z.object({
-  email: z.email('Invalid email'),
-})
+export const resendConfirmationCode = os
+  .errors({
+    BAD_REQUEST: {
+      data: z.partialRecord(resendConfirmationCodeSchema.keyof(), z.string()),
+    },
+  })
+  .input(resendConfirmationCodeSchema)
+  .output(z.void())
+  .handler(async ({ input: { email }, errors }) => {
+    const [user] = await db
+      .select({
+        id: usersTable.id,
+        email: usersTable.email,
+        confirmed: usersTable.confirmed,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.email, email))
+      .limit(1)
+      .execute()
 
-export const resendConfirmationCodeAction = async <
-  TInput extends z.infer<typeof resendInput>,
->(
-  input: TInput,
-): Promise<ActionResult<undefined, TInput>> => {
-  const validation = resendInput.safeParse(input)
-  if (!validation.success) {
-    return validationErrorResult(validation.error)
-  }
-
-  const { email } = validation.data
-
-  const [user] = await db
-    .select({
-      id: usersTable.id,
-      email: usersTable.email,
-      confirmed: usersTable.confirmed,
-    })
-    .from(usersTable)
-    .where(eq(usersTable.email, email))
-    .limit(1)
-    .execute()
-
-  if (!user) {
-    return validationErrorResult(
-      new ZodError([
-        {
-          path: ['email'],
-          message: 'Account with this email does not exist. Please sign up.',
-          code: 'custom',
-          input: email,
+    if (!user) {
+      throw errors.BAD_REQUEST({
+        data: {
+          email: 'Account with this email does not exist. Please sign up.',
         },
-      ]),
-    )
-  }
+      })
+    }
 
-  if (user.confirmed) {
-    return validationErrorResult(
-      new ZodError([
-        {
-          path: ['email'],
-          message: 'Account is already confirmed. Please sign in.',
-          code: 'custom',
-          input: email,
+    if (user.confirmed) {
+      throw errors.BAD_REQUEST({
+        data: {
+          email: 'Account is already confirmed.',
         },
-      ]),
-    )
-  }
+      })
+    }
 
-  const code = generateRandomString(confirmationCodeLength)
+    const code = generateRandomString(confirmationCodeLength)
 
-  const [confirmation] = await db
-    .select({
-      id: confirmationCodesTable.id,
-      userId: confirmationCodesTable.userId,
-      createdAt: confirmationCodesTable.createdAt,
-    })
-    .from(confirmationCodesTable)
-    .where(eq(confirmationCodesTable.userId, user.id))
-    .limit(1)
-    .execute()
+    const [confirmation] = await db
+      .select({
+        id: confirmationCodesTable.id,
+        userId: confirmationCodesTable.userId,
+        createdAt: confirmationCodesTable.createdAt,
+      })
+      .from(confirmationCodesTable)
+      .where(eq(confirmationCodesTable.userId, user.id))
+      .limit(1)
+      .execute()
 
-  if (
-    confirmation &&
-    dayjs().diff(dayjs(confirmation.createdAt), 'minute') < 10
-  ) {
-    return validationErrorResult(
-      new ZodError([
-        {
-          path: ['email'],
-          message:
+    if (
+      confirmation &&
+      dayjs().diff(dayjs(confirmation.createdAt), 'minute') < 10
+    ) {
+      throw errors.BAD_REQUEST({
+        data: {
+          email:
             'You have to wait 10 minutes before requesting a new confirmation code',
-          code: 'custom',
-          input: email,
         },
-      ]),
-    )
-  }
+      })
+    }
 
-  const expiresAt = dayjs().add(48, 'hours').toDate()
+    const expiresAt = dayjs().add(48, 'hours').toDate()
 
-  const [newConfirmation] = await db
-    .insert(confirmationCodesTable)
-    .values({
-      code,
-      userId: user.id,
-      createdAt: new Date(),
-      expiresAt,
-    })
-    .onConflictDoUpdate({
-      set: {
+    const [newConfirmation] = await db
+      .insert(confirmationCodesTable)
+      .values({
         code,
+        userId: user.id,
+        createdAt: new Date(),
         expiresAt,
-      },
-      target: confirmationCodesTable.id,
-    })
-    .returning({
-      id: confirmationCodesTable.id,
-    })
-    .execute()
+      })
+      .onConflictDoUpdate({
+        set: {
+          code,
+          expiresAt,
+        },
+        target: confirmationCodesTable.id,
+      })
+      .returning({
+        id: confirmationCodesTable.id,
+      })
+      .execute()
 
-  await sendConfirmationEmail(email, newConfirmation!.id, code)
-
-  return successResult(undefined)
-}
+    await sendConfirmationEmail(email, newConfirmation!.id, code)
+  })
+  .actionable()

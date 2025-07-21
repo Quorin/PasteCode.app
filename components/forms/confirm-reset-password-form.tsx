@@ -3,7 +3,6 @@
 import { z } from 'zod'
 import { resetPasswordConfirmationSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { resetPasswordConfirmationAction } from '@/actions/reset-password-confirmation'
 import {
   Form,
   FormControl,
@@ -15,7 +14,13 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
-import { handleActionError } from '@/utils/error-handler'
+import { resetPasswordConfirmation } from '@/actions/reset-password-confirmation'
+import { onError, onSuccess } from '@orpc/client'
+import { routes } from '@/constants/routes'
+import { setFormErrors } from '@/utils/form-handler'
+import { useRouter } from 'next/navigation'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useServerAction } from '@orpc/react/hooks'
 
 type FormValues = z.infer<typeof resetPasswordConfirmationSchema>
 
@@ -26,35 +31,41 @@ const ConfirmResetPasswordForm = ({
   id: string
   code: string
 }) => {
-  const methods = useForm<FormValues>({
-    defaultValues: {
-      id,
-      code,
-      password: '',
-      confirmPassword: '',
-    },
-  })
-
-  const handleReset = async (values: FormValues) => {
-    const action = await resetPasswordConfirmationAction(values)
-    if (!action) {
-      return
-    }
-
-    if (!action.success) {
-      handleActionError(methods.setError, action.errors)
-      return
-    }
+  const router = useRouter()
+  const defaultValues: FormValues = {
+    id,
+    code,
+    password: '',
+    confirmPassword: '',
   }
 
+  const { execute } = useServerAction(resetPasswordConfirmation, {
+    interceptors: [
+      onError(async (error) => {
+        setFormErrors(error, form.setError)
+      }),
+      onSuccess(async () => {
+        form.reset(defaultValues)
+        router.push(routes.AUTH.LOGIN)
+      }),
+    ],
+  })
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(resetPasswordConfirmationSchema),
+    defaultValues,
+    values: defaultValues,
+    mode: 'onBlur',
+  })
+
   return (
-    <Form {...methods}>
+    <Form {...form}>
       <form
-        onSubmit={methods.handleSubmit(handleReset)}
+        onSubmit={form.handleSubmit((data) => execute(data))}
         className="flex flex-col gap-6"
       >
         <FormField
-          control={methods.control}
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -72,7 +83,7 @@ const ConfirmResetPasswordForm = ({
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
@@ -92,9 +103,9 @@ const ConfirmResetPasswordForm = ({
         <Button
           type="submit"
           className="md:w-72 md:self-start"
-          disabled={methods.formState.isSubmitting}
+          disabled={form.formState.isSubmitting}
         >
-          {methods.formState.isSubmitting ? (
+          {form.formState.isSubmitting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             'Change Password'

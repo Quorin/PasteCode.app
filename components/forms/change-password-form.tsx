@@ -3,7 +3,6 @@
 import { z } from 'zod'
 import { changePasswordSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { changePasswordAction } from '@/actions/change-password'
 import { toast } from 'sonner'
 import {
   Form,
@@ -16,14 +15,33 @@ import {
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { handleActionError } from '@/utils/error-handler'
-import { useLogout } from '@/utils/logout'
+import { userQueryOptions } from '@/utils/logout'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { changePassword } from '@/actions/change-password'
+import { useServerAction } from '@orpc/react/hooks'
+import { useQueryClient } from '@tanstack/react-query'
+import { setFormErrors } from '@/utils/form-handler'
+import { onError, onSuccess } from '@orpc/client'
 
 type FormValues = z.infer<typeof changePasswordSchema>
 
 const ChangePasswordForm = () => {
-  const logout = useLogout()
-  const methods = useForm<FormValues>({
+  const queryClient = useQueryClient()
+  const { execute } = useServerAction(changePassword, {
+    interceptors: [
+      onSuccess(async () => {
+        form.reset()
+        await queryClient.invalidateQueries(userQueryOptions)
+        toast.success('Your password has been changed')
+      }),
+      onError((error) => {
+        setFormErrors(error, form.setError)
+      }),
+    ],
+  })
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(changePasswordSchema),
     defaultValues: {
       password: '',
       confirmPassword: '',
@@ -31,31 +49,14 @@ const ChangePasswordForm = () => {
     },
   })
 
-  const handleChange = async (values: FormValues) => {
-    const action = await changePasswordAction(values)
-    if (!action) {
-      return
-    }
-
-    if (!action.success) {
-      handleActionError(methods.setError, action.errors)
-      return
-    }
-
-    methods.reset()
-    await logout()
-
-    toast.success('Your password has been changed')
-  }
-
   return (
-    <Form {...methods}>
+    <Form {...form}>
       <form
-        onSubmit={methods.handleSubmit(handleChange)}
+        onSubmit={form.handleSubmit((values) => execute(values))}
         className="flex flex-col gap-6"
       >
         <FormField
-          control={methods.control}
+          control={form.control}
           name="currentPassword"
           render={({ field }) => (
             <FormItem>
@@ -68,7 +69,7 @@ const ChangePasswordForm = () => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -81,7 +82,7 @@ const ChangePasswordForm = () => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
@@ -96,9 +97,9 @@ const ChangePasswordForm = () => {
         <Button
           type="submit"
           className="md:w-44 md:self-start"
-          disabled={methods.formState.isSubmitting}
+          disabled={form.formState.isSubmitting}
         >
-          {methods.formState.isSubmitting ? (
+          {form.formState.isSubmitting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             'Submit'

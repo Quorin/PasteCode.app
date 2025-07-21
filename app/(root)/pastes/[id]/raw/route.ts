@@ -1,20 +1,21 @@
 import { redirect } from 'next/navigation'
 import { getPaste } from '@/actions/get-paste'
+import { safe } from '@orpc/client'
 
 export async function GET(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   const password = new URL(request.url).searchParams.get('password')
-  const { paste, secure } = await getPaste((await context.params).id, password)
+  const { error, data } = await safe(
+    getPaste({ id: (await context.params).id, password }),
+  )
 
-  if (!paste) {
-    redirect('/not-found')
-  }
+  if (error) return
+  const { paste, secure } = data
 
-  if (secure) {
-    redirect('/unauthorized')
-  }
+  if (!paste) redirect('/not-found')
+  if (secure) redirect('/unauthorized')
 
   return new Response(paste.content)
 }

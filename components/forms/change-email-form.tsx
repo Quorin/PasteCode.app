@@ -3,8 +3,6 @@
 import { z } from 'zod'
 import { changeEmailSchema } from '@/server/schema'
 import { useForm } from 'react-hook-form'
-import { changeEmailAction } from '@/actions/change-email'
-import { handleActionError } from '@/utils/error-handler'
 import { toast } from 'sonner'
 import {
   Form,
@@ -17,45 +15,48 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
-import { useLogout } from '@/utils/logout'
+import { userQueryOptions } from '@/utils/logout'
+import { setFormErrors } from '@/utils/form-handler'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useServerAction } from '@orpc/react/hooks'
+import { changeEmail } from '@/actions/change-email'
+import { useQueryClient } from '@tanstack/react-query'
+import { onError, onSuccess } from '@orpc/client'
 
 type FormValues = z.infer<typeof changeEmailSchema>
 
 const ChangeEmailForm = () => {
-  const logout = useLogout()
-  const methods = useForm<FormValues>({
+  const { execute } = useServerAction(changeEmail, {
+    interceptors: [
+      onSuccess(async () => {
+        form.reset()
+        await queryClient.invalidateQueries(userQueryOptions)
+        toast.info('Email has been changed, please confirm new email address')
+      }),
+      onError((error) => {
+        setFormErrors(error, form.setError)
+        toast.error('Could not change email')
+      }),
+    ],
+  })
+
+  const queryClient = useQueryClient()
+  const form = useForm<FormValues>({
+    resolver: zodResolver(changeEmailSchema),
     defaultValues: {
       email: '',
       confirmEmail: '',
     },
   })
 
-  const handleSubmit = async (values: FormValues) => {
-    const action = await changeEmailAction(values)
-    if (!action) {
-      return
-    }
-
-    if (action.success) {
-      methods.reset()
-
-      await logout()
-      toast.info('Email has been changed, please confirm new email address')
-
-      return
-    }
-
-    handleActionError(methods.setError, action.errors)
-  }
-
   return (
-    <Form {...methods}>
+    <Form {...form}>
       <form
-        onSubmit={methods.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit((values) => execute(values))}
         className="flex flex-col gap-6"
       >
         <FormField
-          control={methods.control}
+          control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
@@ -73,7 +74,7 @@ const ChangeEmailForm = () => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="confirmEmail"
           render={({ field }) => (
             <FormItem>
@@ -93,9 +94,9 @@ const ChangeEmailForm = () => {
         <Button
           type="submit"
           className="md:w-44 md:self-start"
-          disabled={methods.formState.isSubmitting}
+          disabled={form.formState.isSubmitting}
         >
-          {methods.formState.isSubmitting ? (
+          {form.formState.isSubmitting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             'Submit'

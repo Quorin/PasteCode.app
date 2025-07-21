@@ -1,75 +1,65 @@
 'use server'
 
-import { eq } from 'drizzle-orm'
-import { usersTable } from '@/db/schema'
-import { changePasswordSchema } from '@/server/schema'
-import { hash, verify } from 'argon2'
-import { ZodError, z } from 'zod'
-import { getSession } from '@/utils/auth'
-import { redirect } from 'next/navigation'
-import { routes } from '@/constants/routes'
 import { db } from '@/db/db'
-import {
-  ActionResult,
-  successResult,
-  validationErrorResult,
-} from '@/utils/error-handler'
+import { usersTable } from '@/db/schema'
+import { sessionOptions } from '@/server/auth/config'
+import { changePasswordSchema } from '@/server/schema'
+import { os } from '@orpc/server'
+import { hash, verify } from 'argon2'
+import { eq } from 'drizzle-orm'
+import { cookies } from 'next/headers'
+import { z } from 'zod'
+import { loggedIn } from './middlewares/logged-in'
 
-export const changePasswordAction = async <
-  TInput extends z.infer<typeof changePasswordSchema>,
->(
-  input: TInput,
-): Promise<ActionResult<undefined, TInput>> => {
-  const session = await getSession()
+export const changePassword = os
+  .use(loggedIn)
+  .errors({
+    BAD_REQUEST: {
+      data: z.partialRecord(changePasswordSchema.keyof(), z.string()),
+    },
+  })
+  .input(changePasswordSchema)
+  .output(z.void())
+  .handler(
+    async ({
+      input: { password, currentPassword },
+      context: { session },
+      errors,
+    }) => {
+      const [user] = await db
+        .select({
+          password: usersTable.password,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.id, session.user.id))
+        .limit(1)
+        .execute()
 
-  if (!session.user) {
-    redirect(routes.AUTH.LOGIN)
-  }
+      if (!user) {
+        const cookieStore = await cookies()
+        cookieStore.delete(sessionOptions.cookieName)
+        return
+      }
 
-  const validation = changePasswordSchema.safeParse(input)
-  if (!validation.success) {
-    return validationErrorResult(validation.error)
-  }
+      if (!(await verify(user.password, currentPassword))) {
+        throw errors.BAD_REQUEST({
+          data: {
+            currentPassword: 'Current password is incorrect',
+          },
+        })
+      }
 
-  const { password, currentPassword } = validation.data
+      await db
+        .update(usersTable)
+        .set({
+          password: await hash(password),
+          credentialsUpdatedAt: new Date(),
+        })
+        .where(eq(usersTable.id, session.user.id))
+        .execute()
 
-  const [user] = await db
-    .select({
-      password: usersTable.password,
-    })
-    .from(usersTable)
-    .where(eq(usersTable.id, session.user.id))
-    .limit(1)
-    .execute()
-
-  if (!user) {
-    session.destroy()
-    redirect(routes.AUTH.LOGIN)
-  }
-
-  if (!(await verify(user.password, currentPassword))) {
-    return validationErrorResult(
-      new ZodError([
-        {
-          path: ['currentPassword'],
-          message: 'Current password is incorrect',
-          code: 'custom',
-          input: currentPassword,
-        },
-      ]),
-    )
-  }
-
-  await db
-    .update(usersTable)
-    .set({
-      password: await hash(password),
-      credentialsUpdatedAt: new Date(),
-    })
-    .where(eq(usersTable.id, session.user.id))
-    .execute()
-
-  session.destroy()
-
-  return successResult(undefined)
-}
+      const cookieStore = await cookies()
+      cookieStore.delete(sessionOptions.cookieName)
+    },
+  )
+  .actionable()

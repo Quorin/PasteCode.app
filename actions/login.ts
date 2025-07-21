@@ -1,102 +1,68 @@
 'use server'
 
-import { eq } from 'drizzle-orm'
+import { db } from '@/db/db'
 import { usersTable } from '@/db/schema'
 import { loginSchema } from '@/server/schema'
-import { ZodError, z } from 'zod'
 import { verify } from 'argon2'
-import { db } from '@/db/db'
-import { getSession } from '@/utils/auth'
-import {
-  ActionResult,
-  successResult,
-  validationErrorResult,
-} from '@/utils/error-handler'
+import { eq } from 'drizzle-orm'
+import { z } from 'zod'
+import { os } from '@orpc/server'
+import { getSession } from './get-session'
 
-export const loginAction = async <TInput extends z.infer<typeof loginSchema>>(
-  input: TInput,
-): Promise<ActionResult<undefined, TInput>> => {
-  const session = await getSession()
+export const login = os
+  .errors({
+    BAD_REQUEST: {
+      data: z.partialRecord(loginSchema.keyof(), z.string()),
+    },
+  })
+  .input(loginSchema)
+  .output(z.void())
+  .handler(async ({ input: { email, password }, errors }) => {
+    const session = await getSession()
+    const [user] = await db
+      .select({
+        id: usersTable.id,
+        confirmed: usersTable.confirmed,
+        email: usersTable.email,
+        password: usersTable.password,
+        credentialsUpdatedAt: usersTable.credentialsUpdatedAt,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.email, email))
+      .limit(1)
+      .execute()
 
-  const validation = loginSchema.safeParse(input)
-  if (!validation.success) {
-    return validationErrorResult(validation.error)
-  }
-
-  const { email, password } = validation.data
-
-  const [user] = await db
-    .select({
-      id: usersTable.id,
-      confirmed: usersTable.confirmed,
-      email: usersTable.email,
-      password: usersTable.password,
-      credentialsUpdatedAt: usersTable.credentialsUpdatedAt,
-    })
-    .from(usersTable)
-    .where(eq(usersTable.email, email))
-    .limit(1)
-    .execute()
-
-  if (!user) {
-    return validationErrorResult(
-      new ZodError([
-        {
-          path: ['password'],
-          message: 'Invalid email or password.',
-          code: 'custom',
-          input: password,
+    if (!user) {
+      throw errors.BAD_REQUEST({
+        data: {
+          email: 'Invalid email or password.',
+          password: 'Invalid email or password.',
         },
-        {
-          path: ['email'],
-          message: 'Invalid email or password.',
-          code: 'custom',
-          input: email,
-        },
-      ]),
-    )
-  }
+      })
+    }
 
-  if (!user?.confirmed) {
-    return validationErrorResult(
-      new ZodError([
-        {
-          code: 'custom',
-          message: 'Email is not confirmed',
-          path: ['email'],
-          input: email,
+    if (!user.confirmed) {
+      throw errors.BAD_REQUEST({
+        data: {
+          email: 'Email is not confirmed.',
         },
-      ]),
-    )
-  }
+      })
+    }
 
-  if (!(await verify(user.password ?? '', password))) {
-    return validationErrorResult(
-      new ZodError([
-        {
-          message: 'Invalid email or password.',
-          path: ['password'],
-          code: 'custom',
-          input: password,
+    if (!(await verify(user.password ?? '', password))) {
+      throw errors.BAD_REQUEST({
+        data: {
+          email: 'Invalid email or password.',
+          password: 'Invalid email or password.',
         },
-        {
-          path: ['email'],
-          message: 'Invalid email or password.',
-          code: 'custom',
-          input: email,
-        },
-      ]),
-    )
-  }
+      })
+    }
 
-  if (session) {
     session.user = {
       id: user.id,
       credentialsUpdatedAt: user.credentialsUpdatedAt,
     }
 
     await session.save()
-  }
-
-  return successResult(undefined)
-}
+  })
+  .actionable()

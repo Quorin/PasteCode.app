@@ -17,14 +17,29 @@ import Link from 'next/link'
 import { routes } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
-import { registerAction } from '@/actions/register'
 import { toast } from 'sonner'
-import { handleActionError } from '@/utils/error-handler'
+import { setFormErrors } from '@/utils/form-handler'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useServerAction } from '@orpc/react/hooks'
+import { register } from '@/actions/register'
+import { onError, onSuccess } from '@orpc/client'
 
 type FormValues = z.infer<typeof registerSchema>
 
 const RegisterForm = () => {
-  const methods = useForm<FormValues>({
+  const { execute } = useServerAction(register, {
+    interceptors: [
+      onSuccess(async () => {
+        form.reset()
+        toast.success('Check your inbox to confirm account')
+      }),
+      onError((error) => {
+        setFormErrors(error, form.setError)
+      }),
+    ],
+  })
+  const form = useForm<FormValues>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',
       password: '',
@@ -33,29 +48,14 @@ const RegisterForm = () => {
     mode: 'onBlur',
   })
 
-  const handleRegister = async (values: FormValues) => {
-    const action = await registerAction(values)
-    if (!action) {
-      return
-    }
-
-    if (!action.success) {
-      handleActionError(methods.setError, action.errors)
-      return
-    }
-
-    methods.reset()
-    toast.success('Check your inbox to confirm account')
-  }
-
   return (
-    <Form {...methods}>
+    <Form {...form}>
       <form
-        onSubmit={methods.handleSubmit(handleRegister)}
+        onSubmit={form.handleSubmit((values) => execute(values))}
         className="flex flex-col gap-6"
       >
         <FormField
-          control={methods.control}
+          control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
@@ -73,7 +73,7 @@ const RegisterForm = () => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -91,7 +91,7 @@ const RegisterForm = () => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
@@ -109,7 +109,7 @@ const RegisterForm = () => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="agree"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md shadow-sm">
@@ -137,9 +137,9 @@ const RegisterForm = () => {
         <Button
           type="submit"
           className="md:w-60 md:self-start"
-          disabled={methods.formState.isSubmitting}
+          disabled={form.formState.isSubmitting}
         >
-          {methods.formState.isSubmitting ? (
+          {form.formState.isSubmitting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             'Register'

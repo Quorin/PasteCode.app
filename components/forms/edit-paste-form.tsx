@@ -24,41 +24,46 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Loader2 } from 'lucide-react'
-import { editPasteAction } from '@/actions/edit-paste'
-import { handleActionError } from '@/utils/error-handler'
+import { editPaste } from '@/actions/edit-paste'
+import { onError, onSuccess } from '@orpc/client'
+import { setFormErrors } from '@/utils/form-handler'
+import { useServerAction } from '@orpc/react/hooks'
+import { useRouter } from 'next/navigation'
 
 export type FormValues = z.infer<typeof updatePasteSchema> & { tag: string }
 
-const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
-  const methods = useForm<FormValues>({
-    defaultValues: initialValues,
+const EditPasteForm = ({
+  initialValues: defaultValues,
+}: {
+  initialValues: FormValues
+}) => {
+  const router = useRouter()
+
+  const { execute } = useServerAction(editPaste, {
+    interceptors: [
+      onSuccess(async () => {
+        form.reset(defaultValues)
+        router.push(`/pastes/${defaultValues.id}`)
+      }),
+      onError(async (error) => {
+        setFormErrors(error, form.setError)
+      }),
+    ],
+  })
+
+  const form = useForm<FormValues>({
+    defaultValues,
     mode: 'onBlur',
   })
 
-  const handleEdit = async (values: FormValues) => {
-    const action = await editPasteAction(values)
-    if (!action) {
-      return
-    }
-
-    if (!action.success) {
-      handleActionError(methods.setError, action.errors)
-      return
-    }
-  }
-
-  const resetForm = () => {
-    methods.reset(initialValues)
-  }
-
   return (
-    <Form {...methods}>
+    <Form {...form}>
       <form
-        onSubmit={methods.handleSubmit(handleEdit)}
+        onSubmit={form.handleSubmit((data) => execute(data))}
         className="flex flex-col gap-6"
       >
         <FormField
-          control={methods.control}
+          control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
@@ -71,7 +76,7 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
@@ -84,7 +89,7 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="tag"
           render={({ field }) => (
             <FormItem>
@@ -103,7 +108,7 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="content"
           render={({ field }) => (
             <FormItem>
@@ -120,7 +125,7 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
           )}
         />
         <FormField
-          control={methods.control}
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -136,7 +141,7 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
           <div className="flex gap-6 mb-6 md:mb-0">
             <div className="w-1/2 md:w-[150px]">
               <FormField
-                control={methods.control}
+                control={form.control}
                 name="expiration"
                 render={({ field }) => (
                   <FormItem>
@@ -175,7 +180,7 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
             </div>
             <div className="w-1/2 md:w-[150px]">
               <FormField
-                control={methods.control}
+                control={form.control}
                 name="style"
                 render={({ field }) => (
                   <FormItem>
@@ -210,9 +215,9 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
             <Button
               type="submit"
               className="md:w-28"
-              disabled={methods.formState.isSubmitting}
+              disabled={form.formState.isSubmitting}
             >
-              {methods.formState.isSubmitting ? (
+              {form.formState.isSubmitting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 'Save'
@@ -220,8 +225,8 @@ const EditPasteForm = ({ initialValues }: { initialValues: FormValues }) => {
             </Button>
             <Button
               variant={'secondary'}
-              onClick={resetForm}
-              disabled={!methods.formState.isDirty}
+              onClick={() => form.reset(defaultValues)}
+              disabled={!form.formState.isDirty}
               type="button"
               className=" px-5"
             >

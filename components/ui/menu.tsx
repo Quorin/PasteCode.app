@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { userQueryOptions } from '@/utils/logout'
 import { useQuery } from '@tanstack/react-query'
+import { getUser } from '@/actions/get-user'
+import { useServerAction } from '@orpc/react/hooks'
 
 const authorizedPaths = [
   { path: routes.HOME, name: 'Home' },
@@ -47,7 +49,16 @@ const MenuList = ({
 }
 
 const Menu = () => {
-  const { isLoading, data: user } = useQuery(userQueryOptions)
+  const { execute } = useServerAction(getUser)
+
+  const { isLoading, data: user } = useQuery({
+    ...userQueryOptions,
+    queryFn: async () => {
+      const [_, data] = await execute()
+      return data || null
+    },
+  })
+
   if (isLoading || !user) {
     return (
       <MenuList

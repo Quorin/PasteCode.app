@@ -1,77 +1,61 @@
 'use server'
 
-import { eq } from 'drizzle-orm'
+import { db } from '@/db/db'
 import {
   confirmationCodeLength,
   confirmationCodesTable,
   usersTable,
 } from '@/db/schema'
 import { changeEmailSchema } from '@/server/schema'
-import { generateRandomString } from '@/utils/random'
-import dayjs from 'dayjs'
 import { sendConfirmationEmail } from '@/utils/email'
+import { generateRandomString } from '@/utils/random'
+import { os } from '@orpc/server'
+import dayjs from 'dayjs'
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { getSession } from '@/utils/auth'
-import { redirect } from 'next/navigation'
-import { routes } from '@/constants/routes'
-import { db } from '@/db/db'
-import {
-  ActionResult,
-  successResult,
-  validationErrorResult,
-} from '@/utils/error-handler'
+import { loggedIn } from './middlewares/logged-in'
+import { cookies } from 'next/headers'
+import { sessionOptions } from '@/server/auth/config'
 
-export const changeEmailAction = async <
-  TInput extends z.infer<typeof changeEmailSchema>,
->(
-  input: TInput,
-): Promise<ActionResult<undefined, TInput>> => {
-  const session = await getSession()
+export const changeEmail = os
+  .use(loggedIn)
+  .input(changeEmailSchema)
+  .output(z.void())
+  .handler(async ({ input: { email }, context: { session } }) => {
+    const code = generateRandomString(confirmationCodeLength)
 
-  if (!session.user) {
-    redirect(routes.AUTH.LOGIN)
-  }
+    await db
+      .update(usersTable)
+      .set({
+        email,
+        confirmed: false,
+        credentialsUpdatedAt: new Date(),
+      })
+      .where(eq(usersTable.id, session.user.id))
+      .execute()
 
-  const validation = changeEmailSchema.safeParse(input)
-
-  if (!validation.success) {
-    return validationErrorResult(validation.error)
-  }
-
-  const code = generateRandomString(confirmationCodeLength)
-
-  await db
-    .update(usersTable)
-    .set({
-      email: validation.data.email,
-      confirmed: false,
-      credentialsUpdatedAt: new Date(),
-    })
-    .where(eq(usersTable.id, session.user.id))
-    .execute()
-
-  const [confirmationCode] = await db
-    .insert(confirmationCodesTable)
-    .values({
-      code,
-      expiresAt: dayjs().add(48, 'hours').toDate(),
-      userId: session.user.id,
-    })
-    .onConflictDoUpdate({
-      set: {
+    const [confirmationCode] = await db
+      .insert(confirmationCodesTable)
+      .values({
         code,
         expiresAt: dayjs().add(48, 'hours').toDate(),
-      },
-      target: confirmationCodesTable.id,
-    })
-    .returning({
-      id: confirmationCodesTable.id,
-    })
-    .execute()
+        userId: session.user.id,
+      })
+      .onConflictDoUpdate({
+        set: {
+          code,
+          expiresAt: dayjs().add(48, 'hours').toDate(),
+        },
+        target: confirmationCodesTable.id,
+      })
+      .returning({
+        id: confirmationCodesTable.id,
+      })
+      .execute()
 
-  await sendConfirmationEmail(validation.data.email, confirmationCode!.id, code)
+    await sendConfirmationEmail(email, confirmationCode!.id, code)
 
-  session.destroy()
-
-  return successResult(undefined)
-}
+    const cookieStore = await cookies()
+    cookieStore.delete(sessionOptions.cookieName)
+  })
+  .actionable()
