@@ -1,6 +1,19 @@
 import { z } from 'zod'
 import { isValidLanguage } from '@/utils/lang'
 
+export const expirationSchema = z.enum([
+  'same',
+  'never',
+  'year',
+  'month',
+  'week',
+  'day',
+  'hour',
+  '10m',
+])
+
+export type Expiration = z.infer<typeof expirationSchema>
+
 /**
  * Settings
  */
@@ -139,9 +152,7 @@ export const updatePasteSchema = z.object({
     .array(z.string().max(15, 'Too long name'))
     .max(20, 'Too many tags')
     .optional(),
-  expiration: z
-    .enum(['same', 'never', 'year', 'month', 'week', 'day', 'hour', '10m'])
-    .default('never'),
+  expiration: expirationSchema.default('never'),
   currentPassword: z.string().optional(),
   password: z.string().optional(),
 })

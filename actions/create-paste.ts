@@ -3,12 +3,13 @@
 import { db } from '@/db/db'
 import { pastesTable } from '@/db/schema'
 import { createPasteSchema } from '@/server/schema'
-import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
+import { getExpirationDate } from '@/utils/paste'
 import { os } from '@orpc/server'
 import { hash } from 'argon2'
 import Cryptr from 'cryptr'
 import { z } from 'zod'
 import { getSession } from './get-session'
+import { upsertTags } from './shared/upsert-tags'
 
 export const createPaste = os
   .input(createPasteSchema)
@@ -39,7 +40,7 @@ export const createPaste = os
         })
         .execute()
 
-      await upsertTagsOnPaste(db, tags, paste!.id)
+      await upsertTags(db, tags, paste!.id)
 
       return {
         id: paste!.id,

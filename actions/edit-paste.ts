@@ -3,7 +3,7 @@
 import { db } from '@/db/db'
 import { pastesTable } from '@/db/schema'
 import { updatePasteSchema } from '@/server/schema'
-import { getExpirationDate, upsertTagsOnPaste } from '@/utils/paste'
+import { getExpirationDate } from '@/utils/paste'
 import { os } from '@orpc/server'
 import { hash, verify } from 'argon2'
 import Cryptr from 'cryptr'
@@ -11,6 +11,7 @@ import { eq } from 'drizzle-orm'
 import { forbidden, notFound } from 'next/navigation'
 import { z } from 'zod'
 import { loggedIn } from './middlewares/logged-in'
+import { upsertTags } from './shared/upsert-tags'
 
 export const editPaste = os
   .use(loggedIn)
@@ -80,7 +81,7 @@ export const editPaste = os
         .where(eq(pastesTable.id, id))
         .execute()
 
-      await upsertTagsOnPaste(db, tags, id)
+      await upsertTags(db, tags, id)
     },
   )
   .actionable()
