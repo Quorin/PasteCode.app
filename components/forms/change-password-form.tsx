@@ -20,13 +20,25 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { changePassword } from '@/actions/change-password'
 import { useServerAction } from '@orpc/react/hooks'
 import { useQueryClient } from '@tanstack/react-query'
-import { handleAction } from '@/utils/form-handler'
+import { setFormErrors } from '@/utils/form-handler'
+import { onError, onSuccess } from '@orpc/client'
 
 type FormValues = z.infer<typeof changePasswordSchema>
 
 const ChangePasswordForm = () => {
-  const { execute } = useServerAction(changePassword)
   const queryClient = useQueryClient()
+  const { execute } = useServerAction(changePassword, {
+    interceptors: [
+      onSuccess(async () => {
+        form.reset()
+        await queryClient.invalidateQueries(userQueryOptions)
+        toast.success('Your password has been changed')
+      }),
+      onError((error) => {
+        setFormErrors(error, form.setError)
+      }),
+    ],
+  })
 
   const form = useForm<FormValues>({
     resolver: zodResolver(changePasswordSchema),
@@ -37,23 +49,10 @@ const ChangePasswordForm = () => {
     },
   })
 
-  const handleChange = async (values: FormValues) => {
-    const { error } = await handleAction(execute, values, form.setError)
-
-    if (error) {
-      return
-    }
-
-    form.reset()
-    await queryClient.invalidateQueries(userQueryOptions)
-
-    toast.success('Your password has been changed')
-  }
-
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleChange)}
+        onSubmit={form.handleSubmit((values) => execute(values))}
         className="flex flex-col gap-6"
       >
         <FormField

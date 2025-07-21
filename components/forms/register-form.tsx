@@ -18,15 +18,26 @@ import { routes } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { handleAction } from '@/utils/form-handler'
+import { setFormErrors } from '@/utils/form-handler'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useServerAction } from '@orpc/react/hooks'
 import { register } from '@/actions/register'
+import { onError, onSuccess } from '@orpc/client'
 
 type FormValues = z.infer<typeof registerSchema>
 
 const RegisterForm = () => {
-  const { execute } = useServerAction(register)
+  const { execute } = useServerAction(register, {
+    interceptors: [
+      onSuccess(async () => {
+        form.reset()
+        toast.success('Check your inbox to confirm account')
+      }),
+      onError((error) => {
+        setFormErrors(error, form.setError)
+      }),
+    ],
+  })
   const form = useForm<FormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -37,20 +48,10 @@ const RegisterForm = () => {
     mode: 'onBlur',
   })
 
-  const handleRegister = async (values: FormValues) => {
-    const { error } = await handleAction(execute, values, form.setError)
-    if (error) {
-      return
-    }
-
-    form.reset()
-    toast.success('Check your inbox to confirm account')
-  }
-
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleRegister)}
+        onSubmit={form.handleSubmit((values) => execute(values))}
         className="flex flex-col gap-6"
       >
         <FormField

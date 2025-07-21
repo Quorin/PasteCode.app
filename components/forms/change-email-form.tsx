@@ -16,16 +16,29 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { userQueryOptions } from '@/utils/logout'
-import { handleAction } from '@/utils/form-handler'
+import { setFormErrors } from '@/utils/form-handler'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useServerAction } from '@orpc/react/hooks'
 import { changeEmail } from '@/actions/change-email'
 import { useQueryClient } from '@tanstack/react-query'
+import { onError, onSuccess } from '@orpc/client'
 
 type FormValues = z.infer<typeof changeEmailSchema>
 
 const ChangeEmailForm = () => {
-  const { execute } = useServerAction(changeEmail)
+  const { execute } = useServerAction(changeEmail, {
+    interceptors: [
+      onSuccess(async () => {
+        form.reset()
+        await queryClient.invalidateQueries(userQueryOptions)
+        toast.info('Email has been changed, please confirm new email address')
+      }),
+      onError((error) => {
+        setFormErrors(error, form.setError)
+        toast.error('Could not change email')
+      }),
+    ],
+  })
 
   const queryClient = useQueryClient()
   const form = useForm<FormValues>({
@@ -36,22 +49,10 @@ const ChangeEmailForm = () => {
     },
   })
 
-  const handleSubmit = async (values: FormValues) => {
-    const { error } = await handleAction(execute, values, form.setError)
-    if (error) {
-      return
-    }
-
-    form.reset()
-
-    await queryClient.invalidateQueries(userQueryOptions)
-    toast.info('Email has been changed, please confirm new email address')
-  }
-
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit((values) => execute(values))}
         className="flex flex-col gap-6"
       >
         <FormField
