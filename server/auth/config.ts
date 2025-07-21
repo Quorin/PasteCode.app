@@ -1,5 +1,10 @@
 import { SessionOptions } from 'iron-session'
 
+export type SessionUser = {
+  id: string
+  credentialsUpdatedAt?: Date | null
+}
+
 export const sessionOptions: SessionOptions = {
   cookieName: 'session',
   password: process.env.SESSION_SECRET!,

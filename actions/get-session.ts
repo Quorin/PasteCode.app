@@ -1,7 +1,6 @@
 import { db } from '@/db/db'
 import { usersTable } from '@/db/schema'
-import { sessionOptions } from '@/server/auth/config'
-import type { SessionUser } from '@/utils/auth'
+import { sessionOptions, type SessionUser } from '@/server/auth/config'
 import { os } from '@orpc/server'
 import { getIronSession } from 'iron-session'
 import { cookies } from 'next/headers'
