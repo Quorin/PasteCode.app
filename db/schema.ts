@@ -43,11 +43,7 @@ export const usersTable = pgTable(
       .defaultNow()
       .notNull(),
   },
-  (table) => {
-    return {
-      emailIdx: index('email_idx').on(table.email),
-    }
-  },
+  (table) => [index('email_idx').on(table.email)],
 )
 
 export const confirmationCodesTable = pgTable(
@@ -83,11 +79,7 @@ export const confirmationCodesTable = pgTable(
       .notNull()
       .references(() => usersTable.id, { onDelete: 'cascade' }),
   },
-  (table) => {
-    return {
-      confirmationCodeIdx: index('confirmation_code_idx').on(table.code),
-    }
-  },
+  (table) => [index('confirmation_code_idx').on(table.code)],
 )
 
 export const resetPasswordsTable = pgTable(
@@ -123,11 +115,7 @@ export const resetPasswordsTable = pgTable(
       .notNull()
       .references(() => usersTable.id, { onDelete: 'cascade' }),
   },
-  (table) => {
-    return {
-      resetPasswordIdx: index('reset_password_idx').on(table.code),
-    }
-  },
+  (table) => [index('reset_password_idx').on(table.code)],
 )
 
 export const tagsTable = pgTable(
@@ -139,11 +127,7 @@ export const tagsTable = pgTable(
       .default(sql`uuid_generate_v7()`),
     name: varchar('name', { length: 32 }).notNull().unique(),
   },
-  (table) => {
-    return {
-      tagNameIdx: index('tag_name_idx').on(table.name),
-    }
-  },
+  (table) => [index('tag_name_idx').on(table.name)],
 )
 
 export const pastesTable = pgTable('paste', {
@@ -190,10 +174,8 @@ export const tagsOnPastesTable = pgTable(
       .notNull()
       .references(() => tagsTable.id, { onDelete: 'cascade' }),
   },
-  (table) => {
-    return {
-      pasteIdTagIdIdx: primaryKey({ columns: [table.pasteId, table.tagId] }),
-      pasteIdIdx: index('paste_id_idx').on(table.pasteId),
-    }
-  },
+  (table) => [
+    primaryKey({ columns: [table.pasteId, table.tagId] }),
+    index('paste_id_idx').on(table.pasteId),
+  ],
 )
