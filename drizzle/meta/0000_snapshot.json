@@ -1,10 +1,8 @@
 {
-  "id": "046914ed-4e5f-4c7a-a878-942931a32cc6",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "confirmation_code": {
+    "public.confirmation_code": {
       "name": "confirmation_code",
       "schema": "",
       "columns": {
@@ -50,40 +48,51 @@
       },
       "indexes": {
         "confirmation_code_idx": {
-          "name": "confirmation_code_idx",
           "columns": [
-            "code"
+            {
+              "expression": "code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "with": {},
+          "name": "confirmation_code_idx",
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "confirmation_code_user_id_user_id_fk": {
           "name": "confirmation_code_user_id_user_id_fk",
           "tableFrom": "confirmation_code",
-          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "confirmation_code_code_unique": {
           "name": "confirmation_code_code_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "code"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "paste": {
+    "public.paste": {
       "name": "paste",
       "schema": "",
       "columns": {
@@ -158,21 +167,24 @@
         "paste_user_id_user_id_fk": {
           "name": "paste_user_id_user_id_fk",
           "tableFrom": "paste",
-          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "reset_password": {
+    "public.reset_password": {
       "name": "reset_password",
       "schema": "",
       "columns": {
@@ -218,40 +230,51 @@
       },
       "indexes": {
         "reset_password_idx": {
-          "name": "reset_password_idx",
           "columns": [
-            "code"
+            {
+              "expression": "code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "with": {},
+          "name": "reset_password_idx",
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "reset_password_user_id_user_id_fk": {
           "name": "reset_password_user_id_user_id_fk",
           "tableFrom": "reset_password",
-          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "reset_password_code_unique": {
           "name": "reset_password_code_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "code"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "tag_on_paste": {
+    "public.tag_on_paste": {
       "name": "tag_on_paste",
       "schema": "",
       "columns": {
@@ -270,39 +293,47 @@
       },
       "indexes": {
         "paste_id_idx": {
-          "name": "paste_id_idx",
           "columns": [
-            "paste_id"
+            {
+              "expression": "paste_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "with": {},
+          "name": "paste_id_idx",
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "tag_on_paste_paste_id_paste_id_fk": {
           "name": "tag_on_paste_paste_id_paste_id_fk",
           "tableFrom": "tag_on_paste",
-          "tableTo": "paste",
           "columnsFrom": [
             "paste_id"
           ],
+          "tableTo": "paste",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "tag_on_paste_tag_id_tag_id_fk": {
           "name": "tag_on_paste_tag_id_tag_id_fk",
           "tableFrom": "tag_on_paste",
-          "tableTo": "tag",
           "columnsFrom": [
             "tag_id"
           ],
+          "tableTo": "tag",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -314,9 +345,12 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "tag": {
+    "public.tag": {
       "name": "tag",
       "schema": "",
       "columns": {
@@ -336,11 +370,19 @@
       },
       "indexes": {
         "tag_name_idx": {
-          "name": "tag_name_idx",
           "columns": [
-            "name"
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "with": {},
+          "name": "tag_name_idx",
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
@@ -348,14 +390,17 @@
       "uniqueConstraints": {
         "tag_name_unique": {
           "name": "tag_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "user": {
+    "public.user": {
       "name": "user",
       "schema": "",
       "columns": {
@@ -421,11 +466,19 @@
       },
       "indexes": {
         "email_idx": {
-          "name": "email_idx",
           "columns": [
-            "email"
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "with": {},
+          "name": "email_idx",
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
@@ -433,19 +486,22 @@
       "uniqueConstraints": {
         "user_name_unique": {
           "name": "user_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         },
         "user_email_unique": {
           "name": "user_email_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "email"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     }
   },
   "enums": {},
@@ -454,5 +510,11 @@
     "schemas": {},
     "tables": {},
     "columns": {}
-  }
+  },
+  "id": "046914ed-4e5f-4c7a-a878-942931a32cc6",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "sequences": {},
+  "policies": {},
+  "views": {},
+  "roles": {}
 }
