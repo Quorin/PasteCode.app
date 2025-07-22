@@ -9,7 +9,13 @@ export const getExpirationDate = (
 ) => {
   switch (input) {
     case 'year':
+    case 'month':
+    case 'week':
+    case 'day':
+    case 'hour':
       return dayjs().add(1, input).toDate()
+    case '10m':
+      return dayjs().add(10, 'minute').toDate()
     case 'same':
       return current ?? null
     default:
