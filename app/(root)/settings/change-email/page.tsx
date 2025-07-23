@@ -2,10 +2,10 @@ import { redirect } from 'next/navigation'
 import ChangeEmailForm from '@/components/forms/change-email-form'
 import PageTitle from '@/components/ui/page-title'
 import { routes } from '@/constants/routes'
-import { getSession } from '@/actions/get-session'
+import { getUser } from '@/actions/shared/get-user'
 
 const ChangeEmailPage = async () => {
-  const { user } = await getSession()
+  const user = await getUser()
   if (!user) {
     redirect(routes.AUTH.LOGIN)
   }

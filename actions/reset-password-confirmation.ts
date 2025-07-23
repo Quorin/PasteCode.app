@@ -7,8 +7,6 @@ import { hash } from 'argon2'
 import { z } from 'zod'
 import dayjs from 'dayjs'
 import { db } from '@/db/db'
-import { redirect } from 'next/navigation'
-import { routes } from '@/constants/routes'
 import { os } from '@orpc/server'
 
 export const resetPasswordConfirmation = os
@@ -53,7 +51,6 @@ export const resetPasswordConfirmation = os
       .update(usersTable)
       .set({
         password: await hash(password),
-        credentialsUpdatedAt: new Date(),
       })
       .where(eq(usersTable.id, rp.userId))
       .execute()

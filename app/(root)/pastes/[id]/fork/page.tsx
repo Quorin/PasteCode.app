@@ -3,7 +3,6 @@ import PasteForm from '@/components/forms/paste-form'
 import { notFound } from 'next/navigation'
 import UnlockForm from '@/components/forms/unlock-form'
 import { defaultLanguage } from '@/utils/lang'
-import { safe } from '@orpc/client'
 import { getPaste } from '@/actions/get-paste'
 
 const Fork = async (props: {
@@ -15,12 +14,10 @@ const Fork = async (props: {
   const { id } = await props.params
   const { password } = await props.searchParams
   const currentPassword = Array.isArray(password) ? password[0] : password
-  const { error, data } = await safe(
-    getPaste({ id, password: currentPassword ?? null }),
-  )
-
-  if (error) return
-  const { paste, secure } = data
+  const { paste, secure } = await getPaste({
+    id,
+    password: currentPassword ?? null,
+  })
 
   if (!paste) notFound()
   if (secure) return <UnlockForm />

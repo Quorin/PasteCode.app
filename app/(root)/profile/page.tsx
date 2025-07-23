@@ -2,7 +2,6 @@ import { getUserPastes } from '@/actions/get-user-pastes'
 import { PastesTable } from '@/components/pastes-table/pastes-table'
 import PageTitle from '@/components/ui/page-title'
 import { type PastesSortBy, pastesSortBySchema } from '@/server/schema'
-import { safe } from '@orpc/client'
 import { z } from 'zod'
 
 const defaultPerPage = 20
@@ -23,23 +22,19 @@ const ProfilePage = async (props: {
     await props.searchParams,
   )
 
-  const { error, data } = !searchParamsData.success
-    ? await safe(
-        getUserPastes({
+  const data = await getUserPastes(
+    !searchParamsData.success
+      ? {
           page: 1,
           perPage: defaultPerPage,
           sort: defaultSortBy,
-        }),
-      )
-    : await safe(
-        getUserPastes({
+        }
+      : {
           page: searchParamsData.data.page,
           perPage: searchParamsData.data.per_page,
           sort: searchParamsData.data.sort,
-        }),
-      )
-
-  if (error) return
+        },
+  )
 
   return (
     <div className="flex flex-col">

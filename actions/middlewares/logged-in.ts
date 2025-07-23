@@ -1,19 +1,16 @@
 import { os } from '@orpc/server'
-import { getSession } from '@/actions/get-session'
+import { getUser } from '@/actions/shared/get-user'
 import { unauthorized } from 'next/navigation'
 
 export const loggedIn = os.middleware(async ({ next }) => {
-  const session = await getSession()
-  if (!session.user) {
+  const user = await getUser()
+  if (!user) {
     throw unauthorized()
   }
 
   return next({
     context: {
-      session: {
-        ...session,
-        user: session.user,
-      },
+      user,
     },
   })
 })

@@ -8,8 +8,8 @@ import { os } from '@orpc/server'
 import { hash } from 'argon2'
 import Cryptr from 'cryptr'
 import { z } from 'zod'
-import { getSession } from './get-session'
 import { upsertTags } from './shared/upsert-tags'
+import { getUser } from './shared/get-user'
 
 export const createPaste = os
   .input(createPasteSchema)
@@ -22,7 +22,7 @@ export const createPaste = os
     async ({
       input: { title, content, style, description, expiration, password, tags },
     }) => {
-      const { user } = await getSession()
+      const user = await getUser()
 
       const [paste] = await db
         .insert(pastesTable)

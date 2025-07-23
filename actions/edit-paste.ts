@@ -31,7 +31,7 @@ export const editPaste = os
         tags,
       },
       context: {
-        session: { user },
+        user: { id: userId },
       },
     }) => {
       const [paste] = await db
@@ -50,7 +50,7 @@ export const editPaste = os
         notFound()
       }
 
-      if (paste.userId !== user.id) {
+      if (paste.userId !== userId) {
         forbidden()
       }
 

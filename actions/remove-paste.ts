@@ -18,7 +18,7 @@ export const removePaste = os
     async ({
       input: { id, password },
       context: {
-        session: { user },
+        user: { id: userId },
       },
     }) => {
       const [paste] = await db
@@ -36,7 +36,7 @@ export const removePaste = os
         notFound()
       }
 
-      if (paste.userId !== user.id) {
+      if (paste.userId !== userId) {
         forbidden()
       }
 
