@@ -13,6 +13,7 @@ import { os } from '@orpc/server'
 import dayjs from 'dayjs'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { waitUntil } from '@vercel/functions'
 
 export const resendConfirmationCode = os
   .errors({
@@ -97,6 +98,6 @@ export const resendConfirmationCode = os
       })
       .execute()
 
-    await sendConfirmationEmail(email, newConfirmation!.id, code)
+    waitUntil(sendConfirmationEmail(email, newConfirmation!.id, code))
   })
   .actionable()

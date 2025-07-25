@@ -14,6 +14,7 @@ import { os } from '@orpc/server'
 import dayjs from 'dayjs'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { waitUntil } from '@vercel/functions'
 import { loggedIn } from './middlewares/logged-in'
 import { cookies } from 'next/headers'
 import { sessionOptions } from '@/server/auth/config'
@@ -59,7 +60,7 @@ export const changeEmail = os
         .execute(),
     ])
 
-    await sendConfirmationEmail(email, confirmationCode!.id, code)
+    waitUntil(sendConfirmationEmail(email, confirmationCode!.id, code))
 
     const cookieStore = await cookies()
     cookieStore.delete(sessionOptions.cookieName)

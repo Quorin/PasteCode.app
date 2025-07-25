@@ -13,6 +13,7 @@ import { eq } from 'drizzle-orm'
 import { generateRandomString } from '@/utils/random'
 import { sendResetPasswordEmail } from '@/utils/email'
 import { z } from 'zod'
+import { waitUntil } from '@vercel/functions'
 
 export const resetPassword = os
   .errors({
@@ -76,6 +77,6 @@ export const resetPassword = os
       })
       .execute()
 
-    await sendResetPasswordEmail(email, rp!.id, code)
+    waitUntil(sendResetPasswordEmail(email, rp!.id, code))
   })
   .actionable()

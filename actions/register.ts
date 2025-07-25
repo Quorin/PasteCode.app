@@ -14,6 +14,7 @@ import { hash } from 'argon2'
 import dayjs from 'dayjs'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { waitUntil } from '@vercel/functions'
 
 export const register = os
   .errors({
@@ -70,6 +71,6 @@ export const register = os
       })
       .execute()
 
-    await sendConfirmationEmail(email, confirmationCode!.id, code)
+    waitUntil(sendConfirmationEmail(email, confirmationCode!.id, code))
   })
   .actionable()
