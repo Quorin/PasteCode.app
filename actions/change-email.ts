@@ -4,6 +4,7 @@ import { db } from '@/db/db'
 import {
   confirmationCodeLength,
   confirmationCodesTable,
+  sessionsTable,
   usersTable,
 } from '@/db/schema'
 import { changeEmailSchema } from '@/server/schema'
@@ -33,24 +34,30 @@ export const changeEmail = os
       .where(eq(usersTable.id, user.id))
       .execute()
 
-    const [confirmationCode] = await db
-      .insert(confirmationCodesTable)
-      .values({
-        code,
-        expiresAt: dayjs().add(48, 'hours').toDate(),
-        userId: user.id,
-      })
-      .onConflictDoUpdate({
-        set: {
+    const [[confirmationCode], _] = await Promise.all([
+      db
+        .insert(confirmationCodesTable)
+        .values({
           code,
           expiresAt: dayjs().add(48, 'hours').toDate(),
-        },
-        target: confirmationCodesTable.id,
-      })
-      .returning({
-        id: confirmationCodesTable.id,
-      })
-      .execute()
+          userId: user.id,
+        })
+        .onConflictDoUpdate({
+          set: {
+            code,
+            expiresAt: dayjs().add(48, 'hours').toDate(),
+          },
+          target: confirmationCodesTable.id,
+        })
+        .returning({
+          id: confirmationCodesTable.id,
+        })
+        .execute(),
+      db
+        .delete(sessionsTable)
+        .where(eq(sessionsTable.userId, user.id))
+        .execute(),
+    ])
 
     await sendConfirmationEmail(email, confirmationCode!.id, code)
 

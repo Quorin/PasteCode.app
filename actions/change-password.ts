@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/db/db'
-import { usersTable } from '@/db/schema'
+import { sessionsTable, usersTable } from '@/db/schema'
 import { sessionOptions } from '@/server/auth/config'
 import { changePasswordSchema } from '@/server/schema'
 import { os } from '@orpc/server'
@@ -51,13 +51,19 @@ export const changePassword = os
         })
       }
 
-      await db
-        .update(usersTable)
-        .set({
-          password: await hash(password),
-        })
-        .where(eq(usersTable.id, userId))
-        .execute()
+      await Promise.all([
+        db
+          .update(usersTable)
+          .set({
+            password: await hash(password),
+          })
+          .where(eq(usersTable.id, userId))
+          .execute(),
+        db
+          .delete(sessionsTable)
+          .where(eq(sessionsTable.userId, userId))
+          .execute(),
+      ])
 
       const cookieStore = await cookies()
       cookieStore.delete(sessionOptions.cookieName)
