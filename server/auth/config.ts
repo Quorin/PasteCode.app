@@ -1,12 +1,11 @@
 import { SessionOptions } from 'iron-session'
 
-export type SessionUser = {
+export type Session = {
   id: string
-  credentialsUpdatedAt?: Date | null
 }
 
 export const sessionOptions: SessionOptions = {
-  cookieName: 'session',
+  cookieName: 'session_v2',
   password: process.env.SESSION_SECRET!,
   // secure: true should be used in production (HTTPS) but can't be used in development (HTTP)
   cookieOptions: {

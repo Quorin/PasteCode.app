@@ -15,6 +15,13 @@
       "when": 1713005259887,
       "tag": "0001_slippery_jackal",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1753220983300,
+      "tag": "0002_red_lady_bullseye",
+      "breakpoints": true
     }
   ]
 }

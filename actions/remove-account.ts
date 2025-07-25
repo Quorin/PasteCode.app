@@ -20,30 +20,35 @@ export const removeAccount = os
   })
   .input(removeAccountSchema)
   .output(z.void())
-  .handler(async ({ input: { password }, context: { session }, errors }) => {
-    const [user] = await db
-      .select({
-        password: usersTable.password,
-      })
-      .from(usersTable)
-      .where(eq(usersTable.id, session.user.id))
-      .limit(1)
-      .execute()
+  .handler(
+    async ({
+      input: { password },
+      context: {
+        user: { id: userId },
+      },
+      errors,
+    }) => {
+      const [user] = await db
+        .select({
+          password: usersTable.password,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.id, userId))
+        .limit(1)
+        .execute()
 
-    if (!user?.password || !(await verify(user.password, password))) {
-      throw errors.BAD_REQUEST({
-        data: {
-          password: 'Password is incorrect',
-        },
-      })
-    }
+      if (!user?.password || !(await verify(user.password, password))) {
+        throw errors.BAD_REQUEST({
+          data: {
+            password: 'Password is incorrect',
+          },
+        })
+      }
 
-    await db
-      .delete(usersTable)
-      .where(eq(usersTable.id, session.user.id))
-      .execute()
+      await db.delete(usersTable).where(eq(usersTable.id, userId)).execute()
 
-    const cookieStore = await cookies()
-    cookieStore.delete(sessionOptions.cookieName)
-  })
+      const cookieStore = await cookies()
+      cookieStore.delete(sessionOptions.cookieName)
+    },
+  )
   .actionable()

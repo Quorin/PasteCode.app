@@ -18,8 +18,7 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import IncorrectPassword from '@/components/forms/incorrect-password'
 import { PasteDeletionDialog } from '@/components/common/paste-deletion-dialog'
 import { getPaste } from '@/actions/get-paste'
-import { safe } from '@orpc/client'
-import { getSession } from '@/actions/get-session'
+import { getUser } from '@/actions/shared/get-user'
 
 dayjs.extend(relativeTime)
 
@@ -29,16 +28,14 @@ const PasteIndex = async (props: {
 }) => {
   const { id } = await props.params
   const { password } = await props.searchParams
-  const { user } = await getSession()
+  const user = await getUser()
   const pastePassword = Array.isArray(password) ? password[0] : password
 
-  const { error, data } = await safe(
-    getPaste({ id, password: pastePassword ?? null }),
-  )
+  const { paste, secure } = await getPaste({
+    id,
+    password: pastePassword ?? null,
+  })
 
-  if (error) return
-
-  const { paste, secure } = data
   if (!paste) {
     notFound()
   }

@@ -2,10 +2,10 @@ import { redirect } from 'next/navigation'
 import PageTitle from '@/components/ui/page-title'
 import { routes } from '@/constants/routes'
 import ChangePasswordForm from '@/components/forms/change-password-form'
-import { getSession } from '@/actions/get-session'
+import { getUser } from '@/actions/get-user'
 
 const ChangePasswordPage = async () => {
-  const { user } = await getSession()
+  const user = await getUser()
   if (!user) {
     redirect(routes.AUTH.LOGIN)
   }

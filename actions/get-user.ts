@@ -1,10 +1,10 @@
 'use server'
 
 import { os } from '@orpc/server'
-import { getSession } from './get-session'
+import { getUser as getUserFn } from './shared/get-user'
 
 export const getUser = os
   .handler(async () => {
-    return (await getSession()).user
+    return await getUserFn()
   })
   .actionable()

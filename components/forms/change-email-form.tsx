@@ -22,16 +22,20 @@ import { useServerAction } from '@orpc/react/hooks'
 import { changeEmail } from '@/actions/change-email'
 import { useQueryClient } from '@tanstack/react-query'
 import { onError, onSuccess } from '@orpc/client'
+import { useRouter } from 'next/navigation'
+import { routes } from '@/constants/routes'
 
 type FormValues = z.infer<typeof changeEmailSchema>
 
 const ChangeEmailForm = () => {
+  const router = useRouter()
   const { execute } = useServerAction(changeEmail, {
     interceptors: [
       onSuccess(async () => {
         form.reset()
         await queryClient.invalidateQueries(userQueryOptions)
         toast.info('Email has been changed, please confirm new email address')
+        router.push(routes.AUTH.LOGIN)
       }),
       onError((error) => {
         setFormErrors(error, form.setError)

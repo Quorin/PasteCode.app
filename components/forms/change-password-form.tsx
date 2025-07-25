@@ -22,10 +22,13 @@ import { useServerAction } from '@orpc/react/hooks'
 import { useQueryClient } from '@tanstack/react-query'
 import { setFormErrors } from '@/utils/form-handler'
 import { onError, onSuccess } from '@orpc/client'
+import { useRouter } from 'next/navigation'
+import { routes } from '@/constants/routes'
 
 type FormValues = z.infer<typeof changePasswordSchema>
 
 const ChangePasswordForm = () => {
+  const router = useRouter()
   const queryClient = useQueryClient()
   const { execute } = useServerAction(changePassword, {
     interceptors: [
@@ -33,6 +36,7 @@ const ChangePasswordForm = () => {
         form.reset()
         await queryClient.invalidateQueries(userQueryOptions)
         toast.success('Your password has been changed')
+        router.push(routes.AUTH.LOGIN)
       }),
       onError((error) => {
         setFormErrors(error, form.setError)

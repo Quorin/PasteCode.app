@@ -53,7 +53,7 @@ export const getUserPastes = os
   .handler(
     async ({
       context: {
-        session: { user },
+        user: { id: userId },
       },
       input: { page, perPage, sort },
     }) => {
@@ -94,7 +94,7 @@ export const getUserPastes = os
 
       const [meta, pastes] = await Promise.all([
         metaQuery.execute({
-          userId: user.id,
+          userId,
           perPage,
           now,
         }),
@@ -113,7 +113,7 @@ export const getUserPastes = os
           .from(pastesTable)
           .where(
             and(
-              eq(pastesTable.userId, user.id),
+              eq(pastesTable.userId, userId),
               or(
                 isNull(pastesTable.expiresAt),
                 gte(pastesTable.expiresAt, now),

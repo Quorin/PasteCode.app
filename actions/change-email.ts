@@ -21,7 +21,7 @@ export const changeEmail = os
   .use(loggedIn)
   .input(changeEmailSchema)
   .output(z.void())
-  .handler(async ({ input: { email }, context: { session } }) => {
+  .handler(async ({ input: { email }, context: { user } }) => {
     const code = generateRandomString(confirmationCodeLength)
 
     await db
@@ -29,9 +29,8 @@ export const changeEmail = os
       .set({
         email,
         confirmed: false,
-        credentialsUpdatedAt: new Date(),
       })
-      .where(eq(usersTable.id, session.user.id))
+      .where(eq(usersTable.id, user.id))
       .execute()
 
     const [confirmationCode] = await db
@@ -39,7 +38,7 @@ export const changeEmail = os
       .values({
         code,
         expiresAt: dayjs().add(48, 'hours').toDate(),
-        userId: session.user.id,
+        userId: user.id,
       })
       .onConflictDoUpdate({
         set: {

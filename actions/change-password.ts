@@ -23,7 +23,9 @@ export const changePassword = os
   .handler(
     async ({
       input: { password, currentPassword },
-      context: { session },
+      context: {
+        user: { id: userId },
+      },
       errors,
     }) => {
       const [user] = await db
@@ -31,7 +33,7 @@ export const changePassword = os
           password: usersTable.password,
         })
         .from(usersTable)
-        .where(eq(usersTable.id, session.user.id))
+        .where(eq(usersTable.id, userId))
         .limit(1)
         .execute()
 
@@ -53,9 +55,8 @@ export const changePassword = os
         .update(usersTable)
         .set({
           password: await hash(password),
-          credentialsUpdatedAt: new Date(),
         })
-        .where(eq(usersTable.id, session.user.id))
+        .where(eq(usersTable.id, userId))
         .execute()
 
       const cookieStore = await cookies()

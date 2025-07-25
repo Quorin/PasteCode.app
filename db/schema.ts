@@ -23,11 +23,6 @@ export const usersTable = pgTable(
     acceptTerms: boolean('accept_terms').default(true).notNull(),
     password: varchar('password', { length: 255 }).notNull(),
     confirmed: boolean('confirmed').default(false).notNull(),
-    credentialsUpdatedAt: timestamp('credentials_updated_at', {
-      mode: 'date',
-      withTimezone: true,
-      precision: 0,
-    }),
     createdAt: timestamp('created_at', {
       mode: 'date',
       withTimezone: true,
@@ -178,4 +173,30 @@ export const tagsOnPastesTable = pgTable(
     primaryKey({ columns: [table.pasteId, table.tagId] }),
     index('paste_id_idx').on(table.pasteId),
   ],
+)
+
+export const sessionsTable = pgTable(
+  'session',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .notNull()
+      .default(sql`uuid_generate_v7()`),
+    userId: uuid('user_id').references(() => usersTable.id, {
+      onDelete: 'cascade',
+    }),
+    expiresAt: timestamp('expires_at', {
+      mode: 'date',
+      withTimezone: true,
+      precision: 0,
+    }).notNull(),
+    createdAt: timestamp('created_at', {
+      mode: 'date',
+      withTimezone: true,
+      precision: 0,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [index('session_user_id_idx').on(table.userId)],
 )
